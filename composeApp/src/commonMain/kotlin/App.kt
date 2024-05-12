@@ -10,7 +10,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import features.home.HomeScreen
 import features.inputExercise.InputExerciseScreen
-import features.logWorkout.LogWorkoutScreen
+import features.workoutPlanDetail.WorkoutDetailScreen
+import features.inputWorkout.InputWorkoutScreen
 import features.workoutHistory.WorkoutHistoryScreen
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.StringResource
@@ -22,12 +23,17 @@ import tabiat.composeapp.generated.resources.title_home
 import tabiat.composeapp.generated.resources.title_input
 import tabiat.composeapp.generated.resources.title_workout_history
 import ui.theme.MyAppTheme
+import androidx.lifecycle.viewmodel.compose.viewModel
+import features.logWorkoutExercise.LogWorkoutExerciseScreen
+import features.navigationHelper.NavigationViewModel
 
 
 enum class MyAppScreen(val title: StringResource) {
     Start(title = Res.string.title_home),
-    LogWorkout(title = Res.string.title_detail),
+    InputWorkout(title = Res.string.title_detail),
+    WorkoutDetail(title = Res.string.title_detail),
     InputExercise(title = Res.string.title_input),
+    LogWorkoutExercise(title = Res.string.title_input),
     WorkoutHistory(title = Res.string.title_workout_history),
 }
 
@@ -35,7 +41,8 @@ enum class MyAppScreen(val title: StringResource) {
 @Preview
 fun App(
     shouldDarkTheme: Boolean = isSystemInDarkTheme(),
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    navViewModel: NavigationViewModel = viewModel { NavigationViewModel() }
 ) {
     KoinContext {
         MyAppTheme {
@@ -47,22 +54,62 @@ fun App(
                 composable(route = MyAppScreen.Start.name) {
                     HomeScreen(
                         onWorkoutDetail = {
-                            navController.navigate(MyAppScreen.LogWorkout.name)
+                            navViewModel.currentWorkoutPlanId.value = it
+                            navController.navigate(
+                                route = MyAppScreen.WorkoutDetail.name,
+                            )
                         },
                         openHistoryScreen = {
                             navController.navigate(MyAppScreen.WorkoutHistory.name)
+                        },
+                        onCreateNewWorkoutPlan = {
+                            navController.navigate(MyAppScreen.InputWorkout.name)
                         }
                     )
                 }
-                composable(route = MyAppScreen.LogWorkout.name) {
-                    LogWorkoutScreen {
-                        navController.navigateUp()
-                    }
+                composable(route = MyAppScreen.InputWorkout.name) {
+                    InputWorkoutScreen(
+                        onBack = {
+                            navController.navigateUp()
+                        },
+                        onWorkoutSaved = {
+                            navController.navigateUp()
+                        }
+                    )
                 }
                 composable(route = MyAppScreen.InputExercise.name) {
-                    InputExerciseScreen {
-                        navController.navigateUp()
-                    }
+                    InputExerciseScreen(
+                        workoutPlanId = navViewModel.currentWorkoutPlanId.value,
+                        onBack = {
+                            navController.navigateUp()
+                        },
+                    )
+                }
+                composable(
+                    route = MyAppScreen.WorkoutDetail.name,
+                ) {
+                    WorkoutDetailScreen(
+                        workoutPlanId = navViewModel.currentWorkoutPlanId.value,
+                        onBack = {
+                            navController.navigateUp()
+                        },
+                        onNewExerciseToWorkoutPlan = {
+                            navController.navigate(MyAppScreen.InputExercise.name)
+                        },
+                        onSelectExercise = {
+                            navViewModel.currentExerciseId.value = it
+                            navController.navigate(MyAppScreen.LogWorkoutExercise.name)
+                        }
+                    )
+                }
+                composable(route = MyAppScreen.LogWorkoutExercise.name) {
+                    LogWorkoutExerciseScreen(
+                        workoutPlanId = navViewModel.currentWorkoutPlanId.value,
+                        exerciseId = navViewModel.currentExerciseId.value,
+                        onBack = {
+                            navController.navigateUp()
+                        },
+                    )
                 }
                 composable(route = MyAppScreen.WorkoutHistory.name) {
                     WorkoutHistoryScreen {

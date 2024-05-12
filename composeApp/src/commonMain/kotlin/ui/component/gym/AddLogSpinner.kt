@@ -7,14 +7,18 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.PagerSnapDistance
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -43,7 +47,7 @@ fun AddWorkoutLog(modifier: Modifier = Modifier) {
                 .fillMaxWidth()
                 .height(56.dp)
         ) {
-            Text(modifier = Modifier.align(Alignment.Center), text = "Add Log - " + selectedReps)
+            Text(modifier = Modifier.align(Alignment.Center), text = "Add Log")
         }
 
         Row(modifier = Modifier.fillMaxWidth()) {
@@ -72,12 +76,89 @@ fun AddWorkoutLog(modifier: Modifier = Modifier) {
     }
 }
 
+@Composable
+fun AddExerciseSet(
+    modifier: Modifier = Modifier,
+    initialReps: Int = 0,
+    initialWeight: Int = 0,
+    onRepsChange: (Int) -> Unit = {},
+    onWeightChange: (Int) -> Unit = {},
+    addExerciseSetDone: (reps: Int, weight: Int) -> Unit = { _: Int, _: Int -> }
+) {
+    val repsOptionList = (1..30).toList()
+    var selectedReps by remember {
+        mutableStateOf(0)
+    }
+
+    val initialRepsIndex = if (initialReps == 0) {
+        5
+    } else {
+        repsOptionList.indexOf(initialReps)
+    }
+
+    val weightOptionList = (1..300).toList()
+    var selectedWeight by remember {
+        mutableStateOf(0)
+    }
+    val initialWeightIndex = if (initialWeight == 0) {
+        9
+    } else {
+        weightOptionList.indexOf(initialWeight)
+    }
+
+    Card(
+        modifier = modifier,
+        elevation = CardDefaults.cardElevation(0.dp), colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
+        )
+    ) {
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Box(modifier = Modifier.weight(.5F)) {
+                HorizontalScrollSelector(
+                    selectedItemIndex = initialRepsIndex,
+                    pagerItemList = repsOptionList
+                ) {
+                    selectedReps = repsOptionList[it]
+                    onRepsChange(selectedReps)
+                }
+            }
+            Box(modifier = Modifier.weight(.5F)) {
+                HorizontalScrollSelector(pagerItemList = listOf("✕"))
+            }
+            Box(modifier = Modifier.weight(.5F)) {
+                HorizontalScrollSelector(
+                    selectedItemIndex = initialWeightIndex,
+                    pagerItemList = weightOptionList
+                ) {
+                    selectedWeight = weightOptionList[it]
+                    onWeightChange(selectedWeight)
+                }
+            }
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
+        ) {
+            TextButton(
+                modifier = Modifier.align(Alignment.CenterEnd).padding(end = 16.dp),
+                onClick = {
+                    addExerciseSetDone(selectedReps, selectedWeight)
+                },
+                border = ButtonDefaults.outlinedButtonBorder.copy(width = 1.dp)
+            ) {
+                Text(text = "Tambah")
+            }
+        }
+    }
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun HorizontalScrollSelector(
+fun <T> HorizontalScrollSelector(
     modifier: Modifier = Modifier,
     selectedItemIndex: Int = 0,
-    pagerItemList: List<Int>,
+    pagerItemList: List<T>,
     onItemIndexSelected: (index: Int) -> Unit = {}
 ) {
     val pagerState = rememberPagerState(initialPage = selectedItemIndex) {

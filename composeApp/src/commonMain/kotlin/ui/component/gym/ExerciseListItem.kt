@@ -35,7 +35,9 @@ fun ExerciseListItemView(
 ) {
     Surface {
         Card {
-            Row {
+            Row(modifier = Modifier.clickable {
+                onClick()
+            }) {
                 ImageWrapper(
                     modifier = Modifier
                         .padding(start = 16.dp)
@@ -49,9 +51,6 @@ fun ExerciseListItemView(
                     modifier = modifier.then(
                         Modifier
                             .fillMaxWidth()
-                            .clickable {
-                                onClick()
-                            }
                             .padding(horizontal = 16.dp, vertical = 16.dp)
                     )
                 ) {

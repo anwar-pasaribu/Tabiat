@@ -1,8 +1,9 @@
 package domain.model.gym
 
-data class ExercisePlan(
+data class WorkoutPlan(
     val id: Long,
     val name: String,
     val description: String,
-    val exerciseSets: List<ExerciseSet>
+    val dateTimeStamp: Long,
+    val orderingNumber: Int,
 )

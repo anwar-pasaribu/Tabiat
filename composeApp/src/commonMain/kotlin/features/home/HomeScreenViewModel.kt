@@ -2,25 +2,25 @@ package features.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import domain.model.gym.Workout
+import domain.model.gym.WorkoutPlan
 import domain.repository.IGymRepository
-import domain.usecase.GetWorkoutListUseCase
+import domain.usecase.GetWorkoutPlanListUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class HomeScreenViewModel(
-    private val gymRepository: IGymRepository,
-    private val getWorkoutListUseCase: GetWorkoutListUseCase
+    private val repository: IGymRepository,
+    private val getWorkoutPlanListUseCase: GetWorkoutPlanListUseCase
 ) : ViewModel() {
 
-    private val _workoutListStateFlow = MutableStateFlow(emptyList<Workout>())
-    val workoutListStateFlow: StateFlow<List<Workout>> = _workoutListStateFlow.asStateFlow()
+    private val _workoutListStateFlow = MutableStateFlow(emptyList<WorkoutPlan>())
+    val workoutListStateFlow: StateFlow<List<WorkoutPlan>> = _workoutListStateFlow.asStateFlow()
 
     fun loadWorkoutList() {
         viewModelScope.launch {
-            val workoutList = getWorkoutListUseCase.invoke()
+            val workoutList = getWorkoutPlanListUseCase.invoke()
             _workoutListStateFlow.value = workoutList
         }
     }

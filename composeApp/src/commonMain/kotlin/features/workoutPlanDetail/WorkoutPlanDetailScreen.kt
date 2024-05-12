@@ -1,4 +1,4 @@
-package features.logWorkout
+package features.workoutPlanDetail
 
 import PlayHapticAndSound
 import androidx.compose.foundation.background
@@ -16,9 +16,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -28,6 +30,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -44,15 +48,21 @@ import dev.chrisbanes.haze.haze
 import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
+import domain.model.gym.Exercise
+import features.inputExercise.WorkoutDetailScreenViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.koin.compose.koinInject
+import ui.component.gym.ExerciseListItemView
 
 @OptIn(
     ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class
 )
 @Composable
-fun LogWorkoutScreen(
+fun WorkoutDetailScreen(
+    workoutPlanId: Long,
     onBack: () -> Unit = {},
+    onNewExerciseToWorkoutPlan: () -> Unit = {},
+    onSelectExercise: (exerciseId: Long) -> Unit = {},
 ) {
 
     val hazeState = remember { HazeState() }
@@ -60,14 +70,17 @@ fun LogWorkoutScreen(
     var selectedEmojiUnicode by remember { mutableStateOf("") }
     var selectedEmojiOffset by remember { mutableStateOf(Offset.Zero) }
     val lazyListState = rememberLazyListState()
-
-    val viewModel = koinInject<LogWorkoutScreenViewModel>()
-
     val selectedEmojiUnicodeAndOffset =
         remember { mutableStateOf(MutableStateFlow(Pair("", Offset.Zero))) }
-
     var selectedDateTimeStamp by remember { mutableStateOf(0L) }
     var moodStateBottomSheetStateShowed by remember { mutableStateOf(false) }
+
+    val viewModel = koinInject<WorkoutDetailScreenViewModel>()
+    val listItem by viewModel.exerciseListStateFlow.collectAsState()
+
+    LaunchedEffect(workoutPlanId) {
+        viewModel.loadWorkoutPlan(workoutPlanId)
+    }
 
     if (selectedEmojiUnicode.isNotEmpty()) {
         PlayHapticAndSound(selectedEmojiUnicode)
@@ -99,9 +112,21 @@ fun LogWorkoutScreen(
                     },
                     title = {
                         Text(
-                            "Log Workout",
+                            "Workout Detail",
                             style = MaterialTheme.typography.titleLarge
                         )
+                    },
+                    actions = {
+                        IconButton(
+                            onClick = {
+                                onNewExerciseToWorkoutPlan()
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = "Create new Workout Plan"
+                            )
+                        }
                     }
                 )
                 Spacer(Modifier.height(8.dp))
@@ -121,19 +146,16 @@ fun LogWorkoutScreen(
                 ),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-//                items(items = emojiListFlowState, key = { it.id }) { item ->
-//
-//                    MoodGridItem(content = item.emojiUnicode.trim()) { selectedUnicode, offset ->
-//                        selectedEmojiUnicodes.add(selectedUnicode)
-//                        selectedEmojiUnicode = selectedUnicode
-//                        viewModel.saveSelectedEmojiUnicode(selectedUnicode)
-//
-//                        selectedEmojiOffset = offset
-//
-//                        selectedEmojiUnicodeAndOffset.value.value = Pair(selectedUnicode, offset)
-//                    }
-//                }
+                items(items = listItem) { item: Exercise ->
 
+                    ExerciseListItemView(
+                        title = item.name,
+                        description = item.description,
+                        onClick = {
+                            onSelectExercise(item.id)
+                        }
+                    )
+                }
                 item {
                     Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.systemBars))
                 }

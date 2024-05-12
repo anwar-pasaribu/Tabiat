@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -27,6 +28,7 @@ fun ExerciseSetItemView(
     setNumber: Int,
     setCount: Int = 0,
     setWeight: Int = 0,
+    finished: Boolean = false,
     onSetItemClick: () -> Unit
 ) {
 
@@ -36,7 +38,8 @@ fun ExerciseSetItemView(
                 onSetItemClick()
             }
             .padding(horizontal = 16.dp, vertical = 10.dp)
-            .fillMaxWidth())) {
+            .fillMaxWidth()
+    )) {
 
         Box(
             modifier = Modifier
@@ -57,12 +60,17 @@ fun ExerciseSetItemView(
         )
 
         Box (modifier = Modifier.align(Alignment.CenterVertically).fillMaxWidth()){
+            val icon = if(finished) {
+                Icons.Default.Done
+            } else {
+                Icons.AutoMirrored.Filled.KeyboardArrowRight
+            }
             Icon(
                 modifier = Modifier.align(Alignment.CenterEnd),
                 painter = rememberVectorPainter(
-                    image = Icons.AutoMirrored.Filled.KeyboardArrowRight
+                    image = icon
                 ),
-                contentDescription = "Back"
+                contentDescription = ""
             )
         }
 

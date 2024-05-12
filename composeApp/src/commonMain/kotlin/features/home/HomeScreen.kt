@@ -19,8 +19,13 @@ import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -52,6 +57,7 @@ import ui.component.gym.WorkoutListItemView
 fun HomeScreen(
     onWorkoutDetail: (Long) -> Unit = {},
     openHistoryScreen: () -> Unit = {},
+    onCreateNewWorkoutPlan: () -> Unit = {},
 ) {
 
     val hazeState = remember { HazeState() }
@@ -88,6 +94,18 @@ fun HomeScreen(
                             "Home",
                             style = MaterialTheme.typography.headlineLarge
                         )
+                    },
+                    actions = {
+                        IconButton(
+                            onClick = {
+                                onCreateNewWorkoutPlan()
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = "Create new Workout Plan"
+                            )
+                        }
                     }
                 )
 
@@ -120,7 +138,7 @@ fun HomeScreen(
                 items(items = listItemState) { item ->
                     WorkoutListItemView(
                         title = item.name,
-                        description = item.notes
+                        description = item.description
                     ) {
                         onWorkoutDetail(item.id)
                     }

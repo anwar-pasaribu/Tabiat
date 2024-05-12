@@ -1,4 +1,4 @@
-package features.workoutHistory
+package features.inputWorkout
 
 import PlayHapticAndSound
 import androidx.compose.foundation.background
@@ -13,17 +13,23 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -33,10 +39,13 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import dev.chrisbanes.haze.HazeState
@@ -51,8 +60,9 @@ import org.koin.compose.koinInject
     ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class
 )
 @Composable
-fun WorkoutHistoryScreen(
+fun InputWorkoutScreen(
     onBack: () -> Unit = {},
+    onWorkoutSaved: () -> Unit = {}
 ) {
 
     val hazeState = remember { HazeState() }
@@ -61,7 +71,13 @@ fun WorkoutHistoryScreen(
     var selectedEmojiOffset by remember { mutableStateOf(Offset.Zero) }
     val lazyListState = rememberLazyListState()
 
-    val viewModel = koinInject<WorkoutHistoryScreenViewModel>()
+    val viewModel = koinInject<InputWorkoutScreenViewModel>()
+
+    val selectedEmojiUnicodeAndOffset =
+        remember { mutableStateOf(MutableStateFlow(Pair("", Offset.Zero))) }
+
+    var selectedDateTimeStamp by remember { mutableStateOf(0L) }
+    var moodStateBottomSheetStateShowed by remember { mutableStateOf(false) }
 
     if (selectedEmojiUnicode.isNotEmpty()) {
         PlayHapticAndSound(selectedEmojiUnicode)
@@ -93,7 +109,7 @@ fun WorkoutHistoryScreen(
                     },
                     title = {
                         Text(
-                            "History",
+                            "New Workout",
                             style = MaterialTheme.typography.titleLarge
                         )
                     }
@@ -103,34 +119,61 @@ fun WorkoutHistoryScreen(
         },
     ) { contentPadding ->
 
-        Box(modifier = Modifier.fillMaxSize()) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize().haze(state = hazeState),
-                state = lazyListState,
-                contentPadding = PaddingValues(
-                    start = contentPadding.calculateStartPadding(LayoutDirection.Ltr) + 8.dp,
-                    top = contentPadding.calculateTopPadding() + 16.dp,
-                    end = contentPadding.calculateEndPadding(LayoutDirection.Ltr) + 8.dp,
-                    bottom = contentPadding.calculateBottomPadding()
-                ),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-//                items(items = emojiListFlowState, key = { it.id }) { item ->
-//
-//                    MoodGridItem(content = item.emojiUnicode.trim()) { selectedUnicode, offset ->
-//                        selectedEmojiUnicodes.add(selectedUnicode)
-//                        selectedEmojiUnicode = selectedUnicode
-//                        viewModel.saveSelectedEmojiUnicode(selectedUnicode)
-//
-//                        selectedEmojiOffset = offset
-//
-//                        selectedEmojiUnicodeAndOffset.value.value = Pair(selectedUnicode, offset)
-//                    }
-//                }
+        Card (
+            modifier = Modifier.fillMaxWidth().padding(
+                start = contentPadding.calculateStartPadding(LayoutDirection.Ltr) + 8.dp,
+                top = contentPadding.calculateTopPadding() + 16.dp,
+                end = contentPadding.calculateEndPadding(LayoutDirection.Ltr) + 8.dp,
+                bottom = contentPadding.calculateBottomPadding()
+            )
+        ) {
+            Column {
+                var workoutName by remember { mutableStateOf("") }
+                var workoutNotes by remember { mutableStateOf("") }
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    value = workoutName,
+                    onValueChange = {
+                        workoutName = it
+                    },
+                    label = { Text("Workout Name") },
+                    placeholder = { Text("Ex. Back session") },
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        capitalization = KeyboardCapitalization.Words,
+                        imeAction = ImeAction.Next
+                    ),
+                    maxLines = 1
+                )
+                Spacer(Modifier.height(8.dp))
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    value = workoutNotes,
+                    onValueChange = {
+                        workoutNotes = it
+                    },
+                    label = { Text("Notes") },
+                    placeholder = { Text("Ex. Focus on weight") },
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        capitalization = KeyboardCapitalization.Sentences,
+                        imeAction = ImeAction.Done
+                    ),
+                    maxLines = 1
+                )
 
-                item {
-                    Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.systemBars))
+                Spacer(Modifier.height(32.dp))
+
+                Button(
+                    modifier = Modifier.width(200.dp).align(Alignment.CenterHorizontally),
+                    enabled = workoutName.isNotEmpty(),
+                    onClick = {
+                        viewModel.saveWorkout(workoutName, workoutNotes)
+                        onWorkoutSaved()
+                    }
+                ) {
+                    Text( text = "Save Workout")
                 }
+
+                Spacer(Modifier.height(16.dp))
             }
         }
     }
