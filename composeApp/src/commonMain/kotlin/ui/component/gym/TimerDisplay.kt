@@ -1,7 +1,6 @@
 package ui.component.gym
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
@@ -15,8 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Done
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -98,10 +95,9 @@ fun TimerDisplay(
                 modifier = Modifier
                     .aspectRatio(1 / 1F)
                     .background(Color.Red, CircleShape),
-                contentAlignment = Alignment.Center
             ) {
 
-                Row {
+                Row(modifier = Modifier.align(Alignment.Center)) {
                     timeLeft.toString()
                         .mapIndexed { index, c -> Digit(c, timeLeft, index) }
                         .forEach { digit ->

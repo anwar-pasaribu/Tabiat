@@ -181,7 +181,7 @@ fun LogWorkoutExerciseScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     TimerDisplay(
-                        countDown = 15,
+                        countDown = 45,
                         onTimerFinished = {
                             logExerciseTimerVisible = false
                         },
