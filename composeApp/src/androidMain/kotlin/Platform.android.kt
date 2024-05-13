@@ -1,7 +1,9 @@
 import android.media.AudioManager
+import android.media.MediaPlayer
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.provider.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -52,14 +54,18 @@ actual fun PlayHapticAndSound(trigger: Any) {
         ContextCompat.getSystemService(context, AudioManager::class.java)
     }
 
+    //val player = MediaPlayer.create(context, Settings.System.DEFAULT_NOTIFICATION_URI)
+    //player.start()
     LaunchedEffect(trigger) {
-        audioManager?.playSoundEffect(AudioManager.FX_KEYPRESS_STANDARD, 1f)
+        audioManager?.playSoundEffect(AudioManager.FX_KEYPRESS_STANDARD, -1f)
         haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-        vibrator?.vibrate(
-            VibrationEffect.createOneShot(
-                50,
-                VibrationEffect.DEFAULT_AMPLITUDE
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator?.vibrate(
+                VibrationEffect.createOneShot(
+                    50,
+                    VibrationEffect.DEFAULT_AMPLITUDE
+                )
             )
-        )
+        }
     }
 }
