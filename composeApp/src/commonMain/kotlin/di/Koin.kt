@@ -1,6 +1,11 @@
 package di
 
 import data.repository.GymRepositoryImpl
+import data.source.local.createDatabase
+import data.source.local.dao.IWorkoutPlanDao
+import data.source.local.dao.IWorkoutPlanExerciseDao
+import data.source.local.dao.WorkoutPlanDao
+import data.source.local.dao.WorkoutPlanExerciseDao
 import domain.repository.IGymRepository
 import domain.usecase.GetExerciseByIdUseCase
 import domain.usecase.GetExerciseListByWorkoutPlanUseCase
@@ -24,14 +29,14 @@ import org.koin.dsl.module
 fun letsKoinStart() {
     stopKoin()
     startKoin {
-        modules(appModule(), viewModels())
+        modules(databaseModule(), appModule(), viewModels())
     }
 }
 
 fun appModule() = module {
 
     single<IGymRepository> {
-        GymRepositoryImpl()
+        GymRepositoryImpl(workoutPlanDao = get(), workoutPlanExerciseDao = get())
     }
 
     single {
@@ -98,5 +103,19 @@ fun viewModels() = module {
             getExerciseByIdUseCase = get(),
             logExerciseUseCase = get()
         )
+    }
+}
+
+fun databaseModule() = module {
+    single {
+        createDatabase()
+    }
+
+    single<IWorkoutPlanDao>{
+        WorkoutPlanDao(database = get())
+    }
+
+    single<IWorkoutPlanExerciseDao>{
+        WorkoutPlanExerciseDao(database = get())
     }
 }

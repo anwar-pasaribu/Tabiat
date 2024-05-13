@@ -1,0 +1,22 @@
+CREATE TABLE IF NOT EXISTS ExerciseEntity (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    type INTEGER NOT NULL,
+    difficulty INTEGER NOT NULL,
+    equipment TEXT,
+    instructions TEXT,
+    video TEXT,
+    image TEXT,
+    targetMuscle INTEGER,
+    description TEXT
+);
+
+selectAllExercise:
+SELECT * FROM ExerciseEntity;
+
+deleteExerciseById:
+DELETE FROM ExerciseEntity WHERE id = ?;
+
+insertNewExercise:
+INSERT INTO ExerciseEntity (name, type, difficulty, equipment, instructions, video, image, targetMuscle, description)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);

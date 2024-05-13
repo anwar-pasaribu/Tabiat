@@ -1,17 +1,17 @@
 package domain.usecase
 
-import domain.model.gym.Exercise
 import domain.repository.IGymRepository
 
 class LogExerciseUseCase(
     private val repository: IGymRepository
 ) {
     suspend operator fun invoke(
+        workoutPlanExerciseId: Long,
         workoutPlanId: Long,
         exerciseId: Long,
         reps: Int,
         weight: Int
     ): Boolean {
-        return repository.logExercise(workoutPlanId, exerciseId, reps, weight)
+        return repository.logExercise(workoutPlanExerciseId, workoutPlanId, exerciseId, reps, weight)
     }
 }

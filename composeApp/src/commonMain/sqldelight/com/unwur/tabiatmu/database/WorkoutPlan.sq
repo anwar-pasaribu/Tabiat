@@ -1,0 +1,22 @@
+CREATE TABLE IF NOT EXISTS WorkoutPlanEntity (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    description TEXT NOT NULL,
+    dateTimeStamp INTEGER NOT NULL,
+    targetDateTimeStamp INTEGER,
+    orderingNumber INTEGER NOT NULL
+);
+
+selectAllWorkoutPlan:
+SELECT * FROM WorkoutPlanEntity;
+
+selectLatestWorkoutPlan:
+SELECT * FROM WorkoutPlanEntity ORDER BY dateTimeStamp DESC LIMIT 1;
+
+insertWorkoutPlan:
+INSERT INTO WorkoutPlanEntity
+(name, description, dateTimeStamp, orderingNumber)
+VALUES (?, ?, ?, ?);
+
+deleteWorkoutPlanById:
+DELETE FROM WorkoutPlanEntity WHERE id = ?;

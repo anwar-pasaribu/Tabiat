@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
+    alias(libs.plugins.sqlDelight)
 }
 
 kotlin {
@@ -28,12 +29,21 @@ kotlin {
     }
     
     sourceSets {
+
+        all {
+            languageSettings.optIn("kotlin.RequiresOptIn")
+        }
         
         androidMain.dependencies {
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
 
             implementation(libs.androidx.core.splashscreen)
+
+            implementation(libs.sqldelight.androidDriver)
+        }
+        iosMain.dependencies {
+            implementation(libs.sqldelight.nativeDriver)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -54,12 +64,16 @@ kotlin {
             implementation(libs.haze)
             implementation(libs.haze.materials)
 
+            implementation(libs.sqldelight.coroutines)
+            implementation(libs.sqldelight.primitiveAdapters)
+
             // Handle Error
             // Task :composeApp:compileKotlinIosX64 FAILED
             // e: Could not find "co.touchlab:stately-concurrent-collections"
             implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.7")
             implementation("co.touchlab:stately-concurrent-collections:2.0.6")
         }
+
     }
 }
 
@@ -121,6 +135,14 @@ android {
     lint {
         quiet = true
         abortOnError = false
+    }
+}
+
+sqldelight {
+    databases {
+        create("TabiatDatabase") {
+            packageName.set("com.unwur.tabiatmu.database")
+        }
     }
 }
 

@@ -1,0 +1,31 @@
+CREATE TABLE IF NOT EXISTS WorkoutPlanExerciseEntity (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    exerciseId INTEGER NOT NULL,
+    workoutPlanId INTEGER NOT NULL,
+    reps INTEGER NOT NULL,
+    weight INTEGER NOT NULL,
+    setNumberOrder INTEGER NOT NULL,
+    finishedDateTime INTEGER NOT NULL
+);
+
+selectAllWorkoutPlanExercise:
+SELECT * FROM WorkoutPlanExerciseEntity WHERE workoutPlanId = ?;
+
+selectWorkoutPlanExerciseById:
+SELECT * FROM WorkoutPlanExerciseEntity WHERE id = ?;
+
+updateWorkoutPlanExerciseFinishedDateTime:
+UPDATE WorkoutPlanExerciseEntity
+SET finishedDateTime = :finishedDateTime, reps = :reps, weight = :weight
+WHERE id = :id;
+
+selectLatestWorkoutPlanExercise:
+SELECT * FROM WorkoutPlanExerciseEntity ORDER BY setNumberOrder DESC LIMIT 1;
+
+insertWorkoutPlanExercise:
+INSERT INTO WorkoutPlanExerciseEntity
+(exerciseId, workoutPlanId, reps, weight, setNumberOrder, finishedDateTime)
+VALUES (?, ?, ?, ?, ?, ?);
+
+deleteWorkoutPlanExerciseById:
+DELETE FROM WorkoutPlanExerciseEntity WHERE id = ?;

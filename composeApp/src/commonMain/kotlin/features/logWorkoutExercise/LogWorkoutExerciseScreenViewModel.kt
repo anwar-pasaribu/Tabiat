@@ -36,21 +36,31 @@ class LogWorkoutExerciseScreenViewModel(
         viewModelScope.launch {
             _exerciseSetList.value = getExerciseSetListUseCase(workoutPlanId, exerciseId).map {
                 ExerciseSetToday(
-                    it.setNumberOrder,
-                    it.reps,
-                    it.weight,
-                    it.finishedDateTime != 0L
+                    workoutPlanExerciseId = it.id,
+                    setOrder = it.setNumberOrder,
+                    repsCount = it.reps,
+                    weight = it.weight,
+                    finished = it.finishedDateTime != 0L
                 )
             }
         }
     }
 
     fun logExercise(
-        workoutPlanId: Long, exerciseId: Long,
-        reps: Int, weight: Int
+        selectedWorkoutPlanExerciseId: Long,
+        workoutPlanId: Long,
+        exerciseId: Long,
+        reps: Int,
+        weight: Int
     ) {
         viewModelScope.launch {
-            logExerciseUseCase(workoutPlanId, exerciseId, reps, weight)
+            logExerciseUseCase(
+                workoutPlanExerciseId = selectedWorkoutPlanExerciseId,
+                workoutPlanId = workoutPlanId,
+                exerciseId = exerciseId,
+                reps = reps,
+                weight = weight
+            )
             delay(1000)
             getExerciseSetList(workoutPlanId, exerciseId)
         }

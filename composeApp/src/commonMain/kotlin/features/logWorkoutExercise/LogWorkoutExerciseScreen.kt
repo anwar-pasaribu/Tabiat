@@ -68,6 +68,7 @@ fun LogWorkoutExerciseScreen(
 
     val hazeState = remember { HazeState() }
     var selectedEmojiUnicode by remember { mutableStateOf("") }
+    var selectedWorkoutPlanExerciseId by remember { mutableStateOf(0L) }
     var selectedExerciseSet by remember { mutableStateOf(ExerciseSet(0, 0, 0)) }
     var logExerciseSpinnerVisible by remember { mutableStateOf(false) }
     var logExerciseTimerVisible by remember { mutableStateOf(false) }
@@ -151,6 +152,7 @@ fun LogWorkoutExerciseScreen(
                                     finished = item.finished
                                 ) {
                                     logExerciseSpinnerVisible = !logExerciseSpinnerVisible
+                                    selectedWorkoutPlanExerciseId = item.workoutPlanExerciseId
                                     selectedExerciseSet =
                                         ExerciseSet(item.setOrder, item.repsCount, item.weight)
                                 }
@@ -226,13 +228,12 @@ fun LogWorkoutExerciseScreen(
                             initialReps = selectedExerciseSet.reps,
                             initialWeight = selectedExerciseSet.weight,
                             addExerciseSetDone = { reps, weight ->
-                                val exerciseSet = ExerciseSet(
-                                    setNumber = exerciseSetList.size + 1,
+                                viewModel.logExercise(
+                                    selectedWorkoutPlanExerciseId = selectedWorkoutPlanExerciseId,
+                                    workoutPlanId = workoutPlanId,
+                                    exerciseId = exerciseId,
                                     reps = reps,
                                     weight = weight
-                                )
-                                viewModel.logExercise(
-                                    workoutPlanId, exerciseId, reps, weight
                                 )
                                 logExerciseSpinnerVisible = false
                                 logExerciseTimerVisible = true
