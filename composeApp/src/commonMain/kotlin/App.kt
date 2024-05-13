@@ -24,6 +24,7 @@ import tabiat.composeapp.generated.resources.title_input
 import tabiat.composeapp.generated.resources.title_workout_history
 import ui.theme.MyAppTheme
 import androidx.lifecycle.viewmodel.compose.viewModel
+import features.createNewExercise.CreateExerciseScreen
 import features.logWorkoutExercise.LogWorkoutExerciseScreen
 import features.navigationHelper.NavigationViewModel
 
@@ -35,6 +36,7 @@ enum class MyAppScreen(val title: StringResource) {
     InputExercise(title = Res.string.title_input),
     LogWorkoutExercise(title = Res.string.title_input),
     WorkoutHistory(title = Res.string.title_workout_history),
+    CreateNewExercise(title = Res.string.title_workout_history),
 }
 
 @Composable
@@ -83,6 +85,9 @@ fun App(
                         onBack = {
                             navController.navigateUp()
                         },
+                        onCreateNewExerciseRequested = {
+                            navController.navigate(MyAppScreen.CreateNewExercise.name)
+                        }
                     )
                 }
                 composable(
@@ -115,6 +120,16 @@ fun App(
                     WorkoutHistoryScreen {
                         navController.navigateUp()
                     }
+                }
+                composable(route = MyAppScreen.CreateNewExercise.name) {
+                    CreateExerciseScreen(
+                        onBack = {
+                            navController.navigateUp()
+                        },
+                        onNewExerciseCreated = {
+                            navController.navigateUp()
+                        }
+                    )
                 }
             }
         }

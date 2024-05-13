@@ -109,7 +109,7 @@ fun InputWorkoutScreen(
                     },
                     title = {
                         Text(
-                            "New Workout",
+                            "Workout Baru",
                             style = MaterialTheme.typography.titleLarge
                         )
                     }
@@ -130,14 +130,15 @@ fun InputWorkoutScreen(
             Column {
                 var workoutName by remember { mutableStateOf("") }
                 var workoutNotes by remember { mutableStateOf("") }
+                Spacer(Modifier.height(16.dp))
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                     value = workoutName,
                     onValueChange = {
                         workoutName = it
                     },
-                    label = { Text("Workout Name") },
-                    placeholder = { Text("Ex. Back session") },
+                    label = { Text("Nama Sesi Workout") },
+                    placeholder = { Text("Ex. Latihan Punggung") },
                     keyboardOptions = KeyboardOptions.Default.copy(
                         capitalization = KeyboardCapitalization.Words,
                         imeAction = ImeAction.Next
@@ -151,8 +152,8 @@ fun InputWorkoutScreen(
                     onValueChange = {
                         workoutNotes = it
                     },
-                    label = { Text("Notes") },
-                    placeholder = { Text("Ex. Focus on weight") },
+                    label = { Text("Deskripsi") },
+                    placeholder = { Text("Ex. Fokus latihan pakai dumbell") },
                     keyboardOptions = KeyboardOptions.Default.copy(
                         capitalization = KeyboardCapitalization.Sentences,
                         imeAction = ImeAction.Done

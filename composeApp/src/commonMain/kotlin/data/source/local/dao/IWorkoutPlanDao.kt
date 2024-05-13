@@ -7,6 +7,7 @@ interface IWorkoutPlanDao {
     suspend fun getAllWorkoutPlanObservable(): Flow<List<WorkoutPlan>>
     suspend fun getAllWorkoutPlan(): List<WorkoutPlan>
     suspend fun getLatestWorkoutPlan(): WorkoutPlan
+    suspend fun getWorkoutPlan(workoutPlanId: Long): WorkoutPlan
     suspend fun insertWorkoutPlan(
         name: String,
         description: String,

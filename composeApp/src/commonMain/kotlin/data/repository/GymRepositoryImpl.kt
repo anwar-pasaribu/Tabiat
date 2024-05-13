@@ -1,5 +1,6 @@
 package data.repository
 
+import data.source.local.dao.IExerciseDao
 import data.source.local.dao.IWorkoutPlanDao
 import data.source.local.dao.IWorkoutPlanExerciseDao
 import domain.model.gym.Exercise
@@ -10,6 +11,7 @@ import domain.repository.IGymRepository
 import kotlinx.datetime.Clock
 
 class GymRepositoryImpl(
+    private val exerciseDao: IExerciseDao,
     private val workoutPlanDao: IWorkoutPlanDao,
     private val workoutPlanExerciseDao: IWorkoutPlanExerciseDao
 ): IGymRepository {
@@ -18,7 +20,7 @@ class GymRepositoryImpl(
     val exercise = Exercise(
         id = 1,
         name = "Push-ups",
-        type = 1, // Bodyweight
+        // Bodyweight
         difficulty = 2, // Intermediate
         equipment = "None",
         instructions = "1. Start in a plank position with your hands shoulder-width apart.\n" +
@@ -32,7 +34,7 @@ class GymRepositoryImpl(
     val squat = Exercise(
         id = 2,
         name = "Squats",
-        type = 1, // Bodyweight
+        // Bodyweight
         difficulty = 2, // Intermediate
         equipment = "None",
         instructions = "1. Stand with your feet shoulder-width apart.\n" +
@@ -47,7 +49,7 @@ class GymRepositoryImpl(
     val pullUp = Exercise(
         id = 3,
         name = "Pull-ups",
-        type = 2, // Calisthenics
+        // Calisthenics
         difficulty = 3, // Advanced
         equipment = "Pull-up bar",
         instructions = "1. Grab a pull-up bar with an overhand grip.\n" +
@@ -62,7 +64,7 @@ class GymRepositoryImpl(
     val benchPress = Exercise(
         id = 4,
         name = "Bench press",
-        type = 3, // Weightlifting
+        // Weightlifting
         difficulty = 3, // Advanced
         equipment = "Bench press",
         instructions = "1. Lie on a bench with your feet flat on the floor.\n" +
@@ -78,7 +80,7 @@ class GymRepositoryImpl(
     val dumbbellRow = Exercise(
         id = 5,
         name = "Dumbbell row",
-        type = 3, // Weightlifting
+        // Weightlifting
         difficulty = 2, // Intermediate
         equipment = "Dumbbells",
         instructions = "1. Stand with your feet shoulder-width apart.\n" +
@@ -94,7 +96,7 @@ class GymRepositoryImpl(
     val bicepCurl = Exercise(
         id = 6,
         name = "Bicep curl",
-        type = 3, // Weightlifting
+        // Weightlifting
         difficulty = 1, // Beginner
         equipment = "Dumbbells",
         instructions = "1. Stand with your feet shoulder-width apart.\n" +
@@ -129,11 +131,16 @@ class GymRepositoryImpl(
         val workoutPlanExercises = workoutPlanExerciseDao.getAllWorkoutPlanExercise(workoutPlanId)
         val exercises = mutableListOf<Exercise>()
         workoutPlanExercises.forEach { wpe ->
-            if (exerciseList.find { it.id == wpe.exerciseId } != null) {
-                exercises.add(exerciseList.find { it.id == wpe.exerciseId }!!)
+            val exercise = exerciseDao.getExerciseById(wpe.exerciseId)
+            if (exercise != null) {
+                exercises.add(exercise)
             }
         }
         return exercises.distinctBy { it.id }
+    }
+
+    override suspend fun getWorkoutPlanById(workoutPlanId: Long): WorkoutPlan {
+        return workoutPlanDao.getWorkoutPlan(workoutPlanId)
     }
 
     override suspend fun logExercise(
@@ -143,13 +150,6 @@ class GymRepositoryImpl(
         reps: Int,
         weight: Int
     ): Boolean {
-//        val itemToUpdate = workoutPlans.find { it.exerciseId == exerciseId }
-//        val itemToUpdateIndex = workoutPlans.indexOf(itemToUpdate)
-//        if (itemToUpdateIndex != -1) {
-//            itemToUpdate?.let {
-//                workoutPlans[itemToUpdateIndex] = it.copy(finishedDateTime = 1)
-//            }
-//        }
         workoutPlanExerciseDao.updateWorkoutPlanExerciseFinishedDateTime(
             workoutPlanExerciseId = workoutPlanExerciseId,
             finishedDateTime = Clock.System.now().toEpochMilliseconds(),
@@ -157,6 +157,21 @@ class GymRepositoryImpl(
             weight = weight.toLong()
         )
 
+        return true
+    }
+
+    override suspend fun createNewExercise(newExercise: Exercise): Boolean {
+        exerciseDao.insertExercise(
+            name = newExercise.name,
+            difficulty = newExercise.difficulty.toLong(),
+            equipment = newExercise.equipment,
+            instructions = newExercise.instructions,
+            video = newExercise.video,
+            image = newExercise.image,
+            targetMuscle = newExercise.targetMuscle.toLong(),
+            description = newExercise.description,
+            type = 0L
+        )
         return true
     }
 
@@ -170,8 +185,8 @@ class GymRepositoryImpl(
     }
 
     override suspend fun getExerciseById(exerciseId: Long): Exercise {
-        val exercise = exerciseList.find { it.id == exerciseId }
-        return exercise ?: throw Exception("Exercise not found")
+        return exerciseDao.getExerciseById(exerciseId)
+            ?: throw Exception("Exercise id: $exerciseId not found")
     }
 
     override suspend fun insertExerciseSetList(
@@ -197,6 +212,6 @@ class GymRepositoryImpl(
     }
 
     override suspend fun getExercises(): List<Exercise> {
-        return exerciseList
+        return exerciseDao.getAllExercises()
     }
 }

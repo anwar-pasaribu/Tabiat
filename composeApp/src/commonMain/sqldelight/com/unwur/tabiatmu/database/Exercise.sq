@@ -14,6 +14,9 @@ CREATE TABLE IF NOT EXISTS ExerciseEntity (
 selectAllExercise:
 SELECT * FROM ExerciseEntity;
 
+selectExerciseById:
+SELECT * FROM ExerciseEntity WHERE id = ?;
+
 deleteExerciseById:
 DELETE FROM ExerciseEntity WHERE id = ?;
 

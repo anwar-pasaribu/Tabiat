@@ -31,28 +31,29 @@ fun ExerciseListItemView(
     modifier: Modifier = Modifier,
     title: String,
     description: String,
+    image: String = "",
     onClick: () -> Unit = {}
 ) {
     Surface {
-        Card {
+        Card (modifier = modifier){
             Row(modifier = Modifier.clickable {
                 onClick()
             }) {
-                ImageWrapper(
-                    modifier = Modifier
-                        .padding(start = 16.dp)
-                        .size(56.dp)
-                        .align(Alignment.CenterVertically),
-                    resource = Res.drawable.compose_multiplatform,
-                    contentDescription = "Picture of $title"
-                )
+                if (image.isNotEmpty()) {
+                    ImageWrapper(
+                        modifier = Modifier
+                            .padding(start = 16.dp)
+                            .size(56.dp)
+                            .align(Alignment.CenterVertically),
+                        resource = Res.drawable.compose_multiplatform,
+                        contentDescription = "Picture of $title"
+                    )
+                }
 
                 Box(
-                    modifier = modifier.then(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 16.dp)
-                    )
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 16.dp)
                 ) {
 
                     Column {

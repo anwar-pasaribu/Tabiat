@@ -50,7 +50,6 @@ operator fun Digit.compareTo(other: Digit): Int {
     return fullNumber.compareTo(other.fullNumber)
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun TimerDisplay(
     modifier: Modifier = Modifier,

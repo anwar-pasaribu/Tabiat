@@ -42,6 +42,27 @@ class WorkoutPlanDao(
             }
     }
 
+    override suspend fun getWorkoutPlan(workoutPlanId: Long): WorkoutPlan {
+        try {
+            val data = database.workoutPlanQueries.selectWorkoutPlanById(workoutPlanId).executeAsOne()
+            return WorkoutPlan(
+                id = data.id,
+                name = data.name,
+                description = data.description,
+                dateTimeStamp = data.dateTimeStamp,
+                orderingNumber = data.orderingNumber.toInt()
+            )
+        } catch (e: Exception) {
+            return WorkoutPlan(
+                id = 0,
+                name = "",
+                description = "",
+                dateTimeStamp = 0,
+                orderingNumber = 0
+            )
+        }
+    }
+
     override suspend fun getLatestWorkoutPlan(): WorkoutPlan {
         try {
             val data = database.workoutPlanQueries.selectLatestWorkoutPlan().executeAsOne()

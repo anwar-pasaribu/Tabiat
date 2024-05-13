@@ -40,7 +40,8 @@ import features.exerciseList.ExerciseListBottomSheet
 @Composable
 fun InputWorkoutPlanExerciseView(
     modifier: Modifier = Modifier,
-    onSave: (exerciseId: Long, exerciseSetList: List<ExerciseSet>) -> Unit
+    onSave: (exerciseId: Long, exerciseSetList: List<ExerciseSet>) -> Unit,
+    onCreateNewExerciseRequested: () -> Unit = {}
 ) {
     var shouldShowExerciseList by remember { mutableStateOf(false) }
     var selectedExerciseName by remember { mutableStateOf("") }
@@ -49,13 +50,15 @@ fun InputWorkoutPlanExerciseView(
 
     if (shouldShowExerciseList) {
         ExerciseListBottomSheet(
-            showFullScreen = false,
             onDismiss = {
                 shouldShowExerciseList = false
             },
             onSelectExercise = {
                 selectedExerciseId = it.id
                 selectedExerciseName = it.name
+            },
+            onCreateNewExerciseRequested = {
+                onCreateNewExerciseRequested()
             }
         )
     }
@@ -138,6 +141,7 @@ fun InputWorkoutPlanExerciseView(
                 AnimatedVisibility(visible = !addExerciseSetActionVisibility) {
                     Column {
                         AddExerciseSet(
+                            modifier = Modifier.padding(horizontal = 8.dp),
                             addExerciseSetDone = { reps, weight ->
                                 exerciseSetList.add(
                                     ExerciseSet(
@@ -156,7 +160,7 @@ fun InputWorkoutPlanExerciseView(
 
             AnimatedVisibility(visible = exerciseSetList.isNotEmpty()) {
                 ExerciseSetListView(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
                     exerciseSets = exerciseSetList
                 )
             }

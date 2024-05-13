@@ -2,6 +2,8 @@ package di
 
 import data.repository.GymRepositoryImpl
 import data.source.local.createDatabase
+import data.source.local.dao.ExerciseDao
+import data.source.local.dao.IExerciseDao
 import data.source.local.dao.IWorkoutPlanDao
 import data.source.local.dao.IWorkoutPlanExerciseDao
 import data.source.local.dao.WorkoutPlanDao
@@ -12,13 +14,16 @@ import domain.usecase.GetExerciseListByWorkoutPlanUseCase
 import domain.usecase.GetExerciseListUseCase
 import domain.usecase.GetExerciseSetListUseCase
 import domain.usecase.GetWorkoutPlanListUseCase
+import domain.usecase.CreateNewExerciseUseCase
+import domain.usecase.GetWorkoutPlanByIdUseCase
 import domain.usecase.InputWorkoutPlanExerciseSetListUseCase
 import domain.usecase.LogExerciseUseCase
+import features.createNewExercise.CreateExerciseScreenViewModel
 import features.exerciseList.ExerciseListScreenViewModel
 import features.home.HomeScreenViewModel
 import features.inputExercise.InputExerciseScreenViewModel
 import features.logWorkoutExercise.LogWorkoutExerciseScreenViewModel
-import features.inputExercise.WorkoutDetailScreenViewModel
+import features.workoutPlanDetail.WorkoutDetailScreenViewModel
 import features.inputWorkout.InputWorkoutScreenViewModel
 import features.navigationHelper.NavigationViewModel
 import features.workoutHistory.WorkoutHistoryScreenViewModel
@@ -36,7 +41,11 @@ fun letsKoinStart() {
 fun appModule() = module {
 
     single<IGymRepository> {
-        GymRepositoryImpl(workoutPlanDao = get(), workoutPlanExerciseDao = get())
+        GymRepositoryImpl(
+            exerciseDao = get(),
+            workoutPlanDao = get(),
+            workoutPlanExerciseDao = get()
+        )
     }
 
     single {
@@ -67,6 +76,13 @@ fun appModule() = module {
         LogExerciseUseCase(repository = get())
     }
 
+    single {
+        CreateNewExerciseUseCase(repository = get())
+    }
+
+    single {
+        GetWorkoutPlanByIdUseCase(repository = get())
+    }
 }
 
 fun viewModels() = module {
@@ -90,7 +106,11 @@ fun viewModels() = module {
     }
 
     single {
-        WorkoutDetailScreenViewModel(repository = get(), getExerciseListByWorkoutPlanUseCase = get())
+        WorkoutDetailScreenViewModel(
+            repository = get(),
+            getExerciseListByWorkoutPlanUseCase = get(),
+            getWorkoutPlanByIdUseCase = get()
+        )
     }
 
     single {
@@ -104,11 +124,19 @@ fun viewModels() = module {
             logExerciseUseCase = get()
         )
     }
+
+    single {
+        CreateExerciseScreenViewModel(createNewExerciseUseCase = get())
+    }
 }
 
 fun databaseModule() = module {
     single {
         createDatabase()
+    }
+
+    single<IExerciseDao>{
+        ExerciseDao(database = get())
     }
 
     single<IWorkoutPlanDao>{

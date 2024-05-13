@@ -43,6 +43,7 @@ import ui.component.gym.InputWorkoutPlanExerciseView
 fun InputExerciseScreen(
     workoutPlanId: Long,
     onBack: () -> Unit = {},
+    onCreateNewExerciseRequested: () -> Unit = {},
 ) {
 
     val hazeState = remember { HazeState() }
@@ -82,7 +83,7 @@ fun InputExerciseScreen(
                     },
                     title = {
                         Text(
-                            "Input Exercise",
+                            "Tambah Sesi Latihan",
                             style = MaterialTheme.typography.titleLarge
                         )
                     }
@@ -102,6 +103,9 @@ fun InputExerciseScreen(
             onSave = { exerciseId, exerciseSetList ->
                 viewModel.insertExerciseSetList(workoutPlanId, exerciseId, exerciseSetList)
                 onBack()
+            },
+            onCreateNewExerciseRequested = {
+                onCreateNewExerciseRequested()
             }
         )
     }

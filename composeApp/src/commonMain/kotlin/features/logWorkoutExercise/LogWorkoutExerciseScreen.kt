@@ -27,6 +27,7 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -52,7 +53,6 @@ import domain.model.gym.ExerciseSet
 import org.koin.compose.koinInject
 import ui.component.gym.AddExerciseSet
 import ui.component.gym.ExerciseSetItemView
-import ui.component.gym.InputWorkoutPlanExerciseView
 import ui.component.gym.TimerDisplay
 
 @OptIn(
@@ -113,7 +113,7 @@ fun LogWorkoutExerciseScreen(
                     },
                     title = {
                         Text(
-                            "Log Workout Exercise",
+                            "",
                             style = MaterialTheme.typography.titleLarge
                         )
                     }
@@ -213,6 +213,7 @@ fun LogWorkoutExerciseScreen(
                     Column {
                         IconButton(
                             modifier = Modifier.align(Alignment.Start),
+                            colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
                             onClick = {
                                 logExerciseSpinnerVisible = false
                             }

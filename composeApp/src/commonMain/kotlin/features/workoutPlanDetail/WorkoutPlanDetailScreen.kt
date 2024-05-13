@@ -1,6 +1,7 @@
 package features.workoutPlanDetail
 
 import PlayHapticAndSound
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.lazy.LazyColumn
@@ -49,13 +51,13 @@ import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import domain.model.gym.Exercise
-import features.inputExercise.WorkoutDetailScreenViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.koin.compose.koinInject
 import ui.component.gym.ExerciseListItemView
 
 @OptIn(
-    ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class
+    ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class,
+    ExperimentalFoundationApi::class
 )
 @Composable
 fun WorkoutDetailScreen(
@@ -77,8 +79,10 @@ fun WorkoutDetailScreen(
 
     val viewModel = koinInject<WorkoutDetailScreenViewModel>()
     val listItem by viewModel.exerciseListStateFlow.collectAsState()
+    val workoutPlanItem by viewModel.workoutPlanStateFlow.collectAsState()
 
     LaunchedEffect(workoutPlanId) {
+        viewModel.loadWorkoutPlanById(workoutPlanId)
         viewModel.loadWorkoutPlan(workoutPlanId)
     }
 
@@ -112,7 +116,7 @@ fun WorkoutDetailScreen(
                     },
                     title = {
                         Text(
-                            "Workout Detail",
+                            "",
                             style = MaterialTheme.typography.titleLarge
                         )
                     },
@@ -134,31 +138,39 @@ fun WorkoutDetailScreen(
         },
     ) { contentPadding ->
 
-        Box(modifier = Modifier.fillMaxSize()) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize().haze(state = hazeState),
-                state = lazyListState,
-                contentPadding = PaddingValues(
-                    start = contentPadding.calculateStartPadding(LayoutDirection.Ltr) + 8.dp,
-                    top = contentPadding.calculateTopPadding() + 16.dp,
-                    end = contentPadding.calculateEndPadding(LayoutDirection.Ltr) + 8.dp,
-                    bottom = contentPadding.calculateBottomPadding()
-                ),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                items(items = listItem) { item: Exercise ->
-
-                    ExerciseListItemView(
-                        title = item.name,
-                        description = item.description,
-                        onClick = {
-                            onSelectExercise(item.id)
-                        }
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().haze(state = hazeState),
+            state = lazyListState,
+            contentPadding = PaddingValues(
+                start = contentPadding.calculateStartPadding(LayoutDirection.Ltr) + 8.dp,
+                top = contentPadding.calculateTopPadding() + 16.dp,
+                end = contentPadding.calculateEndPadding(LayoutDirection.Ltr) + 8.dp,
+                bottom = contentPadding.calculateBottomPadding()
+            ),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            stickyHeader {
+                Box(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
+                ) {
+                    Text(
+                        text = workoutPlanItem?.name.orEmpty(),
+                        style = MaterialTheme.typography.headlineMedium
                     )
                 }
-                item {
-                    Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.systemBars))
-                }
+            }
+            items(items = listItem) { item: Exercise ->
+
+                ExerciseListItemView(
+                    title = item.name,
+                    description = item.description,
+                    onClick = {
+                        onSelectExercise(item.id)
+                    }
+                )
+            }
+            item {
+                Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.systemBars))
             }
         }
     }

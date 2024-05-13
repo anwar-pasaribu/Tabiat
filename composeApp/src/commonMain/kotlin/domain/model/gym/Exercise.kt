@@ -3,7 +3,6 @@ package domain.model.gym
 data class Exercise(
     val id: Long,
     val name: String,
-    val type: Int,
     val difficulty: Int,
     val equipment: String,
     val instructions: String,

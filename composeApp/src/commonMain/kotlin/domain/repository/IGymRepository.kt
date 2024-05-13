@@ -7,6 +7,7 @@ import domain.model.gym.WorkoutPlanExercise
 
 interface IGymRepository {
     suspend fun createWorkoutPlan(workoutName: String, notes: String): Boolean
+    suspend fun createNewExercise(newExercise: Exercise): Boolean
 
     suspend fun getWorkoutPlans(): List<WorkoutPlan>
     suspend fun getExercises(): List<Exercise>
@@ -18,6 +19,8 @@ interface IGymRepository {
         exerciseId: Long,
         exerciseSetList: List<ExerciseSet>
     ): Boolean
+
+    suspend fun getWorkoutPlanById(workoutPlanId: Long): WorkoutPlan
 
     suspend fun getExerciseById(exerciseId: Long): Exercise
     suspend fun logExercise(
