@@ -1,6 +1,7 @@
 package domain.repository
 
 import domain.model.gym.Exercise
+import domain.model.gym.ExerciseLog
 import domain.model.gym.ExerciseSet
 import domain.model.gym.WorkoutPlan
 import domain.model.gym.WorkoutPlanExercise
@@ -30,4 +31,6 @@ interface IGymRepository {
         reps: Int,
         weight: Int
     ): Boolean
+
+    suspend fun getExerciseLogListByDateTimeStamp(dateTimeStamp: Long): List<ExerciseLog>
 }

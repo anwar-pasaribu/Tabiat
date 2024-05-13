@@ -27,5 +27,10 @@ INSERT INTO WorkoutPlanExerciseEntity
 (exerciseId, workoutPlanId, reps, weight, setNumberOrder, finishedDateTime)
 VALUES (?, ?, ?, ?, ?, ?);
 
+selectWorkoutPlanByTimeStampRange:
+SELECT *
+FROM WorkoutPlanExerciseEntity
+WHERE finishedDateTime BETWEEN :startTimeStamp AND :endTimeStamp;
+
 deleteWorkoutPlanExerciseById:
 DELETE FROM WorkoutPlanExerciseEntity WHERE id = ?;

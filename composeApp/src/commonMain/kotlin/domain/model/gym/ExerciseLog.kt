@@ -5,9 +5,9 @@ data class ExerciseLog(
     val exerciseId: Long,
     val workoutPlanId: Long,
     val reps: Int,
-    val weight: Int,
+    val weight: Double,
     val measurement: String,
     val setNumberOrder: Int,
-    val dateTimeStamp: Long,
+    val finishedDateTime: Long,
     val logNotes: String,
 )

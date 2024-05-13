@@ -46,6 +46,7 @@ import dev.chrisbanes.haze.haze
 import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
+import features.workoutHistory.ExerciseLogListBottomSheet
 import org.koin.compose.koinInject
 import ui.component.calendar.WeekView
 import ui.component.gym.WorkoutListItemView
@@ -76,6 +77,15 @@ fun HomeScreen(
 
     LaunchedEffect(Unit) {
         viewModel.loadWorkoutList()
+    }
+
+    if (moodStateBottomSheetStateShowed) {
+        ExerciseLogListBottomSheet(
+            targetDateTimeStamp = selectedDateTimeStamp,
+            onDismiss = {
+                moodStateBottomSheetStateShowed = false
+            }
+        )
     }
 
     Scaffold(

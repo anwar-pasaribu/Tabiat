@@ -1,19 +1,28 @@
 package data.repository
 
 import data.source.local.dao.IExerciseDao
+import data.source.local.dao.IExerciseLogDao
 import data.source.local.dao.IWorkoutPlanDao
 import data.source.local.dao.IWorkoutPlanExerciseDao
 import domain.model.gym.Exercise
+import domain.model.gym.ExerciseLog
 import domain.model.gym.ExerciseSet
 import domain.model.gym.WorkoutPlan
 import domain.model.gym.WorkoutPlanExercise
 import domain.repository.IGymRepository
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
 
 class GymRepositoryImpl(
     private val exerciseDao: IExerciseDao,
     private val workoutPlanDao: IWorkoutPlanDao,
-    private val workoutPlanExerciseDao: IWorkoutPlanExerciseDao
+    private val workoutPlanExerciseDao: IWorkoutPlanExerciseDao,
+    private val exerciseLogDao: IExerciseLogDao
 ): IGymRepository {
 
     // region Test exercise items
@@ -150,14 +159,52 @@ class GymRepositoryImpl(
         reps: Int,
         weight: Int
     ): Boolean {
+
+        val finishedDateTime = Clock.System.now().toEpochMilliseconds()
+
+        exerciseLogDao.insertExerciseLog(
+            exerciseId = exerciseId,
+            workoutPlanId = workoutPlanId,
+            reps = reps.toLong(),
+            weight = weight.toLong(),
+            difficulty = 0L,
+            measurement = "kg",
+            setNumberOrder = 1L,
+            finishedDateTime = finishedDateTime,
+            logNotes = "",
+            latitude = -1.0,
+            longitude = -1.0
+        )
+
         workoutPlanExerciseDao.updateWorkoutPlanExerciseFinishedDateTime(
             workoutPlanExerciseId = workoutPlanExerciseId,
-            finishedDateTime = Clock.System.now().toEpochMilliseconds(),
+            finishedDateTime = finishedDateTime,
             reps = reps.toLong(),
             weight = weight.toLong()
         )
 
         return true
+    }
+
+    override suspend fun getExerciseLogListByDateTimeStamp(dateTimeStamp: Long): List<ExerciseLog> {
+        val tz = TimeZone.currentSystemDefault()
+        val endOfTimeStampOfSelectedDate = LocalTime(hour = 23, minute = 59, second = 59)
+        val dateTime = LocalDateTime(
+            date = Instant.fromEpochMilliseconds(dateTimeStamp).toLocalDateTime(tz).date,
+            time = endOfTimeStampOfSelectedDate
+        )
+        val untilTimeStampMillis = dateTime.toInstant(tz).toEpochMilliseconds()
+
+        val selectedDateTime = Instant.fromEpochMilliseconds(
+            untilTimeStampMillis
+        ).toLocalDateTime(tz)
+        val firstSecondOfTheDay = LocalTime(hour = 0, minute = 0, second = 1)
+        val dateTimeTodayMorning =
+            LocalDateTime(date = selectedDateTime.date, time = firstSecondOfTheDay)
+        val startTimeStampMillis = dateTimeTodayMorning.toInstant(tz).toEpochMilliseconds()
+        return exerciseLogDao.getExerciseLogByDateTimeRange(
+            startTimeStampMillis, untilTimeStampMillis
+        )
     }
 
     override suspend fun createNewExercise(newExercise: Exercise): Boolean {

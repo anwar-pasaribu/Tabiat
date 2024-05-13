@@ -1,0 +1,27 @@
+CREATE TABLE IF NOT EXISTS ExerciseLogEntity (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    exerciseId INTEGER NOT NULL,
+    workoutPlanId INTEGER NOT NULL,
+    reps INTEGER NOT NULL,
+    weight REAL NOT NULL,
+    difficulty INTEGER,
+    measurement TEXT NOT NULL,
+    setNumberOrder INTEGER NOT NULL,
+    finishedDateTime INTEGER NOT NULL,
+    logNotes TEXT,
+    latitude REAL,
+    longitude REAL
+);
+
+selectAllExerciseLog:
+SELECT * FROM ExerciseLogEntity;
+
+insertExerciseLog:
+INSERT INTO ExerciseLogEntity
+(exerciseId, workoutPlanId, reps, weight, difficulty, measurement, setNumberOrder, finishedDateTime, logNotes, latitude, longitude)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?);
+
+selectExerciseLogByDateTimeStampRange:
+SELECT *
+FROM ExerciseLogEntity
+WHERE finishedDateTime BETWEEN :startTimeStamp AND :endTimeStamp;

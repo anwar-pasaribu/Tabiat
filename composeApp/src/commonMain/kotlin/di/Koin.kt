@@ -3,7 +3,9 @@ package di
 import data.repository.GymRepositoryImpl
 import data.source.local.createDatabase
 import data.source.local.dao.ExerciseDao
+import data.source.local.dao.ExerciseLogDao
 import data.source.local.dao.IExerciseDao
+import data.source.local.dao.IExerciseLogDao
 import data.source.local.dao.IWorkoutPlanDao
 import data.source.local.dao.IWorkoutPlanExerciseDao
 import data.source.local.dao.WorkoutPlanDao
@@ -15,6 +17,7 @@ import domain.usecase.GetExerciseListUseCase
 import domain.usecase.GetExerciseSetListUseCase
 import domain.usecase.GetWorkoutPlanListUseCase
 import domain.usecase.CreateNewExerciseUseCase
+import domain.usecase.GetExerciseLogListByDateTimeStampUseCase
 import domain.usecase.GetWorkoutPlanByIdUseCase
 import domain.usecase.InputWorkoutPlanExerciseSetListUseCase
 import domain.usecase.LogExerciseUseCase
@@ -44,7 +47,8 @@ fun appModule() = module {
         GymRepositoryImpl(
             exerciseDao = get(),
             workoutPlanDao = get(),
-            workoutPlanExerciseDao = get()
+            workoutPlanExerciseDao = get(),
+            exerciseLogDao = get()
         )
     }
 
@@ -83,6 +87,10 @@ fun appModule() = module {
     single {
         GetWorkoutPlanByIdUseCase(repository = get())
     }
+
+    single {
+        GetExerciseLogListByDateTimeStampUseCase(repository = get())
+    }
 }
 
 fun viewModels() = module {
@@ -102,7 +110,9 @@ fun viewModels() = module {
     }
 
     single {
-        WorkoutHistoryScreenViewModel(repository = get())
+        WorkoutHistoryScreenViewModel(
+            getExerciseLogListByDateTimeStampUseCase = get()
+        )
     }
 
     single {
@@ -145,5 +155,9 @@ fun databaseModule() = module {
 
     single<IWorkoutPlanExerciseDao>{
         WorkoutPlanExerciseDao(database = get())
+    }
+
+    single<IExerciseLogDao>{
+        ExerciseLogDao(database = get())
     }
 }
