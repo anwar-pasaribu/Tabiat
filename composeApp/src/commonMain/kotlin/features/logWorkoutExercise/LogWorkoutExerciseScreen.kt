@@ -226,6 +226,7 @@ fun LogWorkoutExerciseScreen(
                         Spacer(Modifier.height(8.dp))
                         AddExerciseSet(
                             modifier = Modifier.padding(horizontal = 8.dp),
+                            actionText = "Selesaikan Set",
                             initialReps = selectedExerciseSet.reps,
                             initialWeight = selectedExerciseSet.weight,
                             addExerciseSetDone = { reps, weight ->

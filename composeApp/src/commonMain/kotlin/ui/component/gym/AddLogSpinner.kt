@@ -1,5 +1,6 @@
 package ui.component.gym
 
+import PlayHapticAndSound
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -80,6 +81,7 @@ fun AddWorkoutLog(modifier: Modifier = Modifier) {
 @Composable
 fun AddExerciseSet(
     modifier: Modifier = Modifier,
+    actionText: String = "Tambah Set Latihan",
     initialReps: Int = 0,
     initialWeight: Int = 0,
     onRepsChange: (Int) -> Unit = {},
@@ -106,6 +108,9 @@ fun AddExerciseSet(
     } else {
         weightOptionList.indexOf(initialWeight)
     }
+
+    PlayHapticAndSound(selectedReps)
+    PlayHapticAndSound(selectedWeight)
 
     Card(
         modifier = modifier,
@@ -173,7 +178,7 @@ fun AddExerciseSet(
                 },
                 border = ButtonDefaults.outlinedButtonBorder.copy(width = 1.dp)
             ) {
-                Text(text = "Tambah")
+                Text(text = actionText)
             }
         }
     }
