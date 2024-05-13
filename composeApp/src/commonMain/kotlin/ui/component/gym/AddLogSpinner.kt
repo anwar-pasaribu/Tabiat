@@ -3,8 +3,10 @@ package ui.component.gym
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -72,7 +74,6 @@ fun AddWorkoutLog(modifier: Modifier = Modifier) {
             }
 
         }
-
     }
 }
 
@@ -113,7 +114,18 @@ fun AddExerciseSet(
         )
     ) {
         Row(modifier = Modifier.fillMaxWidth()) {
-            Box(modifier = Modifier.weight(.5F)) {
+            Column(modifier = Modifier.weight(.5F)) {
+                Box(
+                    modifier = Modifier.fillMaxWidth().height(32.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Repetisi",
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            textAlign = TextAlign.Center
+                        )
+                    )
+                }
                 HorizontalScrollSelector(
                     selectedItemIndex = initialRepsIndex,
                     pagerItemList = repsOptionList
@@ -123,22 +135,36 @@ fun AddExerciseSet(
                 }
             }
             Box(modifier = Modifier.weight(.5F)) {
-                HorizontalScrollSelector(pagerItemList = listOf("✕"))
+                Column {
+                    Spacer(modifier = Modifier.height(32.dp))
+                    HorizontalScrollSelector(pagerItemList = listOf("✕"))
+                }
             }
             Box(modifier = Modifier.weight(.5F)) {
-                HorizontalScrollSelector(
-                    selectedItemIndex = initialWeightIndex,
-                    pagerItemList = weightOptionList
-                ) {
-                    selectedWeight = weightOptionList[it]
-                    onWeightChange(selectedWeight)
+                Column {
+                    Box(
+                        modifier = Modifier.fillMaxWidth().height(32.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Berat (kg)",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                textAlign = TextAlign.Center
+                            )
+                        )
+                    }
+                    HorizontalScrollSelector(
+                        selectedItemIndex = initialWeightIndex,
+                        pagerItemList = weightOptionList
+                    ) {
+                        selectedWeight = weightOptionList[it]
+                        onWeightChange(selectedWeight)
+                    }
                 }
             }
         }
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
+            modifier = Modifier.fillMaxWidth().height(56.dp)
         ) {
             TextButton(
                 modifier = Modifier.align(Alignment.CenterEnd).padding(end = 16.dp),
@@ -202,8 +228,7 @@ fun <T> HorizontalScrollSelector(
                             // Calculate the absolute offset for the current page from the
                             // scroll position. We use the absolute value which allows us to mirror
                             // any effects for both directions
-                            val pageOffset =
-                                ((pagerState.currentPage - page) + pagerState.currentPageOffsetFraction).absoluteValue
+                            val pageOffset = ((pagerState.currentPage - page) + pagerState.currentPageOffsetFraction).absoluteValue
 
                             // We animate the alpha, between 50% and 100%
                             alpha = lerp(
