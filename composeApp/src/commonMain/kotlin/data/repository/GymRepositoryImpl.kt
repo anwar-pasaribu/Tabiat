@@ -10,11 +10,16 @@ import domain.model.gym.ExerciseSet
 import domain.model.gym.WorkoutPlan
 import domain.model.gym.WorkoutPlanExercise
 import domain.repository.IGymRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.minus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 
@@ -23,7 +28,7 @@ class GymRepositoryImpl(
     private val workoutPlanDao: IWorkoutPlanDao,
     private val workoutPlanExerciseDao: IWorkoutPlanExerciseDao,
     private val exerciseLogDao: IExerciseLogDao
-): IGymRepository {
+) : IGymRepository {
 
     override suspend fun createWorkoutPlan(workoutName: String, notes: String): Boolean {
         val latestWoPlan = workoutPlanDao.getLatestWorkoutPlan()
@@ -155,7 +160,34 @@ class GymRepositoryImpl(
     }
 
     override suspend fun getWorkoutPlans(): List<WorkoutPlan> {
+        resetLastDayWorkoutPlanExerciseList()
         return workoutPlanDao.getAllWorkoutPlan()
+    }
+
+    private suspend fun resetLastDayWorkoutPlanExerciseList() = coroutineScope {
+        withContext(Dispatchers.Default) {
+            workoutPlanDao.getAllWorkoutPlan().forEach { workoutPlan ->
+                workoutPlanExerciseDao.getAllWorkoutPlanExercise(workoutPlan.id).forEach { workoutPlanExercise ->
+                    val isYesterday = isYesterday(workoutPlanExercise.finishedDateTime)
+                    if (isYesterday) {
+                        workoutPlanExerciseDao.updateWorkoutPlanExerciseFinishedDateTime(
+                            workoutPlanExerciseId = workoutPlanExercise.id,
+                            finishedDateTime = 0L,
+                            reps = workoutPlanExercise.reps.toLong(),
+                            weight = workoutPlanExercise.weight.toLong()
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private fun isYesterday(timestamp: Long): Boolean {
+        val tz = TimeZone.currentSystemDefault()
+        val yesterday = Clock.System.now().toLocalDateTime(tz).date.minus(1, DateTimeUnit.DAY)
+        val timestampDate = Instant.fromEpochMilliseconds(timestamp).toLocalDateTime(tz).date
+
+        return yesterday == timestampDate
     }
 
     override suspend fun getExercises(): List<Exercise> {
