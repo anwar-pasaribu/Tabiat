@@ -4,6 +4,8 @@ import data.source.local.dao.IExerciseDao
 import data.source.local.dao.IExerciseLogDao
 import data.source.local.dao.IWorkoutPlanDao
 import data.source.local.dao.IWorkoutPlanExerciseDao
+import data.source.remote.api.IGymApi
+import domain.model.gym.DifficultyLevel
 import domain.model.gym.Exercise
 import domain.model.gym.ExerciseLog
 import domain.model.gym.ExerciseSet
@@ -11,6 +13,7 @@ import domain.model.gym.WorkoutPlan
 import domain.model.gym.WorkoutPlanExercise
 import domain.repository.IGymRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
@@ -22,8 +25,11 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 class GymRepositoryImpl(
+    private val gymApi: IGymApi,
     private val exerciseDao: IExerciseDao,
     private val workoutPlanDao: IWorkoutPlanDao,
     private val workoutPlanExerciseDao: IWorkoutPlanExerciseDao,
@@ -120,7 +126,7 @@ class GymRepositoryImpl(
             instructions = newExercise.instructions,
             video = newExercise.video,
             image = newExercise.image,
-            targetMuscle = newExercise.targetMuscle.toLong(),
+            targetMuscle = "",
             description = newExercise.description,
             type = 0L
         )
@@ -191,6 +197,43 @@ class GymRepositoryImpl(
     }
 
     override suspend fun getExercises(): List<Exercise> {
-        return exerciseDao.getAllExercises()
+
+        val exercises = exerciseDao.getAllExercises()
+
+        if (exercises.size <= 10) {
+            val networkExercises = gymApi.loadExerciseList()
+            withContext(Dispatchers.IO) {
+                networkExercises.forEach { networkExercise ->
+                    val difficultyLevel = when (networkExercise.level) {
+                        "beginner" -> DifficultyLevel.BEGINNER.level
+                        "intermediate" -> DifficultyLevel.INTERMEDIATE.level
+                        "expert" -> DifficultyLevel.EXPERT.level
+                        else -> { 0L }
+                    }
+
+                    val description = """
+                        Category: ${networkExercise.category}
+                        Mechanics: ${networkExercise.mechanic}
+                        Force: ${networkExercise.force}
+                    """.trimIndent()
+
+                    exerciseDao.insertExercise(
+                        name = networkExercise.name.orEmpty(),
+                        difficulty = difficultyLevel,
+                        equipment = networkExercise.equipment.orEmpty(),
+                        instructions = Json.encodeToString(networkExercise.instructions),
+                        video = "",
+                        image = Json.encodeToString(networkExercise.images),
+                        targetMuscle = Json.encodeToString(
+                            networkExercise.primaryMuscles.orEmpty() + networkExercise.secondaryMuscles.orEmpty()
+                        ),
+                        description = description,
+                        type = 0L
+                    )
+                }
+            }
+        }
+
+        return exercises
     }
 }

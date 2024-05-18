@@ -37,7 +37,7 @@ import org.koin.dsl.module
 fun letsKoinStart() {
     stopKoin()
     startKoin {
-        modules(databaseModule(), appModule(), viewModels())
+        modules(databaseModule(), getNetworkModule(), appModule(), viewModels())
     }
 }
 
@@ -45,6 +45,7 @@ fun appModule() = module {
 
     single<IGymRepository> {
         GymRepositoryImpl(
+            gymApi = get(),
             exerciseDao = get(),
             workoutPlanDao = get(),
             workoutPlanExerciseDao = get(),

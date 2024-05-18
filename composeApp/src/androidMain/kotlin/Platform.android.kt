@@ -1,5 +1,9 @@
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import android.media.AudioManager
-import android.media.MediaPlayer
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
@@ -13,7 +17,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
+import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import com.unwur.tabiatmu.MainActivity
+import com.unwur.tabiatmu.R
 import domain.enums.PlatformType
 
 class AndroidPlatform : Platform {
@@ -68,4 +75,43 @@ actual fun PlayHapticAndSound(trigger: Any) {
             )
         }
     }
+}
+
+@Composable
+actual fun SendNotification(title: String, body: String) {
+    val context = LocalContext.current
+
+    // Create a PendingIntent
+    val intent = Intent(context, MainActivity::class.java)
+    val pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+
+    // Create a notification channel for Android 8.0 and above
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        val channel = NotificationChannel(
+            "YOUR_CHANNEL_ID",
+            "YOUR_CHANNEL_NAME",
+            NotificationManager.IMPORTANCE_MAX
+        )
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
+    }
+
+    // Build the notification
+    val notificationBuilder = NotificationCompat.Builder(context, "YOUR_CHANNEL_ID")
+        .setContentTitle(title)
+        .setContentText(body)
+        .setSmallIcon(R.drawable.notif_icon_32dp) // Replace with your icon resource
+        .setAutoCancel(true)
+        .setContentIntent(pendingIntent)
+        .setSound(Settings.System.DEFAULT_NOTIFICATION_URI)
+        .setPriority(NotificationCompat.PRIORITY_MAX)
+
+    // Send the notification
+    val notificationManager =
+        context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    notificationManager.notify(0, notificationBuilder.build())
+
+//    val player = MediaPlayer.create(context, Settings.System.DEFAULT_NOTIFICATION_URI)
+//    player.start()
 }

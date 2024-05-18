@@ -142,6 +142,7 @@ fun ExerciseListScreen(
                     modifier = Modifier.padding(bottom = 8.dp),
                     title = exercise.name,
                     description = exercise.description,
+                    image = exercise.image,
                     onClick = {
                         onExerciseSelected(exercise)
                     },

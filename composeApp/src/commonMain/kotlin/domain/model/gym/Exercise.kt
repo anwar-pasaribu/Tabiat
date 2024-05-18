@@ -8,6 +8,6 @@ data class Exercise(
     val instructions: String,
     val video: String,
     val image: String,
-    val targetMuscle: Int,
+    val targetMuscle: String,
     val description: String
 )

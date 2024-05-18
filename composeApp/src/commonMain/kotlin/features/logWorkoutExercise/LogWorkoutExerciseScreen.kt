@@ -1,6 +1,7 @@
 package features.logWorkoutExercise
 
 import PlayHapticAndSound
+import SendNotification
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -162,6 +163,11 @@ fun LogWorkoutExerciseScreen(
                 }
             }
 
+            var showNotification by remember { mutableStateOf(false) }
+            if(showNotification) {
+                SendNotification("Timer Selesai", "Lanjut Latihan atau istirahat")
+            }
+
             AnimatedVisibility(
                 visible = logExerciseTimerVisible,
                 enter = fadeIn(),
@@ -184,6 +190,7 @@ fun LogWorkoutExerciseScreen(
                         countDown = 45,
                         onTimerFinished = {
                             logExerciseTimerVisible = false
+                            showNotification = true
                         },
                         onCancelTimer = {
                             logExerciseTimerVisible = false
@@ -238,6 +245,7 @@ fun LogWorkoutExerciseScreen(
                                     weight = weight
                                 )
                                 logExerciseSpinnerVisible = false
+                                showNotification = false
                                 logExerciseTimerVisible = true
                             }
                         )

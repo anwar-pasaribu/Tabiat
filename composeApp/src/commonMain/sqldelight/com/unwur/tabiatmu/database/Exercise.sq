@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS ExerciseEntity (
     instructions TEXT,
     video TEXT,
     image TEXT,
-    targetMuscle INTEGER,
+    targetMuscle TEXT,
     description TEXT
 );
 

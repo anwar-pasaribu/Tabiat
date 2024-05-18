@@ -1,4 +1,3 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import java.util.Properties
 
 plugins {
@@ -6,6 +5,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.sqlDelight)
+    alias(libs.plugins.kotlinSerialization)
 }
 
 kotlin {
@@ -41,9 +41,15 @@ kotlin {
             implementation(libs.androidx.core.splashscreen)
 
             implementation(libs.sqldelight.androidDriver)
+
+            implementation(libs.ktor.client.okhttp)
+            implementation("org.slf4j:slf4j-simple:2.0.7")
         }
         iosMain.dependencies {
             implementation(libs.sqldelight.nativeDriver)
+
+            implementation(libs.ktor.client.darwin)
+
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -66,6 +72,18 @@ kotlin {
 
             implementation(libs.sqldelight.coroutines)
             implementation(libs.sqldelight.primitiveAdapters)
+
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.logging)
+            implementation(libs.ktor.client.negotiation)
+            implementation(libs.ktor.client.json)
+
+            implementation(libs.ktor.client.core)
+            implementation(libs.kotlinx.coroutines.core)
+
+//            implementation("io.coil-kt.coil3:coil:3.0.0-alpha06")
+            implementation("io.coil-kt.coil3:coil-compose:3.0.0-alpha06")
+            implementation("io.coil-kt.coil3:coil-network-ktor:3.0.0-alpha06")
 
             // Handle Error
             // Task :composeApp:compileKotlinIosX64 FAILED

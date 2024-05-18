@@ -20,7 +20,7 @@ class ExerciseDao(
                     instructions = it.instructions.orEmpty(),
                     video = it.video.orEmpty(),
                     image = it.image.orEmpty(),
-                    targetMuscle = it.targetMuscle?.toInt() ?: 0,
+                    targetMuscle = it.targetMuscle.orEmpty(),
                     description = it.description.orEmpty()
                 )
             }
@@ -42,7 +42,7 @@ class ExerciseDao(
                 instructions = exerciseEntity.instructions.orEmpty(),
                 video = exerciseEntity.video.orEmpty(),
                 image = exerciseEntity.image.orEmpty(),
-                targetMuscle = exerciseEntity.targetMuscle?.toInt() ?: 0,
+                targetMuscle = exerciseEntity.targetMuscle.orEmpty(),
                 description = exerciseEntity.description.orEmpty()
             )
         } catch (e: Exception) {
@@ -58,7 +58,7 @@ class ExerciseDao(
         instructions: String,
         video: String,
         image: String,
-        targetMuscle: Long,
+        targetMuscle: String,
         description: String
     ) {
 

@@ -16,3 +16,6 @@ expect fun getScreenSizeInfo(): ScreenSizeInfo
 
 @Composable
 expect fun PlayHapticAndSound(trigger: Any)
+
+@Composable
+expect fun SendNotification(title: String, body: String)

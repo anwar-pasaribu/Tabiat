@@ -33,3 +33,7 @@ actual fun getScreenSizeInfo(): ScreenSizeInfo {
 @Composable
 actual fun PlayHapticAndSound(trigger: Any) {
 }
+
+@Composable
+actual fun SendNotification(title: String, body: String) {
+}

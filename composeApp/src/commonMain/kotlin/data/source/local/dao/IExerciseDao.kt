@@ -15,7 +15,7 @@ interface IExerciseDao {
         instructions: String,
         video: String,
         image: String,
-        targetMuscle: Long,
+        targetMuscle: String,
         description: String,
     )
 }
