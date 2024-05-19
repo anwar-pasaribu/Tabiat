@@ -11,13 +11,15 @@ interface IGymRepository {
     suspend fun createWorkoutPlan(workoutName: String, notes: String): Boolean
     suspend fun updateWorkoutPlan(workoutPlanId: Long, workoutName: String, notes: String): Boolean
     suspend fun deleteWorkoutPlan(workoutPlanId: Long): Boolean
-    suspend fun createNewExercise(newExercise: Exercise): Boolean
-
     suspend fun getWorkoutPlans(): List<WorkoutPlan>
     suspend fun getWorkoutPlansObservable(): Flow<List<WorkoutPlan>>
+
+    suspend fun createNewExercise(newExercise: Exercise): Boolean
     suspend fun getExercises(): List<Exercise>
     suspend fun searchExercises(searchQuery: String): List<Exercise>
+
     suspend fun getWorkoutPlanExercises(workoutPlanId: Long): List<Exercise>
+    suspend fun getWorkoutPlanExercisesObservable(workoutPlanId: Long): Flow<List<Exercise>>
 
     suspend fun getExerciseSetList(workoutPlanId: Long, exerciseId: Long): List<WorkoutPlanExercise>
     suspend fun insertExerciseSetList(
@@ -27,6 +29,8 @@ interface IGymRepository {
     ): Boolean
 
     suspend fun getWorkoutPlanById(workoutPlanId: Long): WorkoutPlan
+
+    suspend fun deleteWorkoutPlanExerciseByWorkoutPlanIdAndExerciseId(workoutPlanId: Long, exerciseId: Long): Boolean
 
     suspend fun getExerciseById(exerciseId: Long): Exercise
     suspend fun logExercise(

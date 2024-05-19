@@ -45,6 +45,7 @@ import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import features.workoutHistory.ExerciseLogListBottomSheet
 import org.koin.compose.koinInject
+import ui.component.EmptyState
 import ui.component.InsetNavigationHeight
 import ui.component.calendar.WeekView
 import ui.component.gym.WorkoutListItemView
@@ -67,7 +68,7 @@ fun HomeScreen(
     val lazyListState = rememberLazyListState()
 
     val viewModel = koinInject<HomeScreenViewModel>()
-    val listItemState by viewModel.workoutListStateFlow.collectAsState()
+    val listItem by viewModel.workoutListStateFlow.collectAsState()
 
     var selectedDateTimeStamp by remember { mutableStateOf(0L) }
     var moodStateBottomSheetStateShowed by remember { mutableStateOf(false) }
@@ -146,7 +147,7 @@ fun HomeScreen(
                 ),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(items = listItemState, key = { it.id }) { item ->
+                items(items = listItem, key = { it.id }) { item ->
                     Column(
                         modifier = Modifier.fillMaxWidth().animateItemPlacement(),
                     ) {
@@ -163,6 +164,20 @@ fun HomeScreen(
                                 viewModel.deleteWorkout(item.id)
                             }
                         )
+                    }
+                }
+
+                if (listItem.isEmpty()) {
+                    item {
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            EmptyState(
+                                title = "Belum ada Rencana Workout",
+                                btnText = "Tambah Workout",
+                                onClick = {
+                                    onCreateNewWorkoutPlan()
+                                }
+                            )
+                        }
                     }
                 }
 

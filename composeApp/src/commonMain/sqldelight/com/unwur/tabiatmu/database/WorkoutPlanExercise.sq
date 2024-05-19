@@ -34,3 +34,6 @@ WHERE finishedDateTime BETWEEN :startTimeStamp AND :endTimeStamp;
 
 deleteWorkoutPlanExerciseById:
 DELETE FROM WorkoutPlanExerciseEntity WHERE id = ?;
+
+deleteWorkoutPlanExerciseByWorkoutPlanIdAndExerciseId:
+DELETE FROM WorkoutPlanExerciseEntity WHERE workoutPlanId = :workoutPlanId AND exerciseId = :exerciseId;

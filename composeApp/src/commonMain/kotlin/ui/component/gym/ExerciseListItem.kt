@@ -51,6 +51,7 @@ fun ExerciseListItemView(
     image: String = "",
     imageUrlList: List<String> = emptyList(),
     selected: Boolean = false,
+    enabled: Boolean = true,
     onClick: () -> Unit = {}
 ) {
     val imageAvailable = image.isNotEmpty() || imageUrlList.isNotEmpty()
@@ -105,7 +106,7 @@ fun ExerciseListItemView(
             color = if (selected) Color.Green else Color.Transparent
         ),
     ) {
-        Row(modifier = Modifier.clickable {
+        Row(modifier = Modifier.clickable(enabled = enabled) {
             onClick()
         }) {
             if (imageAvailable) {
@@ -137,7 +138,9 @@ fun ExerciseListItemView(
                 }
 
                 Row(
-                    modifier = Modifier.align(Alignment.CenterEnd),
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .alpha(if (enabled) 1f else 0f),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(

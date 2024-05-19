@@ -16,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
@@ -80,6 +81,36 @@ class GymRepositoryImpl(
             }
         }
         return exercises.distinctBy { it.id }
+    }
+
+    override suspend fun getWorkoutPlanExercisesObservable(workoutPlanId: Long): Flow<List<Exercise>> {
+        val workoutPlanExercises = workoutPlanExerciseDao.getAllWorkoutPlanExerciseObservable(workoutPlanId)
+//        val exercises = mutableListOf<Exercise>()
+//        workoutPlanExercises.collect { wpeList ->
+//            wpeList.forEach { wpe ->
+//                val exercise = exerciseDao.getExerciseById(wpe.exerciseId)
+//                if (exercise != null) {
+//                    exercises.add(exercise)
+//                }
+//            }
+//        }
+        return workoutPlanExercises.map { wpeList ->
+            wpeList.map {
+                exerciseDao.getExerciseById(it.exerciseId) ?: throw Exception("Exercise id: ${it.exerciseId} not found")
+            }.distinctBy { it.id }
+        }
+        // return exercises.distinctBy { it.id }
+    }
+
+    override suspend fun deleteWorkoutPlanExerciseByWorkoutPlanIdAndExerciseId(
+        workoutPlanId: Long,
+        exerciseId: Long
+    ): Boolean {
+        workoutPlanExerciseDao.deleteWorkoutPlanExerciseByWorkoutPlanIdAndExerciseId(
+            workoutPlanId = workoutPlanId,
+            exerciseId = exerciseId
+        )
+        return true
     }
 
     override suspend fun getWorkoutPlanById(workoutPlanId: Long): WorkoutPlan {

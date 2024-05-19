@@ -26,13 +26,24 @@ class WorkoutDetailScreenViewModel(
 
     fun loadWorkoutPlan(workoutPlanId: Long) {
         viewModelScope.launch {
-            _exerciseListStateFlow.value = getExerciseListByWorkoutPlanUseCase(workoutPlanId)
+            getExerciseListByWorkoutPlanUseCase(workoutPlanId).collect {
+                _exerciseListStateFlow.emit(it)
+            }
         }
     }
 
     fun loadWorkoutPlanById(workoutPlanId: Long) {
         viewModelScope.launch {
             _workoutPlanStateFlow.value = getWorkoutPlanByIdUseCase(workoutPlanId)
+        }
+    }
+
+    fun deleteExercise(workoutPlanId: Long, workoutPlanExerciseId: Long) {
+        viewModelScope.launch {
+            repository.deleteWorkoutPlanExerciseByWorkoutPlanIdAndExerciseId(
+                workoutPlanId = workoutPlanId,
+                exerciseId = workoutPlanExerciseId
+            )
         }
     }
 }

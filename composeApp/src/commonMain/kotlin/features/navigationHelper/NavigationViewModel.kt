@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 class NavigationViewModel: ViewModel() {
 
-    val currentWorkoutPlanId = MutableStateFlow(1L)
-    val currentExerciseId = MutableStateFlow(1L)
+    val currentWorkoutPlanId = MutableStateFlow(0L)
+    val currentExerciseId = MutableStateFlow(0L)
 
 }
