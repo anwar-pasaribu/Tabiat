@@ -201,39 +201,47 @@ class GymRepositoryImpl(
         val exercises = exerciseDao.getAllExercises()
 
         if (exercises.size <= 10) {
-            val networkExercises = gymApi.loadExerciseList()
-            withContext(Dispatchers.IO) {
-                networkExercises.forEach { networkExercise ->
-                    val difficultyLevel = when (networkExercise.level) {
-                        "beginner" -> DifficultyLevel.BEGINNER.level
-                        "intermediate" -> DifficultyLevel.INTERMEDIATE.level
-                        "expert" -> DifficultyLevel.EXPERT.level
-                        else -> { 0L }
-                    }
+            loadRemoteExercises()
+        }
 
-                    val description = """
+        return exercises
+    }
+
+    private suspend fun loadRemoteExercises() = coroutineScope {
+        val networkExercises = gymApi.loadExerciseList()
+        withContext(Dispatchers.IO) {
+            networkExercises.forEach { networkExercise ->
+                val difficultyLevel = when (networkExercise.level) {
+                    "beginner" -> DifficultyLevel.BEGINNER.level
+                    "intermediate" -> DifficultyLevel.INTERMEDIATE.level
+                    "expert" -> DifficultyLevel.EXPERT.level
+                    else -> { 0L }
+                }
+
+                val description = """
                         Category: ${networkExercise.category}
                         Mechanics: ${networkExercise.mechanic}
                         Force: ${networkExercise.force}
                     """.trimIndent()
 
-                    exerciseDao.insertExercise(
-                        name = networkExercise.name.orEmpty(),
-                        difficulty = difficultyLevel,
-                        equipment = networkExercise.equipment.orEmpty(),
-                        instructions = Json.encodeToString(networkExercise.instructions),
-                        video = "",
-                        image = Json.encodeToString(networkExercise.images),
-                        targetMuscle = Json.encodeToString(
-                            networkExercise.primaryMuscles.orEmpty() + networkExercise.secondaryMuscles.orEmpty()
-                        ),
-                        description = description,
-                        type = 0L
-                    )
-                }
+                exerciseDao.insertExercise(
+                    name = networkExercise.name.orEmpty(),
+                    difficulty = difficultyLevel,
+                    equipment = networkExercise.equipment.orEmpty(),
+                    instructions = Json.encodeToString(networkExercise.instructions),
+                    video = "",
+                    image = Json.encodeToString(networkExercise.images),
+                    targetMuscle = Json.encodeToString(
+                        networkExercise.primaryMuscles.orEmpty() + networkExercise.secondaryMuscles.orEmpty()
+                    ),
+                    description = description,
+                    type = 0L
+                )
             }
         }
+    }
 
-        return exercises
+    override suspend fun searchExercises(searchQuery: String): List<Exercise> {
+        return exerciseDao.searchExercises(searchQuery)
     }
 }

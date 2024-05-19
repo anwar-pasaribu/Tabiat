@@ -2,6 +2,7 @@ package ui.component.gym
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -48,6 +50,7 @@ fun ExerciseListItemView(
     description: String,
     image: String = "",
     imageUrlList: List<String> = emptyList(),
+    selected: Boolean = false,
     onClick: () -> Unit = {}
 ) {
     val imageAvailable = image.isNotEmpty() || imageUrlList.isNotEmpty()
@@ -95,50 +98,54 @@ fun ExerciseListItemView(
             }
         }
     }
-    Surface {
-        Card(modifier = modifier) {
-            Row(modifier = Modifier.clickable {
-                onClick()
-            }) {
-                if (imageAvailable) {
-                    ImageWrapper(
-                        modifier = Modifier
-                            .alpha(animatedFloat.value)
-                            .padding(start = 16.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .clickable {
-                                bigPictureMode = !bigPictureMode
-                            }
-                            .size(56.dp)
-                            .align(Alignment.CenterVertically),
-                        imageUrl = imageUrl,
-                        contentDescription = "Picture of $title",
-                        contentScale = ContentScale.Crop
-                    )
+    Card(
+        modifier = modifier,
+        border = BorderStroke(
+            width = 2.dp,
+            color = if (selected) Color.Green else Color.Transparent
+        ),
+    ) {
+        Row(modifier = Modifier.clickable {
+            onClick()
+        }) {
+            if (imageAvailable) {
+                ImageWrapper(
+                    modifier = Modifier
+                        .alpha(animatedFloat.value)
+                        .padding(start = 16.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .clickable {
+                            bigPictureMode = !bigPictureMode
+                        }
+                        .size(56.dp)
+                        .align(Alignment.CenterVertically),
+                    imageUrl = imageUrl,
+                    contentDescription = "Picture of $title",
+                    contentScale = ContentScale.Crop
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 16.dp)
+            ) {
+
+                Column(modifier = Modifier.padding(end = 32.dp)) {
+                    Text(text = title, style = MaterialTheme.typography.titleMedium)
+                    Text(text = description, style = MaterialTheme.typography.bodyMedium)
                 }
 
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 16.dp)
+                Row(
+                    modifier = Modifier.align(Alignment.CenterEnd),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-
-                    Column(modifier = Modifier.padding(end = 32.dp)) {
-                        Text(text = title, style = MaterialTheme.typography.titleMedium)
-                        Text(text = description, style = MaterialTheme.typography.bodyMedium)
-                    }
-
-                    Row(
-                        modifier = Modifier.align(Alignment.CenterEnd),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            painter = rememberVectorPainter(
-                                image = Icons.AutoMirrored.Filled.KeyboardArrowRight
-                            ),
-                            contentDescription = "See more: $title"
-                        )
-                    }
+                    Icon(
+                        painter = rememberVectorPainter(
+                            image = if (selected) Icons.Default.Check else Icons.AutoMirrored.Filled.KeyboardArrowRight
+                        ),
+                        contentDescription = "See more: $title"
+                    )
                 }
             }
         }

@@ -12,6 +12,7 @@ interface IGymRepository {
 
     suspend fun getWorkoutPlans(): List<WorkoutPlan>
     suspend fun getExercises(): List<Exercise>
+    suspend fun searchExercises(searchQuery: String): List<Exercise>
     suspend fun getWorkoutPlanExercises(workoutPlanId: Long): List<Exercise>
 
     suspend fun getExerciseSetList(workoutPlanId: Long, exerciseId: Long): List<WorkoutPlanExercise>

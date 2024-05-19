@@ -59,7 +59,8 @@ fun InputWorkoutPlanExerciseView(
             },
             onCreateNewExerciseRequested = {
                 onCreateNewExerciseRequested()
-            }
+            },
+            selectedExerciseId = selectedExerciseId
         )
     }
 

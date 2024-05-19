@@ -26,6 +26,26 @@ class ExerciseDao(
             }
     }
 
+    override suspend fun searchExercises(searchQuery: String): List<Exercise> {
+        return database
+            .exerciseQueries
+            .searchExercise("%$searchQuery%")
+            .executeAsList()
+            .map {
+                Exercise(
+                    id = it.id,
+                    name = it.name,
+                    difficulty = it.difficulty.toInt(),
+                    equipment = it.equipment.orEmpty(),
+                    instructions = it.instructions.orEmpty(),
+                    video = it.video.orEmpty(),
+                    image = it.image.orEmpty(),
+                    targetMuscle = it.targetMuscle.orEmpty(),
+                    description = it.description.orEmpty()
+                )
+            }
+    }
+
     override suspend fun getExerciseById(id: Long): Exercise? {
         try {
 

@@ -17,6 +17,11 @@ SELECT * FROM ExerciseEntity;
 selectExerciseById:
 SELECT * FROM ExerciseEntity WHERE id = ?;
 
+searchExercise:
+SELECT *
+FROM ExerciseEntity
+WHERE name LIKE :searchQuery OR equipment LIKE :searchQuery OR targetMuscle LIKE :searchQuery;
+
 deleteExerciseById:
 DELETE FROM ExerciseEntity WHERE id = ?;
 

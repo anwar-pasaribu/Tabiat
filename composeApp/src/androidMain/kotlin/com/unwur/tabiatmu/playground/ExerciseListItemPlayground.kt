@@ -1,5 +1,6 @@
 package com.unwur.tabiatmu.playground
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -11,7 +12,7 @@ import ui.component.gym.ExerciseListItemView
 import ui.theme.MyAppTheme
 
 
-@Preview
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun WorkoutListItemViewPreview() {
     MyAppTheme {
@@ -24,6 +25,14 @@ private fun WorkoutListItemViewPreview() {
             Spacer(modifier = Modifier.height(16.dp))
             ExerciseListItemView(
                 Modifier,
+                image = "URL",
+                title = "Barbell exercises (e.g., squats, deadlifts, bench press)",
+                description = "Barbell exercises (e.g., squats, deadlifts, bench press)"
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            ExerciseListItemView(
+                Modifier,
+                selected = true,
                 image = "URL",
                 title = "Barbell exercises (e.g., squats, deadlifts, bench press)",
                 description = "Barbell exercises (e.g., squats, deadlifts, bench press)"

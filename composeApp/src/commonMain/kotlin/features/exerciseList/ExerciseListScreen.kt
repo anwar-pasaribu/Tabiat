@@ -1,10 +1,12 @@
 package features.exerciseList
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.exclude
@@ -16,6 +18,7 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,7 +32,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -38,6 +43,7 @@ import domain.model.gym.Exercise
 import org.koin.compose.koinInject
 import ui.component.InsetNavigationHeight
 import ui.component.gym.ExerciseListItemView
+import ui.component.gym.ExerciseSearchView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -88,7 +94,7 @@ fun ExerciseListBottomSheet(
 
     BottomSheet(
         onDismiss = onDismiss,
-        showFullScreen = false
+        showFullScreen = true
     ) {
         ExerciseListScreen(
             modifier = Modifier,
@@ -105,6 +111,7 @@ fun ExerciseListBottomSheet(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ExerciseListScreen(
     modifier: Modifier = Modifier,
@@ -114,8 +121,18 @@ fun ExerciseListScreen(
     viewModel: ExerciseListScreenViewModel = koinInject(),
 ) {
 
+    val listState = rememberLazyListState()
+    var scrollTopRequest by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
         viewModel.loadExerciseList()
+    }
+
+    LaunchedEffect(scrollTopRequest) {
+        if (scrollTopRequest) {
+            listState.animateScrollToItem(0)
+            scrollTopRequest = false
+        }
     }
 
     val exerciseList by viewModel.exerciseList.collectAsState()
@@ -135,11 +152,27 @@ fun ExerciseListScreen(
                 Text(text = "Buat Latihan Baru")
             }
         }
+        ExerciseSearchView(
+            modifier = Modifier.fillMaxWidth().padding(start = 8.dp, end = 8.dp),
+            onQueryChange = {
+                viewModel.searchExercise(it)
+                scrollTopRequest = true
+            },
+            onClearQuery = {
+                scrollTopRequest = true
+            }
+        )
+        Spacer(modifier = Modifier.height(8.dp))
         HorizontalDivider(thickness = 1.dp)
-        LazyColumn(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)) {
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth(),
+            state = listState,
+            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)
+        ) {
             items(items = exerciseList, key = { it.id }) { exercise ->
                 ExerciseListItemView(
-                    modifier = Modifier.padding(bottom = 8.dp),
+                    modifier = Modifier.animateItemPlacement().padding(bottom = 8.dp),
+                    selected = exercise.id == selectedExerciseId,
                     title = exercise.name,
                     description = exercise.description,
                     image = exercise.image,

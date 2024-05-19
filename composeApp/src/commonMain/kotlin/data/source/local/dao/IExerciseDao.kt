@@ -4,6 +4,7 @@ import domain.model.gym.Exercise
 
 interface IExerciseDao {
     suspend fun getAllExercises(): List<Exercise>
+    suspend fun searchExercises(searchQuery: String): List<Exercise>
 
     suspend fun getExerciseById(id: Long): Exercise?
 
@@ -18,4 +19,5 @@ interface IExerciseDao {
         targetMuscle: String,
         description: String,
     )
+
 }
