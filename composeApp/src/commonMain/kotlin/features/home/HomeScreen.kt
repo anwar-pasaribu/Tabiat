@@ -1,21 +1,19 @@
 package features.home
 
 import PlayHapticAndSound
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -25,7 +23,6 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -48,15 +45,19 @@ import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import features.workoutHistory.ExerciseLogListBottomSheet
 import org.koin.compose.koinInject
+import ui.component.InsetNavigationHeight
 import ui.component.calendar.WeekView
 import ui.component.gym.WorkoutListItemView
 
 @OptIn(
-    ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class
+    ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class,
+    ExperimentalFoundationApi::class
 )
 @Composable
 fun HomeScreen(
     onWorkoutDetail: (Long) -> Unit = {},
+    onEditWorkout: (Long) -> Unit = {},
+    onDeleteWorkout: (Long) -> Unit = {},
     openHistoryScreen: () -> Unit = {},
     onCreateNewWorkoutPlan: () -> Unit = {},
 ) {
@@ -145,17 +146,28 @@ fun HomeScreen(
                 ),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(items = listItemState) { item ->
-                    WorkoutListItemView(
-                        title = item.name,
-                        description = item.description
+                items(items = listItemState, key = { it.id }) { item ->
+                    Column(
+                        modifier = Modifier.fillMaxWidth().animateItemPlacement(),
                     ) {
-                        onWorkoutDetail(item.id)
+                        WorkoutListItemView(
+                            title = item.name,
+                            description = item.description,
+                            onClick = {
+                                onWorkoutDetail(item.id)
+                            },
+                            onEditRequest = {
+                                onEditWorkout(item.id)
+                            },
+                            onDeleteRequest = {
+                                viewModel.deleteWorkout(item.id)
+                            }
+                        )
                     }
                 }
 
                 item {
-                    Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.systemBars))
+                    InsetNavigationHeight()
                 }
             }
         }

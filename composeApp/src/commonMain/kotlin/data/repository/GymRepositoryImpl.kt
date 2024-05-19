@@ -15,6 +15,7 @@ import domain.repository.IGymRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
@@ -45,6 +46,28 @@ class GymRepositoryImpl(
             orderingNumber = latestWoPlan.orderingNumber + 1
         )
         return true
+    }
+
+    override suspend fun updateWorkoutPlan(
+        workoutPlanId: Long,
+        workoutName: String,
+        notes: String
+    ): Boolean {
+        workoutPlanDao.updateWorkoutPlan(
+            workoutPlanId = workoutPlanId,
+            name = workoutName,
+            description = notes
+        )
+        return true
+    }
+
+    override suspend fun deleteWorkoutPlan(workoutPlanId: Long): Boolean {
+        workoutPlanDao.deleteWorkoutPlan(workoutPlanId)
+        return true
+    }
+
+    override suspend fun getWorkoutPlansObservable(): Flow<List<WorkoutPlan>> {
+        return workoutPlanDao.getAllWorkoutPlanObservable()
     }
 
     override suspend fun getWorkoutPlanExercises(workoutPlanId: Long): List<Exercise> {

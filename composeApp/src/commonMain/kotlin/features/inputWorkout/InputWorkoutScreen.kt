@@ -1,24 +1,14 @@
 package features.inputWorkout
 
-import PlayHapticAndSound
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsBottomHeight
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -34,14 +24,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.input.ImeAction
@@ -49,11 +38,9 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.haze
 import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
-import kotlinx.coroutines.flow.MutableStateFlow
 import org.koin.compose.koinInject
 
 @OptIn(
@@ -61,26 +48,18 @@ import org.koin.compose.koinInject
 )
 @Composable
 fun InputWorkoutScreen(
+    workoutPlanId: Long = 0L,
     onBack: () -> Unit = {},
     onWorkoutSaved: () -> Unit = {}
 ) {
 
+    val editMode = workoutPlanId > 0
     val hazeState = remember { HazeState() }
-    val selectedEmojiUnicodes = remember { mutableStateListOf("") }
-    var selectedEmojiUnicode by remember { mutableStateOf("") }
-    var selectedEmojiOffset by remember { mutableStateOf(Offset.Zero) }
-    val lazyListState = rememberLazyListState()
 
     val viewModel = koinInject<InputWorkoutScreenViewModel>()
 
-    val selectedEmojiUnicodeAndOffset =
-        remember { mutableStateOf(MutableStateFlow(Pair("", Offset.Zero))) }
-
-    var selectedDateTimeStamp by remember { mutableStateOf(0L) }
-    var moodStateBottomSheetStateShowed by remember { mutableStateOf(false) }
-
-    if (selectedEmojiUnicode.isNotEmpty()) {
-        PlayHapticAndSound(selectedEmojiUnicode)
+    if (editMode) {
+        viewModel.getWorkoutPlan(workoutPlanId)
     }
 
     Scaffold(
@@ -109,7 +88,7 @@ fun InputWorkoutScreen(
                     },
                     title = {
                         Text(
-                            "Workout Baru",
+                            if (editMode) "Ubah Workout" else "Workout Baru",
                             style = MaterialTheme.typography.titleLarge
                         )
                     }
@@ -128,8 +107,11 @@ fun InputWorkoutScreen(
             )
         ) {
             Column {
-                var workoutName by remember { mutableStateOf("") }
-                var workoutNotes by remember { mutableStateOf("") }
+
+                val workoutPlan by viewModel.workoutPlan.collectAsState()
+                var workoutName by remember { mutableStateOf(workoutPlan?.name.orEmpty()) }
+                var workoutNotes by remember { mutableStateOf(workoutPlan?.description.orEmpty()) }
+
                 Spacer(Modifier.height(16.dp))
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
@@ -167,11 +149,22 @@ fun InputWorkoutScreen(
                     modifier = Modifier.width(200.dp).align(Alignment.CenterHorizontally),
                     enabled = workoutName.isNotEmpty(),
                     onClick = {
-                        viewModel.saveWorkout(workoutName, workoutNotes)
+                        if (editMode) {
+                            viewModel.saveWorkout(
+                                workoutPlanId,
+                                workoutName,
+                                workoutNotes
+                            )
+                        } else {
+                            viewModel.createNewWorkoutPlan(workoutName, workoutNotes)
+                        }
                         onWorkoutSaved()
                     }
                 ) {
-                    Text( text = "Save Workout")
+                    if (editMode)
+                        Text(text = "Ubah Workout")
+                    else
+                        Text(text = "Buat Workout")
                 }
 
                 Spacer(Modifier.height(16.dp))

@@ -21,5 +21,12 @@ INSERT INTO WorkoutPlanEntity
 (name, description, dateTimeStamp, orderingNumber)
 VALUES (?, ?, ?, ?);
 
+updateWorkoutPlan:
+UPDATE WorkoutPlanEntity
+SET name = ?,
+    description = ?,
+    orderingNumber = ?
+WHERE id = ?;
+
 deleteWorkoutPlanById:
 DELETE FROM WorkoutPlanEntity WHERE id = ?;

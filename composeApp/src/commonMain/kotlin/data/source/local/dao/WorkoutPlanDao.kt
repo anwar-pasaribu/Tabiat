@@ -97,4 +97,24 @@ class WorkoutPlanDao(
             orderingNumber = orderingNumber.toLong()
         )
     }
+
+    override suspend fun updateWorkoutPlan(
+        workoutPlanId: Long,
+        name: String,
+        description: String
+    ) {
+        val existingWorkoutPlan = getWorkoutPlan(workoutPlanId)
+        if (existingWorkoutPlan.id > 0) {
+            database.workoutPlanQueries.updateWorkoutPlan(
+                id = workoutPlanId,
+                name = name,
+                description = description,
+                orderingNumber = existingWorkoutPlan.orderingNumber.toLong(),
+            )
+        }
+    }
+
+    override suspend fun deleteWorkoutPlan(workoutPlanId: Long) {
+        database.workoutPlanQueries.deleteWorkoutPlanById(workoutPlanId)
+    }
 }

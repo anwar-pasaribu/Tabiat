@@ -5,12 +5,16 @@ import domain.model.gym.ExerciseLog
 import domain.model.gym.ExerciseSet
 import domain.model.gym.WorkoutPlan
 import domain.model.gym.WorkoutPlanExercise
+import kotlinx.coroutines.flow.Flow
 
 interface IGymRepository {
     suspend fun createWorkoutPlan(workoutName: String, notes: String): Boolean
+    suspend fun updateWorkoutPlan(workoutPlanId: Long, workoutName: String, notes: String): Boolean
+    suspend fun deleteWorkoutPlan(workoutPlanId: Long): Boolean
     suspend fun createNewExercise(newExercise: Exercise): Boolean
 
     suspend fun getWorkoutPlans(): List<WorkoutPlan>
+    suspend fun getWorkoutPlansObservable(): Flow<List<WorkoutPlan>>
     suspend fun getExercises(): List<Exercise>
     suspend fun searchExercises(searchQuery: String): List<Exercise>
     suspend fun getWorkoutPlanExercises(workoutPlanId: Long): List<Exercise>

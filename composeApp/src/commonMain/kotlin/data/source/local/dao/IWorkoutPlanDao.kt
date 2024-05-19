@@ -14,4 +14,13 @@ interface IWorkoutPlanDao {
         datetimeStamp: Long,
         orderingNumber: Int
     )
+    suspend fun updateWorkoutPlan(
+        workoutPlanId: Long,
+        name: String,
+        description: String,
+    )
+
+    suspend fun deleteWorkoutPlan(
+        workoutPlanId: Long
+    )
 }

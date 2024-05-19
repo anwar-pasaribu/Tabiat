@@ -61,16 +61,25 @@ fun App(
                                 route = MyAppScreen.WorkoutDetail.name,
                             )
                         },
+                        onEditWorkout = {
+                            navViewModel.currentWorkoutPlanId.value = it
+                            navController.navigate(MyAppScreen.InputWorkout.name)
+                        },
+                        onDeleteWorkout = {
+
+                        },
                         openHistoryScreen = {
                             navController.navigate(MyAppScreen.WorkoutHistory.name)
                         },
                         onCreateNewWorkoutPlan = {
+                            navViewModel.currentWorkoutPlanId.value = 0L
                             navController.navigate(MyAppScreen.InputWorkout.name)
                         }
                     )
                 }
                 composable(route = MyAppScreen.InputWorkout.name) {
                     InputWorkoutScreen(
+                        workoutPlanId = navViewModel.currentWorkoutPlanId.value,
                         onBack = {
                             navController.navigateUp()
                         },

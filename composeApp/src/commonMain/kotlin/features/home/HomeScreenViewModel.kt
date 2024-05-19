@@ -20,8 +20,15 @@ class HomeScreenViewModel(
 
     fun loadWorkoutList() {
         viewModelScope.launch {
-            val workoutList = getWorkoutPlanListUseCase.invoke()
-            _workoutListStateFlow.value = workoutList
+            getWorkoutPlanListUseCase.invoke().collect {
+                _workoutListStateFlow.emit(it)
+            }
+        }
+    }
+
+    fun deleteWorkout(workoutPlanId: Long) {
+        viewModelScope.launch {
+            repository.deleteWorkoutPlan(workoutPlanId)
         }
     }
 }
