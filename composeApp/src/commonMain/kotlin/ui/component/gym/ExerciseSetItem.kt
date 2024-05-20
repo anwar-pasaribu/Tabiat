@@ -1,6 +1,7 @@
 package ui.component.gym
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -29,6 +30,7 @@ fun ExerciseSetItemView(
     setCount: Int = 0,
     setWeight: Int = 0,
     finished: Boolean = false,
+    stateIcon: @Composable (() -> Unit)? = null,
     onSetItemClick: () -> Unit
 ) {
 
@@ -47,7 +49,9 @@ fun ExerciseSetItemView(
                     MaterialTheme.colorScheme.surfaceContainerHighest,
                     CircleShape
                 )
-                .size(40.dp), contentAlignment = Alignment.Center
+                .size(40.dp)
+                .border(1.dp, MaterialTheme.colorScheme.onPrimaryContainer, CircleShape),
+            contentAlignment = Alignment.Center
         ) {
             Text(text = "$setNumber")
         }
@@ -59,19 +63,25 @@ fun ExerciseSetItemView(
             style = MaterialTheme.typography.titleLarge
         )
 
-        Box (modifier = Modifier.align(Alignment.CenterVertically).fillMaxWidth()){
-            val icon = if(finished) {
-                Icons.Default.Done
+        Box (
+            modifier = Modifier.align(Alignment.CenterVertically).fillMaxWidth(),
+            contentAlignment = Alignment.CenterEnd
+        ){
+            if (stateIcon == null) {
+                val icon = if (finished) {
+                    Icons.Default.Done
+                } else {
+                    Icons.AutoMirrored.Filled.KeyboardArrowRight
+                }
+                Icon(
+                    painter = rememberVectorPainter(
+                        image = icon
+                    ),
+                    contentDescription = ""
+                )
             } else {
-                Icons.AutoMirrored.Filled.KeyboardArrowRight
+                stateIcon()
             }
-            Icon(
-                modifier = Modifier.align(Alignment.CenterEnd),
-                painter = rememberVectorPainter(
-                    image = icon
-                ),
-                contentDescription = ""
-            )
         }
 
     }
