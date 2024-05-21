@@ -107,6 +107,14 @@ class WorkoutPlanExerciseDao(
             )
     }
 
+    override suspend fun deleteWorkoutPlanExerciseSet(workoutPlanExerciseId: Long) {
+        database
+            .workoutPlanExerciseQueries
+            .deleteWorkoutPlanExerciseById(
+                workoutPlanExerciseId
+            )
+    }
+
     override suspend fun updateWorkoutPlanExerciseFinishedDateTime(
         workoutPlanExerciseId: Long,
         finishedDateTime: Long,

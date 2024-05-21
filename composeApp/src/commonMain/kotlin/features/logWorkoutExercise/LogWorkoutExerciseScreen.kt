@@ -3,14 +3,22 @@ package features.logWorkoutExercise
 import PlayHapticAndSound
 import SendNotification
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -18,11 +26,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -42,6 +53,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.LayoutDirection
@@ -52,6 +65,7 @@ import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import domain.model.gym.ExerciseSet
 import org.koin.compose.koinInject
+import ui.component.DeleteIconButton
 import ui.component.gym.AddExerciseSet
 import ui.component.gym.ExerciseSetItemView
 import ui.component.gym.TimerDisplay
@@ -67,8 +81,10 @@ fun LogWorkoutExerciseScreen(
     onBack: () -> Unit = {},
 ) {
 
+    var editMode by remember { mutableStateOf(false) }
+    val lazyListState = rememberLazyListState()
+
     val hazeState = remember { HazeState() }
-    var selectedEmojiUnicode by remember { mutableStateOf("") }
     var selectedWorkoutPlanExerciseId by remember { mutableStateOf(0L) }
     var selectedExerciseSet by remember { mutableStateOf(ExerciseSet(0, 0, 0)) }
     var logExerciseSpinnerVisible by remember { mutableStateOf(false) }
@@ -76,16 +92,27 @@ fun LogWorkoutExerciseScreen(
 
     val viewModel = koinInject<LogWorkoutExerciseScreenViewModel>()
 
+    val animateAlphaValue by animateFloatAsState(
+        targetValue = if (editMode) 0f else 1f,
+        label = "animateAlphaValue"
+    )
+
+    val exerciseSetList by viewModel.exerciseSetList.collectAsState()
+    val exerciseName by viewModel.exerciseName.collectAsState()
+
     LaunchedEffect(workoutPlanId, exerciseId) {
         viewModel.getExerciseSetList(workoutPlanId, exerciseId)
         viewModel.getExerciseDetail(exerciseId)
     }
 
-    val exerciseSetList by viewModel.exerciseSetList.collectAsState()
-    val exerciseName by viewModel.exerciseName.collectAsState()
+    LaunchedEffect(exerciseSetList.size) {
+        if (exerciseSetList.isEmpty()) {
+            onBack()
+        }
+    }
 
-    if (selectedEmojiUnicode.isNotEmpty()) {
-        PlayHapticAndSound(selectedEmojiUnicode)
+    if (selectedWorkoutPlanExerciseId != 0L) {
+        PlayHapticAndSound(selectedWorkoutPlanExerciseId)
     }
 
     Scaffold(
@@ -101,6 +128,8 @@ fun LogWorkoutExerciseScreen(
                     colors = TopAppBarDefaults.topAppBarColors(Color.Transparent),
                     navigationIcon = {
                         IconButton(
+                            modifier = Modifier.alpha(animateAlphaValue).scale(animateAlphaValue),
+                            enabled = !editMode,
                             onClick = { onBack() },
                             content = {
                                 Icon(
@@ -117,6 +146,14 @@ fun LogWorkoutExerciseScreen(
                             "",
                             style = MaterialTheme.typography.titleLarge
                         )
+                    },
+                    actions = {
+                        IconButton(onClick = { editMode = !editMode }) {
+                            Icon(
+                                imageVector = if (editMode) Icons.Default.Close else Icons.Outlined.Edit,
+                                contentDescription = ""
+                            )
+                        }
                     }
                 )
                 Spacer(Modifier.height(8.dp))
@@ -140,22 +177,56 @@ fun LogWorkoutExerciseScreen(
                     style = MaterialTheme.typography.headlineMedium
                 )
                 Card(
-                    modifier = Modifier.padding(vertical = 16.dp)
+                    modifier = Modifier.padding(vertical = 16.dp).animateContentSize()
                 ) {
-                    LazyColumn(reverseLayout = false) {
-                        items(items = exerciseSetList) { item ->
-                            Column {
+                    LazyColumn(
+                        state = lazyListState,
+                    ) {
+                        items(
+                            items = exerciseSetList,
+                            key = { it.workoutPlanExerciseId }
+                        ) { item ->
+                            Box(modifier = Modifier.fillMaxWidth().animateItemPlacement()) {
                                 ExerciseSetItemView(
-                                    modifier = Modifier.animateItemPlacement(),
+                                    modifier = Modifier,
+                                    enabled = !editMode,
                                     setNumber = item.setOrder,
                                     setCount = item.repsCount,
                                     setWeight = item.weight,
-                                    finished = item.finished
+                                    finished = item.finished,
+                                    onSetItemClick = {
+                                        logExerciseSpinnerVisible = !logExerciseSpinnerVisible
+                                        selectedWorkoutPlanExerciseId = item.workoutPlanExerciseId
+                                        selectedExerciseSet =
+                                            ExerciseSet(item.setOrder, item.repsCount, item.weight)
+                                    },
+                                    onSetItemLongClick = {
+                                        editMode = !editMode
+                                    }
+                                )
+                                androidx.compose.animation.AnimatedVisibility(
+                                    visible = editMode,
+                                    modifier = Modifier.padding(end = 8.dp).width(48.dp).align(Alignment.CenterEnd),
+                                    enter = scaleIn(
+                                        animationSpec = spring(
+                                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                                            stiffness = Spring.StiffnessMediumLow
+                                        )
+                                    ),
+                                    exit = scaleOut(animationSpec = tween(150))
                                 ) {
-                                    logExerciseSpinnerVisible = !logExerciseSpinnerVisible
-                                    selectedWorkoutPlanExerciseId = item.workoutPlanExerciseId
-                                    selectedExerciseSet =
-                                        ExerciseSet(item.setOrder, item.repsCount, item.weight)
+                                    Row {
+                                        Spacer(Modifier.width(8.dp))
+                                        DeleteIconButton(
+                                            onClick = {
+                                                viewModel.deleteExerciseSet(
+                                                    workoutPlanId = workoutPlanId,
+                                                    exerciseId = exerciseId,
+                                                    selectedWorkoutPlanExerciseId = item.workoutPlanExerciseId
+                                                )
+                                            }
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -164,7 +235,7 @@ fun LogWorkoutExerciseScreen(
             }
 
             var showNotification by remember { mutableStateOf(false) }
-            if(showNotification) {
+            if (showNotification) {
                 SendNotification("Timer Selesai", "Lanjut Latihan atau istirahat")
             }
 

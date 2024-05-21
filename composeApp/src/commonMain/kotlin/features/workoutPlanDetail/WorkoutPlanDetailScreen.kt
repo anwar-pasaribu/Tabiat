@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
@@ -32,13 +31,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -66,6 +63,7 @@ import dev.chrisbanes.haze.materials.HazeMaterials
 import domain.model.gym.ExerciseProgress
 import getScreenSizeInfo
 import org.koin.compose.koinInject
+import ui.component.DeleteIconButton
 import ui.component.EmptyState
 import ui.component.gym.ExerciseFinishingStatusView
 import ui.component.gym.WorkoutExerciseItemView
@@ -141,7 +139,7 @@ fun WorkoutDetailScreen(
                         }
                         IconButton(onClick = { editMode = !editMode }) {
                             Icon(
-                                imageVector = if (editMode) Icons.Default.Close else Icons.Default.MoreVert,
+                                imageVector = if (editMode) Icons.Default.Close else Icons.Outlined.Edit,
                                 contentDescription = ""
                             )
                         }
@@ -244,24 +242,5 @@ fun WorkoutDetailScreen(
                 Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.systemBars))
             }
         }
-    }
-}
-
-@Composable
-fun DeleteIconButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
-    IconButton(
-        modifier = Modifier.size(40.dp),
-        onClick = {
-            onClick()
-        },
-        colors = IconButtonDefaults.filledIconButtonColors(
-            containerColor = MaterialTheme.colorScheme.error
-        )
-    ) {
-        Icon(
-            imageVector = Icons.Default.Delete,
-            tint = Color.White,
-            contentDescription = "Delete"
-        )
     }
 }

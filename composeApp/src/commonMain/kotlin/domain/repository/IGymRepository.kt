@@ -34,6 +34,7 @@ interface IGymRepository {
     suspend fun getWorkoutPlanById(workoutPlanId: Long): WorkoutPlan
 
     suspend fun deleteWorkoutPlanExerciseByWorkoutPlanIdAndExerciseId(workoutPlanId: Long, exerciseId: Long): Boolean
+    suspend fun deleteWorkoutPlanExerciseSet(workoutPlanExerciseId: Long): Boolean
 
     suspend fun getWorkoutPlanExerciseProgress(
         workoutPlanId: Long,

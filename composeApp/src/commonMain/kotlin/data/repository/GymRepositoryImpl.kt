@@ -161,6 +161,12 @@ class GymRepositoryImpl(
         return true
     }
 
+    override suspend fun deleteWorkoutPlanExerciseSet(workoutPlanExerciseId: Long): Boolean {
+        workoutPlanExerciseDao
+            .deleteWorkoutPlanExerciseSet(workoutPlanExerciseId)
+        return true
+    }
+
     override suspend fun getWorkoutPlanById(workoutPlanId: Long): WorkoutPlan {
         return workoutPlanDao.getWorkoutPlan(workoutPlanId)
     }

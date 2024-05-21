@@ -1,8 +1,9 @@
 package ui.component.gym
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,9 +21,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.dp
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ExerciseSetItemView(
     modifier: Modifier = Modifier,
@@ -31,14 +34,22 @@ fun ExerciseSetItemView(
     setWeight: Int = 0,
     finished: Boolean = false,
     stateIcon: @Composable (() -> Unit)? = null,
-    onSetItemClick: () -> Unit
+    enabled: Boolean = true,
+    onSetItemClick: () -> Unit,
+    onSetItemLongClick: () -> Unit = {},
 ) {
 
     Row(modifier = modifier.then(
         Modifier
-            .clickable {
-                onSetItemClick()
-            }
+            .combinedClickable(
+                enabled = enabled,
+                onClick =  {
+                    onSetItemClick()
+                },
+                onLongClick = {
+                    onSetItemLongClick()
+                }
+            )
             .padding(horizontal = 16.dp, vertical = 10.dp)
             .fillMaxWidth()
     )) {
@@ -64,7 +75,10 @@ fun ExerciseSetItemView(
         )
 
         Box (
-            modifier = Modifier.align(Alignment.CenterVertically).fillMaxWidth(),
+            modifier = Modifier
+                .alpha(if (enabled) 1F else 0F)
+                .align(Alignment.CenterVertically)
+                .fillMaxWidth(),
             contentAlignment = Alignment.CenterEnd
         ){
             if (stateIcon == null) {

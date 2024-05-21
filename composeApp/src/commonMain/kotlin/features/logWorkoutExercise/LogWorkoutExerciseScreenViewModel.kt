@@ -2,7 +2,7 @@ package features.logWorkoutExercise
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import domain.model.gym.WorkoutPlanExercise
+import domain.usecase.DeleteWorkoutPlanExerciseSetUseCase
 import domain.usecase.GetExerciseByIdUseCase
 import domain.usecase.GetExerciseSetListUseCase
 import domain.usecase.LogExerciseUseCase
@@ -17,6 +17,7 @@ class LogWorkoutExerciseScreenViewModel(
     private val getExerciseSetListUseCase: GetExerciseSetListUseCase,
     private val getExerciseByIdUseCase: GetExerciseByIdUseCase,
     private val logExerciseUseCase: LogExerciseUseCase,
+    private val deleteWorkoutPlanExerciseSetUseCase: DeleteWorkoutPlanExerciseSetUseCase,
 ): ViewModel() {
 
 
@@ -62,6 +63,19 @@ class LogWorkoutExerciseScreenViewModel(
                 weight = weight
             )
             delay(1000)
+            getExerciseSetList(workoutPlanId, exerciseId)
+        }
+    }
+
+    fun deleteExerciseSet(
+        selectedWorkoutPlanExerciseId: Long,
+        workoutPlanId: Long,
+        exerciseId: Long,
+    ) {
+        viewModelScope.launch {
+            deleteWorkoutPlanExerciseSetUseCase(
+                workoutPlanExerciseId = selectedWorkoutPlanExerciseId,
+            )
             getExerciseSetList(workoutPlanId, exerciseId)
         }
     }

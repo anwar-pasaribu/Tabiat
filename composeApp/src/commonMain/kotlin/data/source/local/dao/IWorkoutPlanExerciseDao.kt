@@ -26,6 +26,10 @@ interface IWorkoutPlanExerciseDao {
         exerciseId: Long,
     )
 
+    suspend fun deleteWorkoutPlanExerciseSet(
+        workoutPlanExerciseId: Long
+    )
+
     suspend fun updateWorkoutPlanExerciseFinishedDateTime(
         workoutPlanExerciseId: Long,
         finishedDateTime: Long,

@@ -17,6 +17,7 @@ import domain.usecase.GetExerciseListUseCase
 import domain.usecase.GetExerciseSetListUseCase
 import domain.usecase.GetWorkoutPlanListUseCase
 import domain.usecase.CreateNewExerciseUseCase
+import domain.usecase.DeleteWorkoutPlanExerciseSetUseCase
 import domain.usecase.GetExerciseLogListByDateTimeStampUseCase
 import domain.usecase.GetWorkoutPlanByIdUseCase
 import domain.usecase.InputWorkoutPlanExerciseSetListUseCase
@@ -97,6 +98,10 @@ fun appModule() = module {
     single {
         SearchExerciseUseCase(repository = get())
     }
+
+    single {
+        DeleteWorkoutPlanExerciseSetUseCase(get())
+    }
 }
 
 fun viewModels() = module {
@@ -137,7 +142,8 @@ fun viewModels() = module {
         LogWorkoutExerciseScreenViewModel(
             getExerciseSetListUseCase = get(),
             getExerciseByIdUseCase = get(),
-            logExerciseUseCase = get()
+            logExerciseUseCase = get(),
+            deleteWorkoutPlanExerciseSetUseCase = get()
         )
     }
 
