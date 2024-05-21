@@ -161,9 +161,7 @@ fun WorkoutDetailScreen(
             ),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            stickyHeader(
-                contentType = "exercises"
-            ) {
+            stickyHeader(contentType = "exercises") {
                 Box(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
                 ) {

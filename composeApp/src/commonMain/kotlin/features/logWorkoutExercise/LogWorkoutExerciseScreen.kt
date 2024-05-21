@@ -105,12 +105,6 @@ fun LogWorkoutExerciseScreen(
         viewModel.getExerciseDetail(exerciseId)
     }
 
-    LaunchedEffect(exerciseSetList.size) {
-        if (exerciseSetList.isEmpty()) {
-            onBack()
-        }
-    }
-
     if (selectedWorkoutPlanExerciseId != 0L) {
         PlayHapticAndSound(selectedWorkoutPlanExerciseId)
     }
