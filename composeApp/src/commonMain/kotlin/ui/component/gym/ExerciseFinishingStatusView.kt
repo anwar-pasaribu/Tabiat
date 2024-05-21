@@ -15,6 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -50,6 +51,7 @@ fun ExerciseFinishingStatusView(
             if (it < (total - 1)) {
                 Box(
                     modifier = Modifier
+                        .alpha(if (it < progress-1) 1F else .35F)
                         .background(MaterialTheme.colorScheme.primary)
                         .width(8.dp)
                         .height(2.dp)
