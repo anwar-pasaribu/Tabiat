@@ -28,7 +28,10 @@ class SettingScreenViewModel(
     fun loadGymPreferences() {
         viewModelScope.launch {
             getGymPreferencesUseCase().collect {
-                _gymPreferences.value = it
+                _gymPreferences.value = it.copy(
+                    setTimerDuration = it.setTimerDuration,
+                    breakTimeDuration = (it.breakTimeDuration/60)
+                )
             }
         }
     }
