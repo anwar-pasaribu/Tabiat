@@ -90,7 +90,7 @@ actual fun SendNotification(title: String, body: String) {
         val channel = NotificationChannel(
             "YOUR_CHANNEL_ID",
             "YOUR_CHANNEL_NAME",
-            NotificationManager.IMPORTANCE_MAX
+            NotificationManager.IMPORTANCE_HIGH
         )
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

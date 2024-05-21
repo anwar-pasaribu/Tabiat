@@ -49,3 +49,14 @@ fun Modifier.bouncingClickable(
             onClick = onClick
         )
 }
+
+fun Modifier.dummyClickable() = composed {
+    val interactionSource = remember { MutableInteractionSource() }
+    this
+        .clickable(
+            interactionSource = interactionSource,
+            indication = null,
+            enabled = true,
+            onClick = {}
+        )
+}

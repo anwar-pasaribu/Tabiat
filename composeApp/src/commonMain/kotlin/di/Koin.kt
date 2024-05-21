@@ -19,6 +19,7 @@ import domain.usecase.GetWorkoutPlanListUseCase
 import domain.usecase.CreateNewExerciseUseCase
 import domain.usecase.DeleteWorkoutPlanExerciseSetUseCase
 import domain.usecase.GetExerciseLogListByDateTimeStampUseCase
+import domain.usecase.GetGymPreferencesUseCase
 import domain.usecase.GetWorkoutPlanByIdUseCase
 import domain.usecase.InputWorkoutPlanExerciseSetListUseCase
 import domain.usecase.LogExerciseUseCase
@@ -31,6 +32,7 @@ import features.logWorkoutExercise.LogWorkoutExerciseScreenViewModel
 import features.workoutPlanDetail.WorkoutDetailScreenViewModel
 import features.inputWorkout.InputWorkoutScreenViewModel
 import features.navigationHelper.NavigationViewModel
+import features.settings.SettingScreenViewModel
 import features.workoutHistory.WorkoutHistoryScreenViewModel
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
@@ -39,7 +41,7 @@ import org.koin.dsl.module
 fun letsKoinStart() {
     stopKoin()
     startKoin {
-        modules(databaseModule(), getNetworkModule(), appModule(), viewModels())
+        modules(dataStoreModule(), databaseModule(), getNetworkModule(), appModule(), viewModels())
     }
 }
 
@@ -51,7 +53,8 @@ fun appModule() = module {
             exerciseDao = get(),
             workoutPlanDao = get(),
             workoutPlanExerciseDao = get(),
-            exerciseLogDao = get()
+            exerciseLogDao = get(),
+            preferencesDataSource = get()
         )
     }
 
@@ -102,6 +105,10 @@ fun appModule() = module {
     single {
         DeleteWorkoutPlanExerciseSetUseCase(get())
     }
+
+    single {
+        GetGymPreferencesUseCase(get())
+    }
 }
 
 fun viewModels() = module {
@@ -143,12 +150,17 @@ fun viewModels() = module {
             getExerciseSetListUseCase = get(),
             getExerciseByIdUseCase = get(),
             logExerciseUseCase = get(),
-            deleteWorkoutPlanExerciseSetUseCase = get()
+            deleteWorkoutPlanExerciseSetUseCase = get(),
+            getGymPreferencesUseCase = get()
         )
     }
 
     single {
         CreateExerciseScreenViewModel(createNewExerciseUseCase = get())
+    }
+
+    single {
+        SettingScreenViewModel(get(), get())
     }
 }
 

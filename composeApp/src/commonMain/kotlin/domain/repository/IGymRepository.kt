@@ -4,6 +4,7 @@ import domain.model.gym.Exercise
 import domain.model.gym.ExerciseLog
 import domain.model.gym.ExerciseProgress
 import domain.model.gym.ExerciseSet
+import domain.model.gym.GymPreferences
 import domain.model.gym.WorkoutPlan
 import domain.model.gym.WorkoutPlanExercise
 import domain.model.gym.WorkoutPlanProgress
@@ -51,4 +52,8 @@ interface IGymRepository {
     ): Boolean
 
     suspend fun getExerciseLogListByDateTimeStamp(dateTimeStamp: Long): List<ExerciseLog>
+
+    fun getGymPreferences(): Flow<GymPreferences>
+    suspend fun saveExerciseSetTimerDuration(timerDurationInSeconds: Int)
+    suspend fun saveBreakTimeDuration(durationInSeconds: Int)
 }

@@ -1,6 +1,5 @@
 package features.home
 
-import PlayHapticAndSound
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +18,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -43,6 +43,7 @@ import dev.chrisbanes.haze.haze
 import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
+import features.settings.SettingBottomSheetDialog
 import features.workoutHistory.ExerciseLogListBottomSheet
 import org.koin.compose.koinInject
 import ui.component.EmptyState
@@ -63,29 +64,31 @@ fun HomeScreen(
 ) {
 
     val hazeState = remember { HazeState() }
-    var selectedEmojiUnicode by remember { mutableStateOf("") }
     val lazyListState = rememberLazyListState()
 
     val viewModel = koinInject<HomeScreenViewModel>()
     val listItem by viewModel.workoutListStateFlow.collectAsState()
 
     var selectedDateTimeStamp by remember { mutableStateOf(0L) }
-    var moodStateBottomSheetStateShowed by remember { mutableStateOf(false) }
-
-    if (selectedEmojiUnicode.isNotEmpty()) {
-        PlayHapticAndSound(selectedEmojiUnicode)
-    }
+    var dailyExerciseLogVisible by remember { mutableStateOf(false) }
+    var settingScreenVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.loadWorkoutList()
     }
 
-    if (moodStateBottomSheetStateShowed) {
+    if (dailyExerciseLogVisible) {
         ExerciseLogListBottomSheet(
             targetDateTimeStamp = selectedDateTimeStamp,
             onDismiss = {
-                moodStateBottomSheetStateShowed = false
+                dailyExerciseLogVisible = false
             }
+        )
+    }
+
+    if (settingScreenVisible) {
+        SettingBottomSheetDialog(
+            onDismiss = { settingScreenVisible = false }
         )
     }
 
@@ -107,15 +110,11 @@ fun HomeScreen(
                         )
                     },
                     actions = {
-                        IconButton(
-                            onClick = {
-                                onCreateNewWorkoutPlan()
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = "Buat Rencana Workout"
-                            )
+                        IconButton(onClick = { onCreateNewWorkoutPlan() }) {
+                            Icon(imageVector = Icons.Default.Add, contentDescription = "")
+                        }
+                        IconButton(onClick = { settingScreenVisible = true }) {
+                            Icon(imageVector = Icons.Outlined.Settings, contentDescription = "")
                         }
                     }
                 )
@@ -126,7 +125,7 @@ fun HomeScreen(
                     },
                     onWeekDayClick = {
                         selectedDateTimeStamp = it
-                        moodStateBottomSheetStateShowed = true
+                        dailyExerciseLogVisible = true
                     }
                 )
                 Spacer(Modifier.height(8.dp))

@@ -81,9 +81,11 @@ kotlin {
             implementation(libs.ktor.client.core)
             implementation(libs.kotlinx.coroutines.core)
 
-//            implementation("io.coil-kt.coil3:coil:3.0.0-alpha06")
             implementation("io.coil-kt.coil3:coil-compose:3.0.0-alpha06")
             implementation("io.coil-kt.coil3:coil-network-ktor:3.0.0-alpha06")
+
+            implementation("androidx.datastore:datastore-preferences-core:1.1.1")
+            implementation(libs.kotlinx.atomicfu)
 
             // Handle Error
             // Task :composeApp:compileKotlinIosX64 FAILED

@@ -4,12 +4,14 @@ import data.source.local.dao.IExerciseDao
 import data.source.local.dao.IExerciseLogDao
 import data.source.local.dao.IWorkoutPlanDao
 import data.source.local.dao.IWorkoutPlanExerciseDao
+import data.source.preferences.IPreferencesDataSource
 import data.source.remote.api.IGymApi
 import domain.model.gym.DifficultyLevel
 import domain.model.gym.Exercise
 import domain.model.gym.ExerciseLog
 import domain.model.gym.ExerciseProgress
 import domain.model.gym.ExerciseSet
+import domain.model.gym.GymPreferences
 import domain.model.gym.WorkoutPlan
 import domain.model.gym.WorkoutPlanExercise
 import domain.model.gym.WorkoutPlanProgress
@@ -37,7 +39,8 @@ class GymRepositoryImpl(
     private val exerciseDao: IExerciseDao,
     private val workoutPlanDao: IWorkoutPlanDao,
     private val workoutPlanExerciseDao: IWorkoutPlanExerciseDao,
-    private val exerciseLogDao: IExerciseLogDao
+    private val exerciseLogDao: IExerciseLogDao,
+    private val preferencesDataSource: IPreferencesDataSource
 ) : IGymRepository {
 
     override suspend fun createWorkoutPlan(workoutName: String, notes: String): Boolean {
@@ -223,6 +226,22 @@ class GymRepositoryImpl(
         val startTimeStampMillis = dateTimeTodayMorning.toInstant(tz).toEpochMilliseconds()
         return exerciseLogDao.getExerciseLogByDateTimeRange(
             startTimeStampMillis, untilTimeStampMillis
+        )
+    }
+
+    override fun getGymPreferences(): Flow<GymPreferences> {
+        return preferencesDataSource.getGymPreference()
+    }
+
+    override suspend fun saveExerciseSetTimerDuration(timerDurationInSeconds: Int) {
+        preferencesDataSource.saveExerciseSetTimerDuration(
+            timerDurationInSeconds
+        )
+    }
+
+    override suspend fun saveBreakTimeDuration(durationInSeconds: Int) {
+        preferencesDataSource.saveExerciseBreakTimeDuration(
+            durationInSeconds
         )
     }
 

@@ -3,7 +3,6 @@ package features.logWorkoutExercise
 import PlayHapticAndSound
 import SendNotification
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -14,8 +13,6 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -69,6 +66,7 @@ import ui.component.DeleteIconButton
 import ui.component.gym.AddExerciseSet
 import ui.component.gym.ExerciseSetItemView
 import ui.component.gym.TimerDisplay
+import ui.extension.dummyClickable
 
 @OptIn(
     ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class,
@@ -89,8 +87,12 @@ fun LogWorkoutExerciseScreen(
     var selectedExerciseSet by remember { mutableStateOf(ExerciseSet(0, 0, 0)) }
     var logExerciseSpinnerVisible by remember { mutableStateOf(false) }
     var logExerciseTimerVisible by remember { mutableStateOf(false) }
+    var breakTimerVisible by remember { mutableStateOf(false) }
 
     val viewModel = koinInject<LogWorkoutExerciseScreenViewModel>()
+    val gymPreferences by viewModel.gymPreferences.collectAsState()
+    var exerciseSetTimerDuration by remember { mutableStateOf(0) }
+    var breakTimeDuration by remember { mutableStateOf(0) }
 
     val animateAlphaValue by animateFloatAsState(
         targetValue = if (editMode) 0f else 1f,
@@ -99,6 +101,12 @@ fun LogWorkoutExerciseScreen(
 
     val exerciseSetList by viewModel.exerciseSetList.collectAsState()
     val exerciseName by viewModel.exerciseName.collectAsState()
+    val allExerciseFinished by viewModel.allExerciseSetFinished.collectAsState(false)
+
+    LaunchedEffect(gymPreferences) {
+        exerciseSetTimerDuration = gymPreferences.setTimerDuration
+        breakTimeDuration = gymPreferences.breakTimeDuration
+    }
 
     LaunchedEffect(workoutPlanId, exerciseId) {
         viewModel.getExerciseSetList(workoutPlanId, exerciseId)
@@ -109,6 +117,15 @@ fun LogWorkoutExerciseScreen(
         PlayHapticAndSound(selectedWorkoutPlanExerciseId)
     }
 
+    var showNotification by remember { mutableStateOf(false) }
+    if (showNotification) {
+        SendNotification("Timer Selesai", "Lanjut Latihan atau istirahat")
+    }
+
+    val topAppBarAlphaDuringTimer = if(logExerciseTimerVisible || breakTimerVisible) {
+        0F
+    } else 1F
+
     Scaffold(
         topBar = {
             Column(
@@ -118,7 +135,7 @@ fun LogWorkoutExerciseScreen(
                 ).background(Color.Transparent)
             ) {
                 CenterAlignedTopAppBar(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().alpha(topAppBarAlphaDuringTimer),
                     colors = TopAppBarDefaults.topAppBarColors(Color.Transparent),
                     navigationIcon = {
                         IconButton(
@@ -135,12 +152,7 @@ fun LogWorkoutExerciseScreen(
                             }
                         )
                     },
-                    title = {
-                        Text(
-                            "",
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                    },
+                    title = { Text("") },
                     actions = {
                         IconButton(onClick = { editMode = !editMode }) {
                             Icon(
@@ -171,7 +183,7 @@ fun LogWorkoutExerciseScreen(
                     style = MaterialTheme.typography.headlineMedium
                 )
                 Card(
-                    modifier = Modifier.padding(vertical = 16.dp).animateContentSize()
+                    modifier = Modifier.padding(vertical = 16.dp)
                 ) {
                     LazyColumn(
                         state = lazyListState,
@@ -228,11 +240,6 @@ fun LogWorkoutExerciseScreen(
                 }
             }
 
-            var showNotification by remember { mutableStateOf(false) }
-            if (showNotification) {
-                SendNotification("Timer Selesai", "Lanjut Latihan atau istirahat")
-            }
-
             AnimatedVisibility(
                 visible = logExerciseTimerVisible,
                 enter = fadeIn(),
@@ -241,24 +248,47 @@ fun LogWorkoutExerciseScreen(
 
                 Box(
                     modifier = Modifier
-                        .clickable(
-                            interactionSource = MutableInteractionSource(),
-                            indication = null,
-                            enabled = true,
-                            onClick = {}
-                        )
+                        .dummyClickable()
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.onBackground.copy(alpha = .75F)),
                     contentAlignment = Alignment.Center
                 ) {
                     TimerDisplay(
-                        countDown = 45,
+                        countDown = exerciseSetTimerDuration,
                         onTimerFinished = {
                             logExerciseTimerVisible = false
                             showNotification = true
+                            breakTimerVisible = allExerciseFinished
                         },
                         onCancelTimer = {
                             logExerciseTimerVisible = false
+                            breakTimerVisible = allExerciseFinished
+                        }
+                    )
+                }
+            }
+
+            AnimatedVisibility(
+                visible = breakTimerVisible,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+
+                Box(
+                    modifier = Modifier
+                        .dummyClickable()
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.onBackground.copy(alpha = .75F)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    TimerDisplay(
+                        countDown = breakTimeDuration,
+                        breakTime = true,
+                        onTimerFinished = {
+                            onBack()
+                        },
+                        onCancelTimer = {
+                            onBack()
                         }
                     )
                 }
@@ -271,12 +301,7 @@ fun LogWorkoutExerciseScreen(
             ) {
                 Box(
                     modifier = Modifier
-                        .clickable(
-                            interactionSource = MutableInteractionSource(),
-                            indication = null,
-                            enabled = true,
-                            onClick = {}
-                        )
+                        .dummyClickable()
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.onBackground.copy(alpha = .75F)),
                     contentAlignment = Alignment.Center
@@ -284,7 +309,7 @@ fun LogWorkoutExerciseScreen(
 
                     Column {
                         IconButton(
-                            modifier = Modifier.align(Alignment.Start),
+                            modifier = Modifier.align(Alignment.Start).padding(start = 4.dp),
                             colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
                             onClick = {
                                 logExerciseSpinnerVisible = false
