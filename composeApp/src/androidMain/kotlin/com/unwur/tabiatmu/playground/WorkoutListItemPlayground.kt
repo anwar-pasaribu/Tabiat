@@ -10,11 +10,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import ui.component.gym.WorkoutListItemView
+import ui.component.gym.WorkoutPlanItemView
 import ui.theme.MyAppTheme
 
 
@@ -24,7 +23,7 @@ private fun WorkoutListItemViewPreview() {
     MyAppTheme {
         Column {
 
-            WorkoutListItemView(
+            WorkoutPlanItemView(
                 modifier = Modifier,
                 title = "Workout",
                 description = "Workout description",
@@ -32,7 +31,7 @@ private fun WorkoutListItemViewPreview() {
                 total = 10
             )
             Spacer(modifier = Modifier.height(16.dp))
-            WorkoutListItemView(
+            WorkoutPlanItemView(
                 modifier = Modifier,
                 title = "Workout 2",
                 description = "Workout description panjang",
@@ -40,7 +39,7 @@ private fun WorkoutListItemViewPreview() {
                 total = 10
             )
             Spacer(modifier = Modifier.height(16.dp))
-            WorkoutListItemView(
+            WorkoutPlanItemView(
                 modifier = Modifier,
                 title = "Workout without desc",
                 description = ""

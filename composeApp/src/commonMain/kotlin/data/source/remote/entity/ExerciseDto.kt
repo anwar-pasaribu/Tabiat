@@ -19,7 +19,7 @@ data class ExerciseDto(
     @SerialName("secondaryMuscles") val secondaryMuscles: List<String>?,
     @SerialName("instructions") val instructions: List<String>?,
     @SerialName("category") val category: String?,
-    @SerialName("images") val images: List<String>?
+    @SerialName("images") var images: List<String>?
 )
 
 enum class DifficultyLevelDto(val levelName: String) {

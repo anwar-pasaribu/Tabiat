@@ -1,7 +1,9 @@
 package data.source.local.dao
 
+import com.unwur.tabiatmu.database.ExerciseEntity
 import com.unwur.tabiatmu.database.TabiatDatabase
 import domain.model.gym.Exercise
+import kotlinx.serialization.json.Json
 
 class ExerciseDao(
     private val database: TabiatDatabase
@@ -12,17 +14,7 @@ class ExerciseDao(
             .selectAllExercise()
             .executeAsList()
             .map {
-                Exercise(
-                    id = it.id,
-                    name = it.name,
-                    difficulty = it.difficulty.toInt(),
-                    equipment = it.equipment.orEmpty(),
-                    instructions = it.instructions.orEmpty(),
-                    video = it.video.orEmpty(),
-                    image = it.image.orEmpty(),
-                    targetMuscle = it.targetMuscle.orEmpty(),
-                    description = it.description.orEmpty()
-                )
+                it.toDomain()
             }
     }
 
@@ -32,17 +24,7 @@ class ExerciseDao(
             .searchExercise("%$searchQuery%")
             .executeAsList()
             .map {
-                Exercise(
-                    id = it.id,
-                    name = it.name,
-                    difficulty = it.difficulty.toInt(),
-                    equipment = it.equipment.orEmpty(),
-                    instructions = it.instructions.orEmpty(),
-                    video = it.video.orEmpty(),
-                    image = it.image.orEmpty(),
-                    targetMuscle = it.targetMuscle.orEmpty(),
-                    description = it.description.orEmpty()
-                )
+                it.toDomain()
             }
     }
 
@@ -54,17 +36,7 @@ class ExerciseDao(
                 .selectExerciseById(id)
                 .executeAsOne()
 
-            return Exercise(
-                id = exerciseEntity.id,
-                name = exerciseEntity.name,
-                difficulty = exerciseEntity.difficulty.toInt(),
-                equipment = exerciseEntity.equipment.orEmpty(),
-                instructions = exerciseEntity.instructions.orEmpty(),
-                video = exerciseEntity.video.orEmpty(),
-                image = exerciseEntity.image.orEmpty(),
-                targetMuscle = exerciseEntity.targetMuscle.orEmpty(),
-                description = exerciseEntity.description.orEmpty()
-            )
+            return exerciseEntity.toDomain()
         } catch (e: Exception) {
             return null
         }
@@ -95,5 +67,29 @@ class ExerciseDao(
                 targetMuscle = targetMuscle,
                 description = description
             )
+    }
+
+    private fun ExerciseEntity.toDomain(): Exercise {
+        val imageUrlList = getDecodedImageUrlList(this.image.orEmpty())
+        return Exercise(
+            id = this.id,
+            name = this.name,
+            difficulty = this.difficulty.toInt(),
+            equipment = this.equipment.orEmpty(),
+            instructions = this.instructions.orEmpty(),
+            video = this.video.orEmpty(),
+            image = imageUrlList.getOrNull(0).orEmpty(),
+            imageList = imageUrlList,
+            targetMuscle = this.targetMuscle.orEmpty(),
+            description = this.description.orEmpty()
+        )
+    }
+
+    private fun getDecodedImageUrlList(jsonString: String): List<String> {
+        return try {
+            Json.decodeFromString<List<String>>(jsonString)
+        } catch (e: Exception) {
+            emptyList()
+        }
     }
 }

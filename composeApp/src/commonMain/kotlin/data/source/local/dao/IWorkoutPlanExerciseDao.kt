@@ -7,6 +7,11 @@ interface IWorkoutPlanExerciseDao {
     suspend fun getAllWorkoutPlanExerciseObservable(workoutPlanId: Long): Flow<List<WorkoutPlanExercise>>
     suspend fun getAllWorkoutPlanExercise(workoutPlanId: Long): List<WorkoutPlanExercise>
     suspend fun getLatestWorkoutPlanExercise(): WorkoutPlanExercise
+    suspend fun selectWorkoutPlanExerciseByWorkoutPlanIdAndExerciseId(
+        workoutPlanId: Long,
+        exerciseId: Long,
+    ): List<WorkoutPlanExercise>
+
     suspend fun insertWorkoutPlanExercise(
         exerciseId: Long,
         workoutPlanId: Long,

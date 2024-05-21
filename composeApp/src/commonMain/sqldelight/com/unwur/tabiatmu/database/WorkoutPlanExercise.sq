@@ -11,6 +11,9 @@ CREATE TABLE IF NOT EXISTS WorkoutPlanExerciseEntity (
 selectAllWorkoutPlanExercise:
 SELECT * FROM WorkoutPlanExerciseEntity WHERE workoutPlanId = ?;
 
+selectWorkoutPlanExerciseByWorkoutPlanIdAndExerciseId:
+SELECT * FROM WorkoutPlanExerciseEntity WHERE workoutPlanId = :workoutPlanId AND exerciseId = :exerciseId;
+
 selectWorkoutPlanExerciseById:
 SELECT * FROM WorkoutPlanExerciseEntity WHERE id = ?;
 
@@ -37,3 +40,4 @@ DELETE FROM WorkoutPlanExerciseEntity WHERE id = ?;
 
 deleteWorkoutPlanExerciseByWorkoutPlanIdAndExerciseId:
 DELETE FROM WorkoutPlanExerciseEntity WHERE workoutPlanId = :workoutPlanId AND exerciseId = :exerciseId;
+

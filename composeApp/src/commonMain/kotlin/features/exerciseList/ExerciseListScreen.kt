@@ -175,6 +175,7 @@ fun ExerciseListScreen(
                     selected = exercise.id == selectedExerciseId,
                     title = exercise.name,
                     description = exercise.description,
+                    imageUrlList = exercise.imageList,
                     image = exercise.image,
                     onClick = {
                         onExerciseSelected(exercise)

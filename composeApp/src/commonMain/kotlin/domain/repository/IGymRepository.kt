@@ -2,9 +2,11 @@ package domain.repository
 
 import domain.model.gym.Exercise
 import domain.model.gym.ExerciseLog
+import domain.model.gym.ExerciseProgress
 import domain.model.gym.ExerciseSet
 import domain.model.gym.WorkoutPlan
 import domain.model.gym.WorkoutPlanExercise
+import domain.model.gym.WorkoutPlanProgress
 import kotlinx.coroutines.flow.Flow
 
 interface IGymRepository {
@@ -13,6 +15,7 @@ interface IGymRepository {
     suspend fun deleteWorkoutPlan(workoutPlanId: Long): Boolean
     suspend fun getWorkoutPlans(): List<WorkoutPlan>
     suspend fun getWorkoutPlansObservable(): Flow<List<WorkoutPlan>>
+    suspend fun getWorkoutPlanProgressListObservable(): Flow<List<WorkoutPlanProgress>>
 
     suspend fun createNewExercise(newExercise: Exercise): Boolean
     suspend fun getExercises(): List<Exercise>
@@ -31,6 +34,11 @@ interface IGymRepository {
     suspend fun getWorkoutPlanById(workoutPlanId: Long): WorkoutPlan
 
     suspend fun deleteWorkoutPlanExerciseByWorkoutPlanIdAndExerciseId(workoutPlanId: Long, exerciseId: Long): Boolean
+
+    suspend fun getWorkoutPlanExerciseProgress(
+        workoutPlanId: Long,
+        exerciseId: Long
+    ): ExerciseProgress
 
     suspend fun getExerciseById(exerciseId: Long): Exercise
     suspend fun logExercise(

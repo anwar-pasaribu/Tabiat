@@ -63,11 +63,12 @@ import dev.chrisbanes.haze.haze
 import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
-import domain.model.gym.Exercise
+import domain.model.gym.ExerciseProgress
 import getScreenSizeInfo
 import org.koin.compose.koinInject
 import ui.component.EmptyState
-import ui.component.gym.ExerciseListItemView
+import ui.component.gym.ExerciseFinishingStatusView
+import ui.component.gym.WorkoutExerciseItemView
 
 @OptIn(
     ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class,
@@ -162,7 +163,9 @@ fun WorkoutDetailScreen(
             ),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            stickyHeader {
+            stickyHeader(
+                contentType = "exercises"
+            ) {
                 Box(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
                 ) {
@@ -186,7 +189,11 @@ fun WorkoutDetailScreen(
                     }
                 }
             }
-            items(items = listItem, key = { item -> item.id }) { item: Exercise ->
+            items(
+                items = listItem,
+                key = { item -> item.exercise.id },
+                contentType = { "exercises" }
+            ) { item: ExerciseProgress ->
                 Box(
                     modifier = Modifier.fillMaxWidth().animateItemPlacement(),
                 ) {
@@ -199,21 +206,11 @@ fun WorkoutDetailScreen(
                     ) {
                         Row {
                             Spacer(Modifier.width(8.dp))
-                            IconButton(
-                                modifier = Modifier.size(40.dp),
+                            DeleteIconButton(
                                 onClick = {
-                                    viewModel.deleteExercise(workoutPlanId, item.id)
-                                },
-                                colors = IconButtonDefaults.filledIconButtonColors(
-                                    containerColor = MaterialTheme.colorScheme.error
-                                )
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    tint = Color.White,
-                                    contentDescription = "Delete"
-                                )
-                            }
+                                    viewModel.deleteExercise(workoutPlanId, item.exercise.id)
+                                }
+                            )
                         }
                     }
 
@@ -225,13 +222,20 @@ fun WorkoutDetailScreen(
                         else exerciseCardWidth - (16.dp),
                         label = "exerciseCardWidth"
                     )
-                    ExerciseListItemView(
+                    WorkoutExerciseItemView(
                         modifier = Modifier.width(animatedWidth),
-                        title = item.name,
-                        description = item.description,
+                        title = item.exercise.name,
+                        description = item.exercise.description,
+                        imageUrlList = item.exercise.imageList,
                         enabled = !editMode,
                         onClick = {
-                            onSelectExercise(item.id)
+                            onSelectExercise(item.exercise.id)
+                        },
+                        progressContentView = {
+                            ExerciseFinishingStatusView(
+                                total = item.sessionTotal,
+                                progress = item.sessionDoneCount
+                            )
                         }
                     )
                 }
@@ -240,5 +244,24 @@ fun WorkoutDetailScreen(
                 Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.systemBars))
             }
         }
+    }
+}
+
+@Composable
+fun DeleteIconButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
+    IconButton(
+        modifier = Modifier.size(40.dp),
+        onClick = {
+            onClick()
+        },
+        colors = IconButtonDefaults.filledIconButtonColors(
+            containerColor = MaterialTheme.colorScheme.error
+        )
+    ) {
+        Icon(
+            imageVector = Icons.Default.Delete,
+            tint = Color.White,
+            contentDescription = "Delete"
+        )
     }
 }

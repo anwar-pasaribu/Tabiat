@@ -3,6 +3,7 @@ package data.source.local.dao
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import com.unwur.tabiatmu.database.TabiatDatabase
+import com.unwur.tabiatmu.database.WorkoutPlanExerciseEntity
 import domain.model.gym.WorkoutPlanExercise
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -19,15 +20,7 @@ class WorkoutPlanExerciseDao(
             .mapToList(Dispatchers.Default)
             .map { woPlanExerciseEntityList ->
                 woPlanExerciseEntityList.map {
-                    WorkoutPlanExercise(
-                        it.id,
-                        it.exerciseId,
-                        it.workoutPlanId,
-                        it.reps.toInt(),
-                        it.weight.toInt(),
-                        it.setNumberOrder.toInt(),
-                        it.finishedDateTime
-                    )
+                    it.toDomain()
                 }
             }
     }
@@ -38,16 +31,33 @@ class WorkoutPlanExerciseDao(
             .selectAllWorkoutPlanExercise(workoutPlanId)
             .executeAsList()
             .map {
-                WorkoutPlanExercise(
-                    it.id,
-                    it.exerciseId,
-                    it.workoutPlanId,
-                    it.reps.toInt(),
-                    it.weight.toInt(),
-                    it.setNumberOrder.toInt(),
-                    it.finishedDateTime
-                )
+                it.toDomain()
             }
+    }
+
+    override suspend fun selectWorkoutPlanExerciseByWorkoutPlanIdAndExerciseId(
+        workoutPlanId: Long,
+        exerciseId: Long
+    ): List<WorkoutPlanExercise> {
+        return database
+            .workoutPlanExerciseQueries
+            .selectWorkoutPlanExerciseByWorkoutPlanIdAndExerciseId(
+                workoutPlanId, exerciseId
+            )
+            .executeAsList()
+            .map { it.toDomain() }
+    }
+
+    private fun WorkoutPlanExerciseEntity.toDomain(): WorkoutPlanExercise {
+        return WorkoutPlanExercise(
+            this.id,
+            this.exerciseId,
+            this.workoutPlanId,
+            this.reps.toInt(),
+            this.weight.toInt(),
+            this.setNumberOrder.toInt(),
+            this.finishedDateTime
+        )
     }
 
     override suspend fun getLatestWorkoutPlanExercise(): WorkoutPlanExercise {

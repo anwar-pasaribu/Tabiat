@@ -48,7 +48,7 @@ import org.koin.compose.koinInject
 import ui.component.EmptyState
 import ui.component.InsetNavigationHeight
 import ui.component.calendar.WeekView
-import ui.component.gym.WorkoutListItemView
+import ui.component.gym.WorkoutPlanItemView
 
 @OptIn(
     ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class,
@@ -58,7 +58,6 @@ import ui.component.gym.WorkoutListItemView
 fun HomeScreen(
     onWorkoutDetail: (Long) -> Unit = {},
     onEditWorkout: (Long) -> Unit = {},
-    onDeleteWorkout: (Long) -> Unit = {},
     openHistoryScreen: () -> Unit = {},
     onCreateNewWorkoutPlan: () -> Unit = {},
 ) {
@@ -115,7 +114,7 @@ fun HomeScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Add,
-                                contentDescription = "Create new Workout Plan"
+                                contentDescription = "Buat Rencana Workout"
                             )
                         }
                     }
@@ -147,22 +146,18 @@ fun HomeScreen(
                 ),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(items = listItem, key = { it.id }) { item ->
+                items(items = listItem, key = { it.workoutPlan.id }) { item ->
                     Column(
                         modifier = Modifier.fillMaxWidth().animateItemPlacement(),
                     ) {
-                        WorkoutListItemView(
-                            title = item.name,
-                            description = item.description,
-                            onClick = {
-                                onWorkoutDetail(item.id)
-                            },
-                            onEditRequest = {
-                                onEditWorkout(item.id)
-                            },
-                            onDeleteRequest = {
-                                viewModel.deleteWorkout(item.id)
-                            }
+                        WorkoutPlanItemView(
+                            title = item.workoutPlan.name,
+                            description = item.workoutPlan.description,
+                            total = item.total,
+                            progress = item.progress,
+                            onClick = { onWorkoutDetail(item.workoutPlan.id) },
+                            onEditRequest = { onEditWorkout(item.workoutPlan.id) },
+                            onDeleteRequest = { viewModel.deleteWorkout(item.workoutPlan.id) }
                         )
                     }
                 }
@@ -171,6 +166,7 @@ fun HomeScreen(
                     item {
                         Column(modifier = Modifier.fillMaxSize()) {
                             EmptyState(
+                                modifier = Modifier.fillMaxWidth(),
                                 title = "Belum ada Rencana Workout",
                                 btnText = "Tambah Workout",
                                 onClick = {

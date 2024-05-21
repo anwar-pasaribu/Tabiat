@@ -12,15 +12,15 @@ import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -39,7 +39,7 @@ import features.exerciseList.BottomSheet
 import ui.component.InsetNavigationHeight
 
 @Composable
-fun WorkoutListItemView(
+fun WorkoutPlanItemView(
     modifier: Modifier = Modifier,
     title: String,
     description: String,
@@ -52,7 +52,13 @@ fun WorkoutListItemView(
     var menuVisible by remember { mutableStateOf(false) }
 
     Surface {
-        Card(modifier = modifier) {
+        Card(
+            modifier = modifier,
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            )
+        ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -82,36 +88,28 @@ fun WorkoutListItemView(
                 ) {
                     if (total > progress) {
                         CircularProgressIndicator(
-                            modifier = Modifier.size(size = 40.dp),
-                            progress = {
-                                progress / total.toFloat()
-                            },
-                            color = MaterialTheme.colorScheme.primary,
-                            strokeWidth = 3.dp,
+                            modifier = Modifier.size(size = 40.dp).padding(4.dp),
+                            progress = { progress / total.toFloat() },
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            trackColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = .25F),
+                            strokeWidth = 4.dp,
                             strokeCap = StrokeCap.Round,
                         )
                     } else if (total != 0 && progress != 0) {
                         Icon(
                             modifier = Modifier.size(40.dp).align(Alignment.Center),
-                            imageVector = Icons.Default.CheckCircle,
+                            imageVector = Icons.Outlined.CheckCircle,
                             contentDescription = "Finished",
-                            tint = MaterialTheme.colorScheme.primary
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
-
                 }
 
                 IconButton(
                     modifier = Modifier
                         .alpha(if (menuVisible) 0f else 1f)
-                        .align(Alignment.TopEnd)
-                        .padding(top = 4.dp, end = 4.dp),
-                    colors = IconButtonDefaults.iconButtonColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-                    ),
-                    onClick = {
-                        menuVisible = true
-                    }
+                        .align(Alignment.TopEnd),
+                    onClick = { menuVisible = true }
                 ) {
                     Icon(
                         painter = rememberVectorPainter(

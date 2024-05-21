@@ -65,9 +65,6 @@ fun App(
                             navViewModel.currentWorkoutPlanId.value = it
                             navController.navigate(MyAppScreen.InputWorkout.name)
                         },
-                        onDeleteWorkout = {
-
-                        },
                         openHistoryScreen = {
                             navController.navigate(MyAppScreen.WorkoutHistory.name)
                         },

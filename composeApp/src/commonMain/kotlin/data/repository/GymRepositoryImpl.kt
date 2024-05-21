@@ -8,9 +8,11 @@ import data.source.remote.api.IGymApi
 import domain.model.gym.DifficultyLevel
 import domain.model.gym.Exercise
 import domain.model.gym.ExerciseLog
+import domain.model.gym.ExerciseProgress
 import domain.model.gym.ExerciseSet
 import domain.model.gym.WorkoutPlan
 import domain.model.gym.WorkoutPlanExercise
+import domain.model.gym.WorkoutPlanProgress
 import domain.repository.IGymRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -72,9 +74,12 @@ class GymRepositoryImpl(
     }
 
     override suspend fun getWorkoutPlanExercises(workoutPlanId: Long): List<Exercise> {
-        val workoutPlanExercises = workoutPlanExerciseDao.getAllWorkoutPlanExercise(workoutPlanId)
+        return getExerciseListByWorkoutPlanId(workoutPlanId)
+    }
+
+    private suspend fun getExerciseListByWorkoutPlanId(workoutPlanId: Long): List<Exercise> {
         val exercises = mutableListOf<Exercise>()
-        workoutPlanExercises.forEach { wpe ->
+        workoutPlanExerciseDao.getAllWorkoutPlanExercise(workoutPlanId).forEach { wpe ->
             val exercise = exerciseDao.getExerciseById(wpe.exerciseId)
             if (exercise != null) {
                 exercises.add(exercise)
@@ -84,22 +89,65 @@ class GymRepositoryImpl(
     }
 
     override suspend fun getWorkoutPlanExercisesObservable(workoutPlanId: Long): Flow<List<Exercise>> {
-        val workoutPlanExercises = workoutPlanExerciseDao.getAllWorkoutPlanExerciseObservable(workoutPlanId)
-//        val exercises = mutableListOf<Exercise>()
-//        workoutPlanExercises.collect { wpeList ->
-//            wpeList.forEach { wpe ->
-//                val exercise = exerciseDao.getExerciseById(wpe.exerciseId)
-//                if (exercise != null) {
-//                    exercises.add(exercise)
-//                }
-//            }
-//        }
+        val workoutPlanExercises =
+            workoutPlanExerciseDao.getAllWorkoutPlanExerciseObservable(workoutPlanId)
         return workoutPlanExercises.map { wpeList ->
             wpeList.map {
-                exerciseDao.getExerciseById(it.exerciseId) ?: throw Exception("Exercise id: ${it.exerciseId} not found")
+                exerciseDao.getExerciseById(it.exerciseId)
+                    ?: throw Exception("Exercise id: ${it.exerciseId} not found")
             }.distinctBy { it.id }
         }
-        // return exercises.distinctBy { it.id }
+    }
+
+    override suspend fun getWorkoutPlanExerciseProgress(
+        workoutPlanId: Long,
+        exerciseId: Long
+    ): ExerciseProgress {
+        return getExerciseProgress(workoutPlanId, exerciseId)
+    }
+
+    private suspend fun getExerciseProgress(
+        workoutPlanId: Long,
+        exerciseId: Long
+    ): ExerciseProgress {
+        val workoutPlanExerciseList =
+            workoutPlanExerciseDao.selectWorkoutPlanExerciseByWorkoutPlanIdAndExerciseId(
+                workoutPlanId = workoutPlanId,
+                exerciseId = exerciseId
+            )
+        val total = workoutPlanExerciseList.size
+        val progressCount = workoutPlanExerciseList.count { it.finishedDateTime != 0L }
+        val exercise = exerciseDao.getExerciseById(exerciseId)
+            ?: throw Exception("Exercise id: $exerciseId not found")
+        return ExerciseProgress(
+            exercise = exercise,
+            sessionTotal = total,
+            sessionDoneCount = progressCount
+        )
+    }
+
+    override suspend fun getWorkoutPlanProgressListObservable(): Flow<List<WorkoutPlanProgress>> {
+        return workoutPlanDao
+            .getAllWorkoutPlanObservable().map { workoutPlanList ->
+                workoutPlanList.map { workoutPlan ->
+                    val woExerciseProgressList =
+                    workoutPlanExerciseDao.getAllWorkoutPlanExercise(
+                        workoutPlanId = workoutPlan.id
+                    ).map { workoutPlanExercise ->
+                        getExerciseProgress(
+                            workoutPlanId = workoutPlanExercise.workoutPlanId,
+                            exerciseId = workoutPlanExercise.exerciseId
+                        )
+                    }
+                    val total = woExerciseProgressList.sumOf { it.sessionTotal }
+                    val progress = woExerciseProgressList.sumOf { it.sessionDoneCount }
+                    WorkoutPlanProgress(
+                        workoutPlan = workoutPlan,
+                        total = total,
+                        progress = progress
+                    )
+                }
+            }
     }
 
     override suspend fun deleteWorkoutPlanExerciseByWorkoutPlanIdAndExerciseId(
@@ -227,17 +275,18 @@ class GymRepositoryImpl(
     private suspend fun resetLastDayWorkoutPlanExerciseList() = coroutineScope {
         withContext(Dispatchers.Default) {
             workoutPlanDao.getAllWorkoutPlan().forEach { workoutPlan ->
-                workoutPlanExerciseDao.getAllWorkoutPlanExercise(workoutPlan.id).forEach { workoutPlanExercise ->
-                    val isYesterday = isYesterday(workoutPlanExercise.finishedDateTime)
-                    if (isYesterday) {
-                        workoutPlanExerciseDao.updateWorkoutPlanExerciseFinishedDateTime(
-                            workoutPlanExerciseId = workoutPlanExercise.id,
-                            finishedDateTime = 0L,
-                            reps = workoutPlanExercise.reps.toLong(),
-                            weight = workoutPlanExercise.weight.toLong()
-                        )
+                workoutPlanExerciseDao.getAllWorkoutPlanExercise(workoutPlan.id)
+                    .forEach { workoutPlanExercise ->
+                        val isYesterday = isYesterday(workoutPlanExercise.finishedDateTime)
+                        if (isYesterday) {
+                            workoutPlanExerciseDao.updateWorkoutPlanExerciseFinishedDateTime(
+                                workoutPlanExerciseId = workoutPlanExercise.id,
+                                finishedDateTime = 0L,
+                                reps = workoutPlanExercise.reps.toLong(),
+                                weight = workoutPlanExercise.weight.toLong()
+                            )
+                        }
                     }
-                }
             }
         }
     }
@@ -269,7 +318,9 @@ class GymRepositoryImpl(
                     "beginner" -> DifficultyLevel.BEGINNER.level
                     "intermediate" -> DifficultyLevel.INTERMEDIATE.level
                     "expert" -> DifficultyLevel.EXPERT.level
-                    else -> { 0L }
+                    else -> {
+                        0L
+                    }
                 }
 
                 val description = """
@@ -277,6 +328,7 @@ class GymRepositoryImpl(
                         Mechanics: ${networkExercise.mechanic}
                         Force: ${networkExercise.force}
                     """.trimIndent()
+
 
                 exerciseDao.insertExercise(
                     name = networkExercise.name.orEmpty(),

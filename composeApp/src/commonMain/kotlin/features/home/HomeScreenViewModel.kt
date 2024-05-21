@@ -2,7 +2,7 @@ package features.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import domain.model.gym.WorkoutPlan
+import domain.model.gym.WorkoutPlanProgress
 import domain.repository.IGymRepository
 import domain.usecase.GetWorkoutPlanListUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,12 +15,12 @@ class HomeScreenViewModel(
     private val getWorkoutPlanListUseCase: GetWorkoutPlanListUseCase
 ) : ViewModel() {
 
-    private val _workoutListStateFlow = MutableStateFlow(emptyList<WorkoutPlan>())
-    val workoutListStateFlow: StateFlow<List<WorkoutPlan>> = _workoutListStateFlow.asStateFlow()
+    private val _workoutListStateFlow = MutableStateFlow(emptyList<WorkoutPlanProgress>())
+    val workoutListStateFlow: StateFlow<List<WorkoutPlanProgress>> = _workoutListStateFlow.asStateFlow()
 
     fun loadWorkoutList() {
         viewModelScope.launch {
-            getWorkoutPlanListUseCase.invoke().collect {
+            repository.getWorkoutPlanProgressListObservable().collect {
                 _workoutListStateFlow.emit(it)
             }
         }
