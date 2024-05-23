@@ -1,18 +1,14 @@
 package com.unwur.tabiatmu.playground
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import ui.component.gym.LatestExercise
 import ui.component.gym.WorkoutPlanItemView
 import ui.theme.MyAppTheme
 
@@ -42,29 +38,38 @@ private fun WorkoutListItemViewPreview() {
             WorkoutPlanItemView(
                 modifier = Modifier,
                 title = "Workout without desc",
-                description = ""
+                description = "",
             )
-            WorkPlanProgressView(total = 5, progress = 3)
+            Spacer(modifier = Modifier.height(16.dp))
+            WorkoutPlanItemView(
+                modifier = Modifier,
+                title = "Workout with last activity",
+                description = "Description",
+                progress = 9,
+                total = 10,
+                lastActivityInfo = {
+                    LatestExercise(
+                        modifier = Modifier.padding(start = 8.dp, bottom = 8.dp),
+                        exerciseImageUrl = "",
+                        upperLabel = "Latihan terakhir 12 Juni 2024",
+                        lowerLabel = "Barbell Bench Press (10 x 12kg)"
+                    )
+                }
+            )
         }
     }
 }
 
+@Preview
 @Composable
-fun WorkPlanProgressView(
-    modifier: Modifier = Modifier,
-    total: Int,
-    progress: Int
-) {
-    Row {
-        Text(text = "$progress dari $total selesai")
-        CircularProgressIndicator(
-            progress = {
-                       progress/total.toFloat()
-            },
-            modifier = Modifier.size(size = 40.dp),
-            color = MaterialTheme.colorScheme.primary,
-            strokeWidth = 3.dp,
-            strokeCap = StrokeCap.Round,
+private fun LatestExercisePrev() {
+    MyAppTheme {
+        LatestExercise(
+            modifier = Modifier.padding(start = 8.dp, bottom = 8.dp),
+            exerciseImageUrl = "",
+            upperLabel = "Push ups",
+            lowerLabel = "10"
         )
     }
+    
 }

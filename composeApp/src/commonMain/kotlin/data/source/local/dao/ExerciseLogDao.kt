@@ -1,29 +1,27 @@
 package data.source.local.dao
 
+import com.unwur.tabiatmu.database.ExerciseLogEntity
 import com.unwur.tabiatmu.database.TabiatDatabase
 import domain.model.gym.ExerciseLog
 
 class ExerciseLogDao(
     private val database: TabiatDatabase
 ) : IExerciseLogDao {
+
+    override suspend fun getLatestExerciseLog(workoutPlanId: Long): ExerciseLog? {
+        return database
+            .exerciseLogQueries
+            .selectLatestExerciseLogByWorkoutPlan(workoutPlanId)
+            .executeAsOneOrNull()?.toDomain()
+
+    }
+
     override suspend fun getAllExerciseLog(): List<ExerciseLog> {
         return database
             .exerciseLogQueries
             .selectAllExerciseLog()
             .executeAsList()
-            .map {
-                ExerciseLog(
-                    id = it.id,
-                    exerciseId = it.exerciseId,
-                    workoutPlanId = it.workoutPlanId,
-                    reps = it.reps.toInt(),
-                    weight = it.weight,
-                    measurement = it.measurement,
-                    setNumberOrder = it.setNumberOrder.toInt(),
-                    finishedDateTime = it.finishedDateTime,
-                    logNotes = it.logNotes.orEmpty(),
-                )
-            }
+            .map { it.toDomain() }
     }
 
     override suspend fun getExerciseLogByDateTimeRange(startDateTime: Long, endDateTime: Long): List<ExerciseLog> {
@@ -31,19 +29,7 @@ class ExerciseLogDao(
             .exerciseLogQueries
             .selectExerciseLogByDateTimeStampRange(startDateTime, endDateTime)
             .executeAsList()
-            .map {
-                ExerciseLog(
-                    id = it.id,
-                    exerciseId = it.exerciseId,
-                    workoutPlanId = it.workoutPlanId,
-                    reps = it.reps.toInt(),
-                    weight = it.weight,
-                    measurement = it.measurement,
-                    setNumberOrder = it.setNumberOrder.toInt(),
-                    finishedDateTime = it.finishedDateTime,
-                    logNotes = it.logNotes.orEmpty(),
-                )
-            }
+            .map { it.toDomain() }
     }
 
     override suspend fun insertExerciseLog(
@@ -74,5 +60,19 @@ class ExerciseLogDao(
                 latitude = latitude,
                 longitude = longitude
             )
+    }
+
+    private fun ExerciseLogEntity.toDomain(): ExerciseLog {
+        return ExerciseLog(
+            id = this.id,
+            exerciseId = this.exerciseId,
+            workoutPlanId = this.workoutPlanId,
+            reps = this.reps.toInt(),
+            weight = this.weight,
+            measurement = this.measurement,
+            setNumberOrder = this.setNumberOrder.toInt(),
+            finishedDateTime = this.finishedDateTime,
+            logNotes = this.logNotes.orEmpty(),
+        )
     }
 }

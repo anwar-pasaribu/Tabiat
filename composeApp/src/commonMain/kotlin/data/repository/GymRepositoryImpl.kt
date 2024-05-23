@@ -142,10 +142,18 @@ class GymRepositoryImpl(
                     }
                     val total = woExerciseProgressList.sumOf { it.sessionTotal }
                     val progress = woExerciseProgressList.sumOf { it.sessionDoneCount }
+                    val latestExerciseLog = exerciseLogDao.getLatestExerciseLog(
+                            workoutPlanId = workoutPlan.id
+                    )
+                    val lastExercise = latestExerciseLog?.let {
+                        exerciseDao.getExerciseById(it.exerciseId)
+                    }
                     WorkoutPlanProgress(
                         workoutPlan = workoutPlan,
                         total = total,
-                        progress = progress
+                        progress = progress,
+                        lastExerciseLog = latestExerciseLog,
+                        lastExercise = lastExercise
                     )
                 }
             }

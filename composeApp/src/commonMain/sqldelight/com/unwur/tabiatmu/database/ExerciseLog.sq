@@ -16,6 +16,13 @@ CREATE TABLE IF NOT EXISTS ExerciseLogEntity (
 selectAllExerciseLog:
 SELECT * FROM ExerciseLogEntity;
 
+selectLatestExerciseLogByWorkoutPlan:
+SELECT *
+FROM ExerciseLogEntity
+WHERE workoutPlanId = :workoutPlanId
+ORDER BY finishedDateTime DESC
+LIMIT 1;
+
 insertExerciseLog:
 INSERT INTO ExerciseLogEntity
 (exerciseId, workoutPlanId, reps, weight, difficulty, measurement, setNumberOrder, finishedDateTime, logNotes, latitude, longitude)

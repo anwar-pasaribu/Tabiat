@@ -3,6 +3,11 @@ package data.source.local.dao
 import domain.model.gym.ExerciseLog
 
 interface IExerciseLogDao {
+
+    suspend fun getLatestExerciseLog(
+        workoutPlanId: Long,
+    ): ExerciseLog?
+
     suspend fun getAllExerciseLog(): List<ExerciseLog>
 
     suspend fun getExerciseLogByDateTimeRange(

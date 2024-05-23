@@ -13,13 +13,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.Menu
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -45,17 +49,18 @@ import dev.chrisbanes.haze.haze
 import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
+import features.home.model.HomeListItemUiData
 import features.settings.SettingBottomSheetDialog
 import features.workoutHistory.ExerciseLogListBottomSheet
 import org.koin.compose.koinInject
 import ui.component.EmptyState
 import ui.component.InsetNavigationHeight
 import ui.component.calendar.WeekView
+import ui.component.gym.LatestExercise
 import ui.component.gym.WorkoutPlanItemView
 
 @OptIn(
-    ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class,
-    ExperimentalFoundationApi::class
+    ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class
 )
 @Composable
 fun HomeScreen(
@@ -69,7 +74,7 @@ fun HomeScreen(
     val lazyListState = rememberLazyListState()
 
     val viewModel = koinInject<HomeScreenViewModel>()
-    val listItem by viewModel.workoutListStateFlow.collectAsState()
+    val homeScreenUiState by viewModel.workoutListStateFlow.collectAsState()
 
     var selectedDateTimeStamp by remember { mutableStateOf(0L) }
     var dailyExerciseLogVisible by remember { mutableStateOf(false) }
@@ -113,13 +118,19 @@ fun HomeScreen(
                     },
                     navigationIcon = {
                         IconButton(onClick = { settingScreenVisible = true }) {
-                            Icon(imageVector = Icons.Outlined.Settings, contentDescription = "")
+                            Icon(
+                                imageVector = Icons.Outlined.Menu,
+                                contentDescription = "Setting Menu"
+                            )
                         }
                     },
                     actions = {
                         IconButton(
                             modifier = Modifier,
-                            colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary),
+                            colors = IconButtonDefaults.filledIconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
+                            ),
                             onClick = { onCreateNewWorkoutPlan() }) {
                             Icon(imageVector = Icons.Default.Add, contentDescription = "")
                         }
@@ -141,52 +152,120 @@ fun HomeScreen(
         },
     ) { contentPadding ->
 
-        Box(modifier = Modifier.fillMaxSize()) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize().haze(state = hazeState),
-                state = lazyListState,
-                contentPadding = PaddingValues(
-                    start = contentPadding.calculateStartPadding(LayoutDirection.Ltr) + 8.dp,
-                    top = contentPadding.calculateTopPadding() + 16.dp,
-                    end = contentPadding.calculateEndPadding(LayoutDirection.Ltr) + 8.dp,
-                    bottom = contentPadding.calculateBottomPadding()
-                ),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                items(items = listItem, key = { it.workoutPlan.id }) { item ->
-                    Column(
-                        modifier = Modifier.fillMaxWidth().animateItemPlacement(),
+        val paddingValues = PaddingValues(
+            start = contentPadding.calculateStartPadding(LayoutDirection.Ltr) + 8.dp,
+            top = contentPadding.calculateTopPadding() + 16.dp,
+            end = contentPadding.calculateEndPadding(LayoutDirection.Ltr) + 8.dp,
+            bottom = contentPadding.calculateBottomPadding()
+        )
+
+        when (homeScreenUiState) {
+            is HomeScreenUiState.Loading -> {
+                Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = .1F),
+                        )
                     ) {
-                        WorkoutPlanItemView(
-                            title = item.workoutPlan.name,
-                            description = item.workoutPlan.description,
-                            total = item.total,
-                            progress = item.progress,
-                            onClick = { onWorkoutDetail(item.workoutPlan.id) },
-                            onEditRequest = { onEditWorkout(item.workoutPlan.id) },
-                            onDeleteRequest = { viewModel.deleteWorkout(item.workoutPlan.id) }
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .requiredHeightIn(min = 132.dp)
                         )
                     }
                 }
+            }
 
-                if (listItem.isEmpty()) {
-                    item {
-                        Column(modifier = Modifier.fillMaxSize()) {
-                            EmptyState(
-                                modifier = Modifier.fillMaxWidth(),
-                                title = "Belum ada Rencana Workout",
-                                btnText = "Tambah Workout",
-                                onClick = {
-                                    onCreateNewWorkoutPlan()
-                                }
-                            )
+            is HomeScreenUiState.Error -> {
+                Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+                    EmptyState(
+                        modifier = Modifier.fillMaxWidth(),
+                        title = "Tidak, ada error nih",
+                        btnText = "Coba Tambah Workout",
+                        onClick = {
+                            onCreateNewWorkoutPlan()
                         }
+                    )
+                }
+            }
+            is HomeScreenUiState.Success -> {
+                HomeScreenList(
+                    contentPadding = paddingValues,
+                    listItem = (homeScreenUiState as HomeScreenUiState.Success).data,
+                    hazeState = hazeState,
+                    lazyListState = lazyListState,
+                    onWorkoutDetail = onWorkoutDetail,
+                    onEditWorkout = onEditWorkout,
+                    onDeleteWorkout = {
+                        viewModel.deleteWorkout(it)
                     }
-                }
+                )
+            }
 
-                item {
-                    InsetNavigationHeight()
+            HomeScreenUiState.Empty -> {
+                Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+                    EmptyState(
+                        modifier = Modifier.fillMaxWidth(),
+                        title = "Belum ada Rencana Workout",
+                        btnText = "Tambah Workout",
+                        onClick = {
+                            onCreateNewWorkoutPlan()
+                        }
+                    )
                 }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun HomeScreenList(
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues,
+    listItem: List<HomeListItemUiData>,
+    hazeState: HazeState,
+    lazyListState: LazyListState,
+    onWorkoutDetail: (Long) -> Unit,
+    onEditWorkout: (Long) -> Unit,
+    onDeleteWorkout: (Long) -> Unit,
+) {
+    Box(modifier = modifier) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().haze(state = hazeState),
+            state = lazyListState,
+            contentPadding = contentPadding,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            items(items = listItem, key = { it.workoutPlanId }) { item ->
+                Column(
+                    modifier = Modifier.fillMaxWidth().animateItemPlacement(),
+                ) {
+                    WorkoutPlanItemView(
+                        title = item.title,
+                        description = item.description,
+                        total = item.total,
+                        progress = item.progress,
+                        onClick = { onWorkoutDetail(item.workoutPlanId) },
+                        onEditRequest = { onEditWorkout(item.workoutPlanId) },
+                        onDeleteRequest = { onDeleteWorkout(item.workoutPlanId) },
+                        lastActivityInfo = {
+                            if (item.lastActivityDetail.isNotEmpty()) {
+                                LatestExercise(
+                                    modifier = Modifier.padding(start = 8.dp, bottom = 8.dp),
+                                    exerciseImageUrl = item.exerciseImageUrl,
+                                    upperLabel = item.lastActivityDate,
+                                    lowerLabel = item.lastActivityDetail
+                                )
+                            }
+                        }
+                    )
+                }
+            }
+
+            item {
+                InsetNavigationHeight()
             }
         }
     }

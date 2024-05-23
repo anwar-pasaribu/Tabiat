@@ -10,8 +10,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -48,7 +48,7 @@ fun EmptyState(
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(16.dp))
-            FilledTonalButton(onClick = { onClick() }) {
+            Button(onClick = { onClick() }) {
                 Icon(modifier = Modifier.size(20.dp), imageVector = Icons.Default.Add, contentDescription = "")
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(text = btnText, style = MaterialTheme.typography.bodyLarge)

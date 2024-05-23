@@ -1,9 +1,11 @@
 package ui.component.gym
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -11,6 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -32,10 +36,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.dp
 import features.exerciseList.BottomSheet
+import ui.component.ImageWrapper
 import ui.component.InsetNavigationHeight
 
 @Composable
@@ -43,6 +49,7 @@ fun WorkoutPlanItemView(
     modifier: Modifier = Modifier,
     title: String,
     description: String,
+    lastActivityInfo: @Composable (RowScope.() -> Unit)? = null,
     total: Int = 0,
     progress: Int = 0,
     onClick: () -> Unit = {},
@@ -62,46 +69,33 @@ fun WorkoutPlanItemView(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .requiredHeightIn(min = 128.dp)
+                    .requiredHeightIn(min = 132.dp)
                     .clickable {
                         onClick()
                     }
             ) {
 
                 Column(
-                    modifier = Modifier.padding(
-                        top = 16.dp,
-                        bottom = 16.dp,
-                        start = 16.dp,
-                        end = 16.dp
-                    )
+                    modifier = Modifier.padding(16.dp)
                 ) {
                     Text(text = title, style = MaterialTheme.typography.titleLarge)
                     if (description.isNotEmpty()) {
-                        Text(text = description, style = MaterialTheme.typography.bodyMedium)
+                        Text(text = description, style = MaterialTheme.typography.bodyLarge)
                     }
                 }
 
-                Box(
+                WorkoutPlanProgressIndicator(
                     modifier = Modifier.align(Alignment.BottomEnd)
-                        .padding(end = 8.dp, bottom = 8.dp).size(size = 40.dp)
-                ) {
-                    if (total > progress) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(size = 40.dp).padding(4.dp),
-                            progress = { progress / total.toFloat() },
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            trackColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = .25F),
-                            strokeWidth = 4.dp,
-                            strokeCap = StrokeCap.Round,
-                        )
-                    } else if (total != 0 && progress != 0) {
-                        Icon(
-                            modifier = Modifier.size(40.dp).align(Alignment.Center),
-                            imageVector = Icons.Outlined.CheckCircle,
-                            contentDescription = "Finished",
-                            tint = MaterialTheme.colorScheme.onPrimary
-                        )
+                        .padding(end = 8.dp, bottom = 8.dp).size(size = 40.dp),
+                    total = total,
+                    progress = progress
+                )
+
+                if (lastActivityInfo != null) {
+                    Row(
+                        modifier = Modifier.align(Alignment.BottomStart)
+                    ) {
+                        lastActivityInfo()
                     }
                 }
 
@@ -175,6 +169,83 @@ fun WorkoutPlanItemView(
                 InsetNavigationHeight()
                 InsetNavigationHeight()
             }
+        }
+    }
+}
+
+@Composable
+private fun WorkoutPlanProgressIndicator(
+    modifier: Modifier,
+    total: Int,
+    progress: Int
+) {
+    Box(
+        modifier = modifier
+    ) {
+        if (total > progress) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(size = 40.dp).padding(4.dp),
+                progress = { progress / total.toFloat() },
+                color = MaterialTheme.colorScheme.onPrimary,
+                trackColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = .25F),
+                strokeWidth = 4.dp,
+                strokeCap = StrokeCap.Round,
+            )
+        } else if (total != 0 && progress != 0) {
+            Icon(
+                modifier = Modifier.size(40.dp).align(Alignment.Center),
+                imageVector = Icons.Outlined.CheckCircle,
+                contentDescription = "Finished",
+                tint = MaterialTheme.colorScheme.onPrimary
+            )
+        }
+    }
+}
+
+@Composable
+fun LatestExercise(
+    modifier: Modifier = Modifier,
+    exerciseImageUrl: String,
+    upperLabel: String,
+    lowerLabel: String,
+) {
+    val circleSize = 36.dp
+    Row(
+        modifier = modifier.then(
+            Modifier
+                .background(
+                    MaterialTheme.colorScheme.onPrimary.copy(alpha = .15F),
+                    shape = RoundedCornerShape(
+                        topStartPercent = 50,
+                        bottomStartPercent = 50,
+                        topEndPercent = 25,
+                        bottomEndPercent = 25
+                    )
+                )
+                .padding(end = 8.dp, top = 2.dp, bottom = 2.dp)
+        ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Spacer(modifier = Modifier.width(2.dp))
+        Card(Modifier.size(circleSize), shape = CircleShape) {
+            ImageWrapper(
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .size(circleSize),
+                contentDescription = "",
+                imageUrl = exerciseImageUrl,
+            )
+        }
+        Spacer(modifier = Modifier.width(6.dp))
+        Column {
+            Text(
+                text = upperLabel,
+                style = MaterialTheme.typography.labelMedium
+            )
+            Text(
+                text = lowerLabel,
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
     }
 }
