@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeightIn
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -31,7 +32,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -53,7 +53,10 @@ import features.home.model.HomeListItemUiData
 import features.settings.SettingBottomSheetDialog
 import features.workoutHistory.ExerciseLogListBottomSheet
 import org.koin.compose.koinInject
+import tabiat.composeapp.generated.resources.Res
+import tabiat.composeapp.generated.resources.tabiat_icon_32dp
 import ui.component.EmptyState
+import ui.component.ImageWrapper
 import ui.component.InsetNavigationHeight
 import ui.component.calendar.WeekView
 import ui.component.gym.LatestExercise
@@ -111,9 +114,9 @@ fun HomeScreen(
                     modifier = Modifier.fillMaxWidth(),
                     colors = TopAppBarDefaults.topAppBarColors(Color.Transparent),
                     title = {
-                        Text(
-                            "Home",
-                            style = MaterialTheme.typography.headlineLarge
+                        ImageWrapper(
+                            resource = Res.drawable.tabiat_icon_32dp,
+                            contentDescription = ""
                         )
                     },
                     navigationIcon = {
@@ -126,7 +129,7 @@ fun HomeScreen(
                     },
                     actions = {
                         IconButton(
-                            modifier = Modifier,
+                            modifier = Modifier.size(30.dp),
                             colors = IconButtonDefaults.filledIconButtonColors(
                                 containerColor = MaterialTheme.colorScheme.primary,
                                 contentColor = MaterialTheme.colorScheme.onPrimary
@@ -134,7 +137,7 @@ fun HomeScreen(
                             onClick = { onCreateNewWorkoutPlan() }) {
                             Icon(imageVector = Icons.Default.Add, contentDescription = "")
                         }
-                        Spacer(Modifier.width(4.dp))
+                        Spacer(Modifier.width(8.dp))
                     }
                 )
 
