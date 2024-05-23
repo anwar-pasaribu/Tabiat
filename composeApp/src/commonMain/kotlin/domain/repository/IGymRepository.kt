@@ -11,6 +11,7 @@ import domain.model.gym.WorkoutPlanProgress
 import kotlinx.coroutines.flow.Flow
 
 interface IGymRepository {
+    suspend fun resetAllYesterdayActivities()
     suspend fun createWorkoutPlan(workoutName: String, notes: String): Boolean
     suspend fun updateWorkoutPlan(workoutPlanId: Long, workoutName: String, notes: String): Boolean
     suspend fun deleteWorkoutPlan(workoutPlanId: Long): Boolean

@@ -11,29 +11,30 @@ import data.source.local.dao.IWorkoutPlanExerciseDao
 import data.source.local.dao.WorkoutPlanDao
 import data.source.local.dao.WorkoutPlanExerciseDao
 import domain.repository.IGymRepository
+import domain.usecase.CreateNewExerciseUseCase
+import domain.usecase.DeleteWorkoutPlanExerciseSetUseCase
 import domain.usecase.GetExerciseByIdUseCase
 import domain.usecase.GetExerciseListByWorkoutPlanUseCase
 import domain.usecase.GetExerciseListUseCase
-import domain.usecase.GetExerciseSetListUseCase
-import domain.usecase.GetWorkoutPlanListUseCase
-import domain.usecase.CreateNewExerciseUseCase
-import domain.usecase.DeleteWorkoutPlanExerciseSetUseCase
 import domain.usecase.GetExerciseLogListByDateTimeStampUseCase
+import domain.usecase.GetExerciseSetListUseCase
 import domain.usecase.GetGymPreferencesUseCase
 import domain.usecase.GetWorkoutPlanByIdUseCase
+import domain.usecase.GetWorkoutPlanListUseCase
 import domain.usecase.InputWorkoutPlanExerciseSetListUseCase
 import domain.usecase.LogExerciseUseCase
+import domain.usecase.ResetAllYesterdayActivitiesUseCase
 import domain.usecase.SearchExerciseUseCase
 import features.createNewExercise.CreateExerciseScreenViewModel
 import features.exerciseList.ExerciseListScreenViewModel
 import features.home.HomeScreenViewModel
 import features.inputExercise.InputExerciseScreenViewModel
-import features.logWorkoutExercise.LogWorkoutExerciseScreenViewModel
-import features.workoutPlanDetail.WorkoutDetailScreenViewModel
 import features.inputWorkout.InputWorkoutScreenViewModel
+import features.logWorkoutExercise.LogWorkoutExerciseScreenViewModel
 import features.navigationHelper.NavigationViewModel
 import features.settings.SettingScreenViewModel
 import features.workoutHistory.WorkoutHistoryScreenViewModel
+import features.workoutPlanDetail.WorkoutDetailScreenViewModel
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
@@ -109,6 +110,10 @@ fun appModule() = module {
     single {
         GetGymPreferencesUseCase(get())
     }
+
+    single {
+        ResetAllYesterdayActivitiesUseCase(get())
+    }
 }
 
 fun viewModels() = module {
@@ -116,7 +121,10 @@ fun viewModels() = module {
         NavigationViewModel()
     }
     single {
-        HomeScreenViewModel(repository = get(), getWorkoutPlanListUseCase = get())
+        HomeScreenViewModel(
+            repository = get(),
+            resetAllYesterdayActivitiesUseCase = get()
+        )
     }
 
     single {

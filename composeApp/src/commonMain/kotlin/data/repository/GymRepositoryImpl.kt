@@ -23,12 +23,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
-import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.minus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.encodeToString
@@ -293,8 +291,11 @@ class GymRepositoryImpl(
     }
 
     override suspend fun getWorkoutPlans(): List<WorkoutPlan> {
-        resetLastDayWorkoutPlanExerciseList()
         return workoutPlanDao.getAllWorkoutPlan()
+    }
+
+    override suspend fun resetAllYesterdayActivities() {
+        resetLastDayWorkoutPlanExerciseList()
     }
 
     private suspend fun resetLastDayWorkoutPlanExerciseList() = coroutineScope {
@@ -302,7 +303,7 @@ class GymRepositoryImpl(
             workoutPlanDao.getAllWorkoutPlan().forEach { workoutPlan ->
                 workoutPlanExerciseDao.getAllWorkoutPlanExercise(workoutPlan.id)
                     .forEach { workoutPlanExercise ->
-                        val isYesterday = isYesterday(workoutPlanExercise.finishedDateTime)
+                        val isYesterday = isOldExercise(workoutPlanExercise.finishedDateTime)
                         if (isYesterday) {
                             workoutPlanExerciseDao.updateWorkoutPlanExerciseFinishedDateTime(
                                 workoutPlanExerciseId = workoutPlanExercise.id,
@@ -316,12 +317,12 @@ class GymRepositoryImpl(
         }
     }
 
-    private fun isYesterday(timestamp: Long): Boolean {
+    private fun isOldExercise(timestamp: Long): Boolean {
         val tz = TimeZone.currentSystemDefault()
-        val yesterday = Clock.System.now().toLocalDateTime(tz).date.minus(1, DateTimeUnit.DAY)
+        val today = Clock.System.now().toLocalDateTime(tz).date
         val timestampDate = Instant.fromEpochMilliseconds(timestamp).toLocalDateTime(tz).date
 
-        return yesterday == timestampDate
+        return today != timestampDate
     }
 
     override suspend fun getExercises(): List<Exercise> {
