@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -23,6 +24,7 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -109,13 +111,19 @@ fun HomeScreen(
                             style = MaterialTheme.typography.headlineLarge
                         )
                     },
-                    actions = {
-                        IconButton(onClick = { onCreateNewWorkoutPlan() }) {
-                            Icon(imageVector = Icons.Default.Add, contentDescription = "")
-                        }
+                    navigationIcon = {
                         IconButton(onClick = { settingScreenVisible = true }) {
                             Icon(imageVector = Icons.Outlined.Settings, contentDescription = "")
                         }
+                    },
+                    actions = {
+                        IconButton(
+                            modifier = Modifier,
+                            colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary),
+                            onClick = { onCreateNewWorkoutPlan() }) {
+                            Icon(imageVector = Icons.Default.Add, contentDescription = "")
+                        }
+                        Spacer(Modifier.width(4.dp))
                     }
                 )
 
