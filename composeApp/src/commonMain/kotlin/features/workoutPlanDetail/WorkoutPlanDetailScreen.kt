@@ -1,8 +1,9 @@
 package features.workoutPlanDetail
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
@@ -28,7 +29,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.Edit
@@ -52,7 +52,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import dev.chrisbanes.haze.HazeState
@@ -61,8 +60,8 @@ import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import domain.model.gym.ExerciseProgress
-import getScreenSizeInfo
 import org.koin.compose.koinInject
+import ui.component.BackButton
 import ui.component.DeleteIconButton
 import ui.component.EmptyState
 import ui.component.gym.ExerciseFinishingStatusView
@@ -110,26 +109,13 @@ fun WorkoutDetailScreen(
                     modifier = Modifier.fillMaxWidth(),
                     colors = TopAppBarDefaults.topAppBarColors(Color.Transparent),
                     navigationIcon = {
-                        IconButton(
+                        BackButton(
                             modifier = Modifier.alpha(animateAlphaValue).scale(animateAlphaValue),
                             enabled = !editMode,
                             onClick = { onBack() },
-                            content = {
-                                Icon(
-                                    painter = rememberVectorPainter(
-                                        image = Icons.AutoMirrored.Filled.ArrowBack
-                                    ),
-                                    contentDescription = "Back"
-                                )
-                            }
                         )
                     },
-                    title = {
-                        Text(
-                            "",
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                    },
+                    title = { Text("") },
                     actions = {
                         IconButton(
                             modifier = Modifier.alpha(animateAlphaValue).scale(animateAlphaValue),
@@ -194,32 +180,8 @@ fun WorkoutDetailScreen(
                     modifier = Modifier.fillMaxWidth().animateItemPlacement(),
                 ) {
 
-                    AnimatedVisibility(
-                        visible = editMode,
-                        modifier = Modifier.width(48.dp).align(Alignment.CenterEnd),
-                        enter = scaleIn(),
-                        exit = scaleOut(animationSpec = tween(150, delayMillis = 300))
-                    ) {
-                        Row {
-                            Spacer(Modifier.width(8.dp))
-                            DeleteIconButton(
-                                onClick = {
-                                    viewModel.deleteExercise(workoutPlanId, item.exercise.id)
-                                }
-                            )
-                        }
-                    }
-
-                    val screenSizeInfo = getScreenSizeInfo()
-                    val exerciseCardWidth = screenSizeInfo.wDP
-                    val animatedWidth by animateDpAsState(
-                        targetValue =
-                        if (editMode) exerciseCardWidth - (16.dp + 48.dp)
-                        else exerciseCardWidth - (16.dp),
-                        label = "exerciseCardWidth"
-                    )
                     WorkoutExerciseItemView(
-                        modifier = Modifier.width(animatedWidth),
+                        modifier = Modifier.fillMaxWidth(),
                         title = item.exercise.name,
                         description = item.exercise.description,
                         imageUrlList = item.exercise.imageList,
@@ -234,6 +196,27 @@ fun WorkoutDetailScreen(
                             )
                         }
                     )
+
+                    AnimatedVisibility(
+                        visible = editMode,
+                        modifier = Modifier.width(48.dp).align(Alignment.CenterEnd),
+                        enter = scaleIn(
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioMediumBouncy,
+                                stiffness = Spring.StiffnessMediumLow
+                            )
+                        ),
+                        exit = scaleOut(animationSpec = tween(150))
+                    ) {
+                        Row {
+                            DeleteIconButton(
+                                onClick = {
+                                    viewModel.deleteExercise(workoutPlanId, item.exercise.id)
+                                }
+                            )
+                            Spacer(Modifier.width(8.dp))
+                        }
+                    }
                 }
             }
             item {

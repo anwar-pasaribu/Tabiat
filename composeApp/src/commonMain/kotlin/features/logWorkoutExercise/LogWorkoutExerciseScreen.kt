@@ -28,7 +28,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.Card
@@ -53,7 +52,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import dev.chrisbanes.haze.HazeState
@@ -62,6 +60,7 @@ import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import domain.model.gym.ExerciseSet
 import org.koin.compose.koinInject
+import ui.component.BackButton
 import ui.component.DeleteIconButton
 import ui.component.gym.AddExerciseSet
 import ui.component.gym.ExerciseSetItemView
@@ -138,18 +137,10 @@ fun LogWorkoutExerciseScreen(
                     modifier = Modifier.fillMaxWidth().alpha(topAppBarAlphaDuringTimer),
                     colors = TopAppBarDefaults.topAppBarColors(Color.Transparent),
                     navigationIcon = {
-                        IconButton(
+                        BackButton(
                             modifier = Modifier.alpha(animateAlphaValue).scale(animateAlphaValue),
                             enabled = !editMode,
                             onClick = { onBack() },
-                            content = {
-                                Icon(
-                                    painter = rememberVectorPainter(
-                                        image = Icons.AutoMirrored.Filled.ArrowBack
-                                    ),
-                                    contentDescription = "Back"
-                                )
-                            }
                         )
                     },
                     title = { Text("") },
