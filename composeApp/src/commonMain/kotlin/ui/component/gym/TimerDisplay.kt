@@ -1,8 +1,11 @@
 package ui.component.gym
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
@@ -144,12 +147,24 @@ fun TimerDisplay(
                                 AnimatedContent(
                                     targetState = digit,
                                     transitionSpec = {
-                                        if (targetState < initialState) {
-                                            slideInVertically { -it } togetherWith slideOutVertically { it }
+                                        // Compare the incoming number with the previous number.
+                                        if (targetState > initialState) {
+                                            // If the target number is larger, it slides up and fades in
+                                            // while the initial (smaller) number slides up and fades out.
+                                            (slideInVertically { height -> height } + fadeIn()).togetherWith(
+                                                slideOutVertically { height -> -height } + fadeOut())
                                         } else {
-                                            slideInVertically { it } togetherWith slideOutVertically { -it }
-                                        }
-                                    }, label = "timerAnimation"
+                                            // If the target number is smaller, it slides down and fades in
+                                            // while the initial number slides down and fades out.
+                                            (slideInVertically { height -> -height } + fadeIn()).togetherWith(
+                                                slideOutVertically { height -> height } + fadeOut())
+                                        }.using(
+                                            // Disable clipping since the faded slide-in/out should
+                                            // be displayed out of bounds.
+                                            SizeTransform(clip = false)
+                                        )
+                                    },
+                                    label = "timerAnimation"
                                 ) { count ->
                                     Text(
                                         modifier = Modifier,
