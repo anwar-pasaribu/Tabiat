@@ -25,8 +25,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -37,6 +39,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
+import kotlinx.coroutines.launch
+import ui.extension.bouncingClickable
 import kotlin.math.absoluteValue
 
 @Composable
@@ -99,18 +103,23 @@ fun AddExerciseSet(
         repsOptionList.indexOf(initialReps)
     }
 
-    val weightOptionList = (1..300).toList()
+    val weightOptionList = (0..300).toList()
     var selectedWeight by remember {
         mutableStateOf(0)
     }
     val initialWeightIndex = if (initialWeight == 0) {
-        9
+        10
     } else {
         weightOptionList.indexOf(initialWeight)
     }
 
-    PlayHapticAndSound(selectedReps)
-    PlayHapticAndSound(selectedWeight)
+    // Prevent PlayHapticAndSound on the first time
+    var userTriggeredAction by remember { mutableIntStateOf(0) }
+    val numberOfFunctioningWheel = 2
+    if (userTriggeredAction > numberOfFunctioningWheel) {
+        PlayHapticAndSound(selectedReps)
+        PlayHapticAndSound(selectedWeight)
+    }
 
     Card(
         modifier = modifier,
@@ -119,14 +128,14 @@ fun AddExerciseSet(
         )
     ) {
         Row(modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.weight(.5F)) {
+            Column(modifier = Modifier.weight(.4F)) {
                 Box(
                     modifier = Modifier.fillMaxWidth().height(32.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "Repetisi",
-                        style = MaterialTheme.typography.labelSmall.copy(
+                        style = MaterialTheme.typography.labelMedium.copy(
                             textAlign = TextAlign.Center
                         )
                     )
@@ -137,23 +146,24 @@ fun AddExerciseSet(
                 ) {
                     selectedReps = repsOptionList[it]
                     onRepsChange(selectedReps)
+                    userTriggeredAction += 1
                 }
             }
-            Box(modifier = Modifier.weight(.5F)) {
+            Box(modifier = Modifier.weight(.2F)) {
                 Column {
                     Spacer(modifier = Modifier.height(32.dp))
                     HorizontalScrollSelector(pagerItemList = listOf("✕"))
                 }
             }
-            Box(modifier = Modifier.weight(.5F)) {
-                Column {
+            Box(modifier = Modifier.weight(.4F)) {
+                Column(Modifier.fillMaxWidth()) {
                     Box(
                         modifier = Modifier.fillMaxWidth().height(32.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = "Berat (kg)",
-                            style = MaterialTheme.typography.labelSmall.copy(
+                            style = MaterialTheme.typography.labelMedium.copy(
                                 textAlign = TextAlign.Center
                             )
                         )
@@ -164,6 +174,7 @@ fun AddExerciseSet(
                     ) {
                         selectedWeight = weightOptionList[it]
                         onWeightChange(selectedWeight)
+                        userTriggeredAction += 1
                     }
                 }
             }
@@ -172,10 +183,11 @@ fun AddExerciseSet(
             modifier = Modifier.fillMaxWidth().height(56.dp)
         ) {
             TextButton(
-                modifier = Modifier.align(Alignment.CenterEnd).padding(end = 16.dp),
+                modifier = Modifier.align(Alignment.CenterEnd).padding(end = 8.dp),
                 onClick = {
                     addExerciseSetDone(selectedReps, selectedWeight)
                 },
+                shape = MaterialTheme.shapes.small,
                 border = ButtonDefaults.outlinedButtonBorder.copy(width = 1.dp)
             ) {
                 Text(text = actionText)
@@ -197,45 +209,51 @@ fun <T> HorizontalScrollSelector(
     }
     val fling = PagerDefaults.flingBehavior(
         state = pagerState,
-        pagerSnapDistance = PagerSnapDistance.atMost(5)
+        pagerSnapDistance = PagerSnapDistance.atMost(7)
     )
 
     LaunchedEffect(pagerState) {
-        // Collect from the a snapshotFlow reading the currentPage
-        snapshotFlow { pagerState.currentPage }.collect { page ->
-            // Do something with each page change, for example:
-            // viewModel.sendPageSelectedEvent(page)
-            onItemIndexSelected(page)
-        }
+        snapshotFlow { pagerState.currentPage }
+            .collect { page ->
+                onItemIndexSelected(page)
+            }
     }
-    Surface {
-        Box(modifier = modifier.then(Modifier)) {
+
+    val coroutineScope = rememberCoroutineScope()
+
+    Surface(modifier = modifier) {
+        Box {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.TopCenter)
-                    .height(56.dp)
+                    .height(112.dp)
                     .background(
                         Color.Black.copy(alpha = .25F)
                     )
             )
 
             VerticalPager(
-                modifier = Modifier.height(168.dp),
-                contentPadding = PaddingValues(vertical = 56.dp),
+                modifier = Modifier.height(280.dp),
+                contentPadding = PaddingValues(vertical = 112.dp),
                 state = pagerState,
                 flingBehavior = fling
             ) { page ->
 
                 Box(
                     modifier = Modifier
+                        .bouncingClickable {
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(page)
+                            }
+                        }
                         .graphicsLayer {
                             // Calculate the absolute offset for the current page from the
                             // scroll position. We use the absolute value which allows us to mirror
                             // any effects for both directions
                             val pageOffset = ((pagerState.currentPage - page) + pagerState.currentPageOffsetFraction).absoluteValue
 
-                            // We animate the alpha, between 50% and 100%
+                            // We animate the alpha
                             alpha = lerp(
                                 start = 0.25f,
                                 stop = 1f,
@@ -264,12 +282,11 @@ fun <T> HorizontalScrollSelector(
                 }
             }
 
-
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.BottomCenter)
-                    .height(56.dp)
+                    .height(112.dp)
                     .background(
                         Color.Black.copy(alpha = .25F)
                     )

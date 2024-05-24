@@ -139,12 +139,18 @@ fun InputWorkoutPlanExerciseView(
                     .wrapContentHeight()
             ) {
 
+                val lastSelectedRepetition = remember { mutableStateOf(0) }
+                val lastSelectedWeight = remember { mutableStateOf(0) }
                 AnimatedVisibility(visible = !addExerciseSetActionVisibility) {
                     Column {
                         Spacer(Modifier.height(16.dp))
                         AddExerciseSet(
                             modifier = Modifier.padding(horizontal = 8.dp),
+                            initialWeight = lastSelectedWeight.value,
+                            initialReps = lastSelectedRepetition.value,
                             addExerciseSetDone = { reps, weight ->
+                                lastSelectedRepetition.value = reps
+                                lastSelectedWeight.value = weight
                                 exerciseSetList.add(
                                     ExerciseSet(
                                         setNumber = exerciseSetList.size + 1,
