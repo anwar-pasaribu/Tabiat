@@ -1,6 +1,9 @@
 <resources>
     <string name="title_home">Home</string>
     <string name="title_detail">Detail</string>
-    <string name="title_input">Input</string>
+    <string name="title_log_exercise">Log Exercise</string>
     <string name="title_workout_history">History</string>
+    <string name="title_create_new_exercise">Create</string>
+    <string name="title_input_workout">Input Workout</string>
+    <string name="title_input_exercise">Input Exercise</string>
 </resources>

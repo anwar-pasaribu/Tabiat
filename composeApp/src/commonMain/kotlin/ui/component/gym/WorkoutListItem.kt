@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
@@ -26,7 +25,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -35,14 +33,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.dp
 import features.exerciseList.BottomSheet
 import ui.component.ImageWrapper
 import ui.component.InsetNavigationHeight
+import ui.extension.bouncingClickable
 
 @Composable
 fun WorkoutPlanItemView(
@@ -58,60 +57,69 @@ fun WorkoutPlanItemView(
 ) {
     var menuVisible by remember { mutableStateOf(false) }
 
-    Surface {
-        Card(
-            modifier = modifier,
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            )
+    Card(
+        modifier = modifier.then(
+            Modifier.bouncingClickable {
+                onClick()
+            }
+        ),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
+        )
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(132.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .requiredHeightIn(min = 132.dp)
-                    .clickable {
-                        onClick()
-                    }
+
+            Column(
+                modifier = Modifier.padding(16.dp)
             ) {
-
-                Column(
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    Text(text = title, style = MaterialTheme.typography.titleLarge)
-                    if (description.isNotEmpty()) {
-                        Text(text = description, style = MaterialTheme.typography.bodyLarge)
-                    }
-                }
-
-                WorkoutPlanProgressIndicator(
-                    modifier = Modifier.align(Alignment.BottomEnd)
-                        .padding(end = 8.dp, bottom = 8.dp).size(size = 40.dp),
-                    total = total,
-                    progress = progress
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge,
+                    maxLines = 1
                 )
-
-                if (lastActivityInfo != null) {
-                    Row(
-                        modifier = Modifier.align(Alignment.BottomStart)
-                    ) {
-                        lastActivityInfo()
-                    }
-                }
-
-                IconButton(
-                    modifier = Modifier
-                        .alpha(if (menuVisible) 0f else 1f)
-                        .align(Alignment.TopEnd),
-                    onClick = { menuVisible = true }
-                ) {
-                    Icon(
-                        painter = rememberVectorPainter(
-                            image = Icons.Default.MoreVert
-                        ),
-                        contentDescription = "More menu"
+                if (description.isNotEmpty()) {
+                    Text(
+                        text = description,
+                        style = MaterialTheme.typography.bodyLarge,
+                        maxLines = 1
                     )
                 }
+            }
+
+            WorkoutPlanProgressIndicator(
+                modifier = Modifier.align(Alignment.BottomEnd)
+                    .padding(end = 8.dp, bottom = 8.dp).size(size = 40.dp),
+                total = total,
+                progress = progress
+            )
+
+            if (lastActivityInfo != null) {
+                Row(
+                    modifier = Modifier.align(Alignment.BottomStart)
+                ) {
+                    lastActivityInfo()
+                }
+            }
+
+            IconButton(
+                modifier = Modifier
+                    .graphicsLayer {
+                        alpha = if (menuVisible) 0f else 1f
+                    }
+                    .align(Alignment.TopEnd),
+                onClick = { menuVisible = true }
+            ) {
+                Icon(
+                    painter = rememberVectorPainter(
+                        image = Icons.Default.MoreVert
+                    ),
+                    contentDescription = "More menu"
+                )
             }
         }
     }
@@ -180,7 +188,8 @@ private fun WorkoutPlanProgressIndicator(
     progress: Int
 ) {
     Box(
-        modifier = modifier
+        modifier = modifier,
+        contentAlignment = Alignment.Center
     ) {
         if (total > progress) {
             CircularProgressIndicator(
@@ -193,7 +202,7 @@ private fun WorkoutPlanProgressIndicator(
             )
         } else if (total != 0 && progress != 0) {
             Icon(
-                modifier = Modifier.size(40.dp).align(Alignment.Center),
+                modifier = Modifier.size(40.dp),
                 imageVector = Icons.Outlined.CheckCircle,
                 contentDescription = "Finished",
                 tint = MaterialTheme.colorScheme.onPrimary
@@ -210,17 +219,21 @@ fun LatestExercise(
     lowerLabel: String,
 ) {
     val circleSize = 36.dp
+    val shape = remember {
+        RoundedCornerShape(
+            topStartPercent = 50,
+            bottomStartPercent = 50,
+            topEndPercent = 25,
+            bottomEndPercent = 25
+        )
+    }
+
     Row(
         modifier = modifier.then(
             Modifier
                 .background(
-                    MaterialTheme.colorScheme.onPrimary.copy(alpha = .15F),
-                    shape = RoundedCornerShape(
-                        topStartPercent = 50,
-                        bottomStartPercent = 50,
-                        topEndPercent = 25,
-                        bottomEndPercent = 25
-                    )
+                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = .15F),
+                    shape = shape
                 )
                 .padding(end = 8.dp, top = 2.dp, bottom = 2.dp)
         ),

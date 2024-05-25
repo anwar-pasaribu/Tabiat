@@ -6,10 +6,13 @@ import domain.model.gym.WorkoutPlanProgress
 import domain.repository.IGymRepository
 import domain.usecase.ResetAllYesterdayActivitiesUseCase
 import features.home.model.HomeListItemUiData
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.number
@@ -55,14 +58,19 @@ class HomeScreenViewModel(
 
     fun loadWorkoutList() {
         viewModelScope.launch {
-            resetAllYesterdayActivitiesUseCase()
-            repository.getWorkoutPlanProgressListObservable().collect { workoutPlanProgressList ->
-                val homeList = workoutPlanProgressList.map { it.toUI() }
-                if (homeList.isEmpty()) {
-                    _workoutListStateFlow.emit(HomeScreenUiState.Empty)
-                } else {
-                    _workoutListStateFlow.emit(HomeScreenUiState.Success(homeList))
-                }
+            withContext(Dispatchers.Default) {
+                resetAllYesterdayActivitiesUseCase()
+                repository.getWorkoutPlanProgressListObservable()
+                    .collect { workoutPlanProgressList ->
+                        val homeList = workoutPlanProgressList.map { it.toUI() }
+                        if (homeList.isEmpty()) {
+                            _workoutListStateFlow.update { HomeScreenUiState.Empty }
+                        } else {
+                            _workoutListStateFlow.update {
+                                HomeScreenUiState.Success(homeList)
+                            }
+                        }
+                    }
             }
         }
     }

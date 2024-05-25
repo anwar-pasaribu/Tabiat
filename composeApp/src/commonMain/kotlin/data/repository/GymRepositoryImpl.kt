@@ -303,7 +303,10 @@ class GymRepositoryImpl(
     }
 
     override suspend fun resetAllYesterdayActivities() {
-        resetLastDayWorkoutPlanExerciseList()
+        val lastResetTime = preferencesDataSource.getLastExerciseResetTimeStamp()
+        if (!isToday(lastResetTime)) {
+            resetLastDayWorkoutPlanExerciseList()
+        }
     }
 
     private suspend fun resetLastDayWorkoutPlanExerciseList() = coroutineScope {
@@ -321,6 +324,9 @@ class GymRepositoryImpl(
                             )
                         }
                     }
+                preferencesDataSource.saveLastExerciseReset(
+                    Clock.System.now().toEpochMilliseconds()
+                )
             }
         }
     }
@@ -331,6 +337,14 @@ class GymRepositoryImpl(
         val timestampDate = Instant.fromEpochMilliseconds(timestamp).toLocalDateTime(tz).date
 
         return today != timestampDate
+    }
+
+    private fun isToday(timestamp: Long): Boolean {
+        val tz = TimeZone.currentSystemDefault()
+        val today = Clock.System.now().toLocalDateTime(tz).date
+        val timestampDate = Instant.fromEpochMilliseconds(timestamp).toLocalDateTime(tz).date
+
+        return today == timestampDate
     }
 
     override suspend fun getExercises(): List<Exercise> {

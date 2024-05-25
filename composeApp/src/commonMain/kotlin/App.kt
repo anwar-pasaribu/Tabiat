@@ -1,42 +1,47 @@
-@file:OptIn(ExperimentalResourceApi::class)
-
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.IntOffset
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import features.createNewExercise.CreateExerciseScreen
 import features.home.HomeScreen
 import features.inputExercise.InputExerciseScreen
-import features.workoutPlanDetail.WorkoutDetailScreen
 import features.inputWorkout.InputWorkoutScreen
+import features.logWorkoutExercise.LogWorkoutExerciseScreen
+import features.navigationHelper.NavigationViewModel
 import features.workoutHistory.WorkoutHistoryScreen
-import org.jetbrains.compose.resources.ExperimentalResourceApi
+import features.workoutPlanDetail.WorkoutDetailScreen
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinContext
 import tabiat.composeapp.generated.resources.Res
+import tabiat.composeapp.generated.resources.title_create_new_exercise
 import tabiat.composeapp.generated.resources.title_detail
 import tabiat.composeapp.generated.resources.title_home
-import tabiat.composeapp.generated.resources.title_input
+import tabiat.composeapp.generated.resources.title_input_exercise
+import tabiat.composeapp.generated.resources.title_input_workout
+import tabiat.composeapp.generated.resources.title_log_exercise
 import tabiat.composeapp.generated.resources.title_workout_history
 import ui.theme.MyAppTheme
-import androidx.lifecycle.viewmodel.compose.viewModel
-import features.createNewExercise.CreateExerciseScreen
-import features.logWorkoutExercise.LogWorkoutExerciseScreen
-import features.navigationHelper.NavigationViewModel
 
 
 enum class MyAppScreen(val title: StringResource) {
     Start(title = Res.string.title_home),
-    InputWorkout(title = Res.string.title_detail),
+    InputWorkout(title = Res.string.title_input_workout),
     WorkoutDetail(title = Res.string.title_detail),
-    InputExercise(title = Res.string.title_input),
-    LogWorkoutExercise(title = Res.string.title_input),
+    InputExercise(title = Res.string.title_input_exercise),
+    LogWorkoutExercise(title = Res.string.title_log_exercise),
     WorkoutHistory(title = Res.string.title_workout_history),
-    CreateNewExercise(title = Res.string.title_workout_history),
+    CreateNewExercise(title = Res.string.title_create_new_exercise),
 }
 
 @Composable
@@ -47,11 +52,36 @@ fun App(
     navViewModel: NavigationViewModel = viewModel { NavigationViewModel() }
 ) {
     KoinContext {
-        MyAppTheme {
+        MyAppTheme(useDarkColors = shouldDarkTheme) {
+            val animationSpec = tween<IntOffset>(300)
             NavHost(
+                modifier = Modifier.fillMaxSize(),
                 navController = navController,
                 startDestination = MyAppScreen.Start.name,
-                modifier = Modifier.fillMaxSize()
+                enterTransition = {
+                    fadeIn() + slideIntoContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Left,
+                        animationSpec
+                    )
+                },
+                exitTransition = {
+                    slideOutOfContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Left,
+                        animationSpec
+                    ) + fadeOut()
+                },
+                popEnterTransition = {
+                    slideIntoContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Right,
+                        animationSpec
+                    ) + fadeIn()
+                },
+                popExitTransition = {
+                    fadeOut() + slideOutOfContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Right,
+                        animationSpec
+                    )
+                }
             ) {
                 composable(route = MyAppScreen.Start.name) {
                     HomeScreen(
