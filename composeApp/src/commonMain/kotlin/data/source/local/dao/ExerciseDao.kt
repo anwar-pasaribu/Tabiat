@@ -1,13 +1,47 @@
 package data.source.local.dao
 
+import app.cash.sqldelight.coroutines.asFlow
+import app.cash.sqldelight.coroutines.mapToList
 import com.unwur.tabiatmu.database.ExerciseEntity
 import com.unwur.tabiatmu.database.TabiatDatabase
 import domain.model.gym.Exercise
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
 
 class ExerciseDao(
     private val database: TabiatDatabase
 ) : IExerciseDao {
+
+    override suspend fun getAllExerciseCategories(): List<String> {
+        val rawList = database
+            .exerciseQueries
+            .getDistinctCategories()
+            .executeAsList()
+            .map {
+                it.targetMuscle.orEmpty()
+            }
+
+        val categoryList = mutableListOf<String>()
+        rawList.map {
+            categoryList.addAll(getDecodedListFromJsonString(it))
+        }
+        return categoryList.distinctBy { it }
+    }
+
+    override fun getAllExercisesObservable(): Flow<List<Exercise>> {
+        return database
+            .exerciseQueries
+            .selectAllExercise()
+            .asFlow()
+            .mapToList(Dispatchers.Default)
+            .map {
+                exerciseList -> exerciseList.map { it.toDomain() }
+            }
+    }
+
+
     override suspend fun getAllExercises(): List<Exercise> {
         return database
             .exerciseQueries
@@ -16,6 +50,14 @@ class ExerciseDao(
             .map {
                 it.toDomain()
             }
+    }
+
+    override suspend fun filterExercisesByTargetMuscle(targetMuscle: String): List<Exercise> {
+        return database
+            .exerciseQueries
+            .filterByTargetMuscle("%$targetMuscle%")
+            .executeAsList()
+            .map { it.toDomain() }
     }
 
     override suspend fun searchExercises(searchQuery: String): List<Exercise> {
@@ -70,7 +112,7 @@ class ExerciseDao(
     }
 
     private fun ExerciseEntity.toDomain(): Exercise {
-        val imageUrlList = getDecodedImageUrlList(this.image.orEmpty())
+        val imageUrlList = getDecodedListFromJsonString(this.image.orEmpty())
         return Exercise(
             id = this.id,
             name = this.name,
@@ -85,7 +127,7 @@ class ExerciseDao(
         )
     }
 
-    private fun getDecodedImageUrlList(jsonString: String): List<String> {
+    private fun getDecodedListFromJsonString(jsonString: String): List<String> {
         return try {
             Json.decodeFromString<List<String>>(jsonString)
         } catch (e: Exception) {

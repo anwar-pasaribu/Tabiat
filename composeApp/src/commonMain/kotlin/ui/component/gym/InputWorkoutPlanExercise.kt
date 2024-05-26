@@ -47,7 +47,7 @@ fun InputWorkoutPlanExerciseView(
     onSave: (exerciseId: Long, exerciseSetList: List<ExerciseSet>) -> Unit,
     onCreateNewExerciseRequested: () -> Unit = {}
 ) {
-    var shouldShowExerciseList by remember { mutableStateOf(false) }
+    var shouldShowExerciseList by remember { mutableStateOf(true) }
     var selectedExerciseName by remember { mutableStateOf("") }
     var selectedExerciseId by remember { mutableStateOf(0L) }
     val exerciseSetList = remember { mutableStateListOf<ExerciseSet>() }

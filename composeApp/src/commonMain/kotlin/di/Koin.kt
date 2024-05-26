@@ -13,12 +13,14 @@ import data.source.local.dao.WorkoutPlanExerciseDao
 import domain.repository.IGymRepository
 import domain.usecase.CreateNewExerciseUseCase
 import domain.usecase.DeleteWorkoutPlanExerciseSetUseCase
+import domain.usecase.FilterExerciseByTargetMuscleCategoryUseCase
 import domain.usecase.GetExerciseByIdUseCase
 import domain.usecase.GetExerciseListByWorkoutPlanUseCase
 import domain.usecase.GetExerciseListUseCase
 import domain.usecase.GetExerciseLogListByDateTimeStampUseCase
 import domain.usecase.GetExerciseSetListUseCase
 import domain.usecase.GetGymPreferencesUseCase
+import domain.usecase.GetListExerciseCategoryUseCase
 import domain.usecase.GetWorkoutPlanByIdUseCase
 import domain.usecase.GetWorkoutPlanListUseCase
 import domain.usecase.InputWorkoutPlanExerciseSetListUseCase
@@ -37,6 +39,8 @@ import features.workoutHistory.WorkoutHistoryScreenViewModel
 import features.workoutPlanDetail.WorkoutDetailScreenViewModel
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
+import org.koin.core.module.dsl.factoryOf
+import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
 fun letsKoinStart() {
@@ -114,12 +118,15 @@ fun appModule() = module {
     single {
         ResetAllYesterdayActivitiesUseCase(get())
     }
+
+    singleOf(::GetListExerciseCategoryUseCase)
+    singleOf(::FilterExerciseByTargetMuscleCategoryUseCase)
 }
 
 fun viewModels() = module {
-    single {
-        NavigationViewModel()
-    }
+
+    singleOf(::NavigationViewModel)
+
     single {
         HomeScreenViewModel(
             repository = get(),
@@ -141,35 +148,15 @@ fun viewModels() = module {
         )
     }
 
-    single {
-        WorkoutDetailScreenViewModel(
-            repository = get(),
-            getExerciseListByWorkoutPlanUseCase = get(),
-            getWorkoutPlanByIdUseCase = get()
-        )
-    }
+    factoryOf(::WorkoutDetailScreenViewModel)
 
-    single {
-        ExerciseListScreenViewModel(getExerciseListUseCase = get(), get())
-    }
+    singleOf(::ExerciseListScreenViewModel)
 
-    single {
-        LogWorkoutExerciseScreenViewModel(
-            getExerciseSetListUseCase = get(),
-            getExerciseByIdUseCase = get(),
-            logExerciseUseCase = get(),
-            deleteWorkoutPlanExerciseSetUseCase = get(),
-            getGymPreferencesUseCase = get()
-        )
-    }
+    factoryOf(::LogWorkoutExerciseScreenViewModel)
 
-    single {
-        CreateExerciseScreenViewModel(createNewExerciseUseCase = get())
-    }
+    singleOf(::CreateExerciseScreenViewModel)
 
-    single {
-        SettingScreenViewModel(get(), get())
-    }
+    singleOf(::SettingScreenViewModel)
 }
 
 fun databaseModule() = module {

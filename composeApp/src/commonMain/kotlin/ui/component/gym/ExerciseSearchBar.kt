@@ -5,6 +5,8 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.interaction.FocusInteraction
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,11 +33,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.FlowPreview
@@ -59,9 +63,24 @@ fun ExerciseSearchView(
                 onQueryChange(it.toString())
             }
     }
+
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
+
+    val searchInteractionSource = remember { MutableInteractionSource() }
+
+    LaunchedEffect(searchInteractionSource) {
+        searchInteractionSource.interactions.collectLatest {
+            if (it is FocusInteraction.Focus) {
+                println("FOCUS YES")
+            } else if(it is FocusInteraction.Unfocus) {
+                println("FOCUS NO")
+            }
+        }
+    }
+
     Card(
         modifier = modifier,
-        onClick = { /*TODO*/ },
         shape = MaterialTheme.shapes.large,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
         colors = CardDefaults.cardColors(
@@ -74,19 +93,25 @@ fun ExerciseSearchView(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
-                    .padding(start = 16.dp, bottom = 8.dp, top = 8.dp, end = 4.dp),
+                    .padding(start = 16.dp, end = 4.dp),
                 textStyle = MaterialTheme.typography.titleLarge.copy(
                     textAlign = TextAlign.Start,
                     color = MaterialTheme.colorScheme.primary
                 ),
                 state = queryState,
+                interactionSource = searchInteractionSource,
                 keyboardOptions = KeyboardOptions(
                     autoCorrect = false,
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Search
+                    imeAction = if (queryState.text.isNotEmpty()) ImeAction.Search else ImeAction.Default
                 ),
                 keyboardActions = KeyboardActions(
+                    onDone = {
+                        focusManager.clearFocus()
+                        keyboardController?.hide()
+                    },
                     onSearch = {
+                        focusManager.clearFocus()
+                        keyboardController?.hide()
                         onSearch(queryState.text.toString())
                     }
                 ),
@@ -136,7 +161,6 @@ fun ExerciseSearchView(
                         }
 
                     }
-
                 }
             )
             Spacer(modifier = Modifier.height(4.dp))

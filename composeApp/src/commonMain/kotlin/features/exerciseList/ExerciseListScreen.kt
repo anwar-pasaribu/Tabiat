@@ -1,7 +1,14 @@
 package features.exerciseList
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.interaction.DragInteraction
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -16,13 +23,19 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
@@ -38,9 +51,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import domain.model.gym.Exercise
 import org.koin.compose.koinInject
+import ui.component.CategorySection
 import ui.component.InsetNavigationHeight
 import ui.component.gym.ExerciseListItemView
 import ui.component.gym.ExerciseSearchView
@@ -111,7 +127,6 @@ fun ExerciseListBottomSheet(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ExerciseListScreen(
     modifier: Modifier = Modifier,
@@ -126,16 +141,32 @@ fun ExerciseListScreen(
 
     LaunchedEffect(Unit) {
         viewModel.loadExerciseList()
+        viewModel.loadCategoryList()
     }
 
-    LaunchedEffect(scrollTopRequest) {
-        if (scrollTopRequest) {
-            listState.animateScrollToItem(0)
-            scrollTopRequest = false
-        }
-    }
-
+    val uisState by viewModel.uiState.collectAsState()
     val exerciseList by viewModel.exerciseList.collectAsState()
+    val exerciseCategoryList by viewModel.exerciseCategoryList.collectAsState()
+
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
+
+    LaunchedEffect(exerciseList.size, scrollTopRequest) {
+        listState.scrollToItem(0)
+        scrollTopRequest = false
+    }
+
+    LaunchedEffect(listState) {
+        listState.interactionSource.interactions
+            .collect {
+                when (it) {
+                    is DragInteraction.Start -> {
+                        keyboardController?.hide()
+                        focusManager.clearFocus()
+                    }
+                }
+            }
+    }
 
     Column(modifier = modifier.then(Modifier.fillMaxSize())) {
 
@@ -156,36 +187,106 @@ fun ExerciseListScreen(
             modifier = Modifier.fillMaxWidth().padding(start = 8.dp, end = 8.dp),
             onQueryChange = {
                 viewModel.searchExercise(it)
-                scrollTopRequest = true
             },
             onClearQuery = {
                 scrollTopRequest = true
             }
         )
         Spacer(modifier = Modifier.height(8.dp))
-        HorizontalDivider(thickness = 1.dp)
-        LazyColumn(
+        CategorySection(
             modifier = Modifier.fillMaxWidth(),
-            state = listState,
-            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)
-        ) {
-            items(items = exerciseList, key = { it.id }) { exercise ->
-                ExerciseListItemView(
-                    modifier = Modifier.animateItemPlacement().padding(bottom = 8.dp),
-                    selected = exercise.id == selectedExerciseId,
-                    title = exercise.name,
-                    description = exercise.description,
-                    imageUrlList = exercise.imageList,
-                    image = exercise.image,
-                    onClick = {
-                        onExerciseSelected(exercise)
-                    },
+            exerciseCategoryList = exerciseCategoryList,
+            onSelectCategory = {
+                scrollTopRequest = true
+                viewModel.loadExerciseByCategory(it)
+            },
+            onClearCategoryFilter = {
+                scrollTopRequest = true
+                viewModel.loadExerciseList()
+            }
+        )
+        HorizontalDivider(thickness = 1.dp)
+        when (val state = uisState) {
+            ExerciseListUiState.Loading -> {
+                Column(
+                    modifier = Modifier.fillMaxWidth().height(300.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    CircularProgressIndicator(Modifier.size(40.dp))
+                }
+            }
+
+            is ExerciseListUiState.Success -> {
+                ExerciseLazyList(
+                    modifier = Modifier.fillMaxWidth(),
+                    lazyListState = listState,
+                    listExercise = state.list,
+                    selectedExerciseId = selectedExerciseId,
+                    onItemClick = { selectedExercise ->
+                        onExerciseSelected(selectedExercise)
+                    }
                 )
             }
-            item {
-                InsetNavigationHeight()
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun ExerciseLazyList(
+    modifier: Modifier = Modifier,
+    lazyListState: LazyListState,
+    listExercise: List<Exercise>,
+    selectedExerciseId: Long = 0L,
+    onItemClick: (Exercise) -> Unit
+) {
+    AnimatedContent(
+        targetState = listExercise.isEmpty(),
+        transitionSpec = {
+            (fadeIn(animationSpec = tween(220, delayMillis = 90)))
+                .togetherWith(fadeOut(animationSpec = tween(90)))
+        }
+    ) { isEmpty ->
+        if (isEmpty) {
+            Column(
+                modifier = modifier.then(Modifier.height(300.dp)),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Outlined.List,
+                    contentDescription = ""
+                )
+                Spacer(Modifier.height(16.dp))
+                Text(text = "Belum ada data latihan")
+            }
+        } else {
+            LazyColumn(
+                modifier = modifier,
+                state = lazyListState,
+                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)
+            ) {
+                items(items = listExercise, key = { it.id }) { exercise ->
+                    ExerciseListItemView(
+                        modifier = Modifier.animateItemPlacement(
+                            animationSpec = tween(delayMillis = 150)
+                        ).padding(bottom = 8.dp),
+                        selected = exercise.id == selectedExerciseId,
+                        title = exercise.name,
+                        description = exercise.description,
+                        imageUrlList = exercise.imageList,
+                        image = exercise.image,
+                        onClick = {
+                            onItemClick(exercise)
+                        },
+                    )
+                }
+                item {
+                    InsetNavigationHeight()
+                }
             }
         }
-
     }
+
 }

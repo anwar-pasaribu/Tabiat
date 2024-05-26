@@ -22,8 +22,17 @@ SELECT *
 FROM ExerciseEntity
 WHERE name LIKE :searchQuery OR equipment LIKE :searchQuery OR targetMuscle LIKE :searchQuery;
 
+filterByTargetMuscle:
+SELECT *
+FROM ExerciseEntity
+WHERE targetMuscle LIKE :targetMuscle;
+
 deleteExerciseById:
 DELETE FROM ExerciseEntity WHERE id = ?;
+
+getDistinctCategories:
+SELECT DISTINCT targetMuscle
+FROM ExerciseEntity;
 
 insertNewExercise:
 INSERT INTO ExerciseEntity (name, type, difficulty, equipment, instructions, video, image, targetMuscle, description)

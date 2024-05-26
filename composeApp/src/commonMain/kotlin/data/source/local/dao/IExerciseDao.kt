@@ -1,10 +1,14 @@
 package data.source.local.dao
 
 import domain.model.gym.Exercise
+import kotlinx.coroutines.flow.Flow
 
 interface IExerciseDao {
+    suspend fun getAllExerciseCategories(): List<String>
     suspend fun getAllExercises(): List<Exercise>
+    fun getAllExercisesObservable(): Flow<List<Exercise>>
     suspend fun searchExercises(searchQuery: String): List<Exercise>
+    suspend fun filterExercisesByTargetMuscle(targetMuscle: String): List<Exercise>
 
     suspend fun getExerciseById(id: Long): Exercise?
 
