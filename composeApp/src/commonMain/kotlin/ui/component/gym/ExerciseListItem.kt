@@ -2,8 +2,11 @@ package ui.component.gym
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -14,8 +17,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -39,15 +44,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import org.jetbrains.compose.resources.ExperimentalResourceApi
+import tabiat.composeapp.generated.resources.Res
+import tabiat.composeapp.generated.resources.full_screen_24dp
 import ui.component.ImageWrapper
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun ExerciseListItemView(
     modifier: Modifier = Modifier,
@@ -86,35 +93,75 @@ fun ExerciseListItemView(
             color = if (selected) Color.Green else Color.Transparent
         ),
     ) {
-        Row(modifier = Modifier.clickable(enabled = enabled) {
-            onClick()
-        }) {
+        Row(
+            modifier = Modifier.clickable(enabled = enabled) { onClick() },
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             if (imageAvailable) {
-                ImageWrapper(
-                    modifier = Modifier
-                        .alpha(animatedFloat.value)
-                        .padding(start = 16.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .clickable {
-                            bigPictureMode = !bigPictureMode
-                        }
-                        .size(56.dp)
-                        .align(Alignment.CenterVertically),
-                    imageUrl = imageUrl,
-                    contentDescription = "Picture of $title",
-                    contentScale = ContentScale.Crop
-                )
+                Box(modifier = Modifier
+                    .alpha(animatedFloat.value)
+                    .clickable {
+                        bigPictureMode = !bigPictureMode
+                    }
+                    .size(128.dp)
+                    .align(Alignment.CenterVertically)
+                ) {
+                    var loadingIndicatorVisible by remember { mutableStateOf(true) }
+                    ImageWrapper(
+                        modifier = Modifier
+                            .width(128.dp)
+                            .height(128.dp)
+                            .align(Alignment.Center),
+                        imageUrl = imageUrl,
+                        contentDescription = "Picture of $title",
+                        contentScale = ContentScale.Crop,
+                        onLoading = { loadingIndicatorVisible = true },
+                        onLoadSuccess = { loadingIndicatorVisible = false }
+                    )
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = loadingIndicatorVisible,
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
+                        Box(
+                            Modifier.size(128.dp)
+                                .background(MaterialTheme.colorScheme.primary.copy(alpha = .35F))
+                        )
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .padding(end = 6.dp, top = 6.dp)
+                            .align(Alignment.TopEnd),
+                    ) {
+                        ImageWrapper(
+                            modifier = Modifier
+                                .offset(x = (-1).dp, y = (1).dp)
+                                .align(Alignment.Center),
+                            resource = Res.drawable.full_screen_24dp,
+                            contentDescription = "",
+                            colorFilter = ColorFilter.tint(Color.Black)
+                        )
+                        ImageWrapper(
+                            modifier = Modifier
+                                .align(Alignment.Center),
+                            resource = Res.drawable.full_screen_24dp,
+                            contentDescription = "",
+                            colorFilter = ColorFilter.tint(Color.White)
+                        )
+                    }
+                }
             }
 
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 16.dp)
+                    .padding(horizontal = 16.dp)
             ) {
 
-                Column(modifier = Modifier.padding(end = 32.dp)) {
-                    Text(text = title, style = MaterialTheme.typography.titleMedium)
-                    Text(text = description, style = MaterialTheme.typography.bodyMedium)
+                Column(modifier = Modifier.padding(end = 32.dp, top = 6.dp, bottom = 6.dp)) {
+                    Text(text = title, style = MaterialTheme.typography.titleLarge)
+                    Text(text = description, style = MaterialTheme.typography.labelMedium)
                 }
 
                 Row(

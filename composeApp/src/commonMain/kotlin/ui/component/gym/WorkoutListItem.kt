@@ -41,7 +41,6 @@ import androidx.compose.ui.unit.dp
 import features.exerciseList.BottomSheet
 import ui.component.ImageWrapper
 import ui.component.InsetNavigationHeight
-import ui.extension.bouncingClickable
 
 @Composable
 fun WorkoutPlanItemView(
@@ -59,7 +58,7 @@ fun WorkoutPlanItemView(
 
     Card(
         modifier = modifier.then(
-            Modifier.bouncingClickable {
+            Modifier.clickable {
                 onClick()
             }
         ),
