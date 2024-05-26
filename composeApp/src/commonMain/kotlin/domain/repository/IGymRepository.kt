@@ -21,7 +21,9 @@ interface IGymRepository {
 
     suspend fun createNewExercise(newExercise: Exercise): Boolean
     suspend fun getExercises(): List<Exercise>
+    suspend fun getAllExercisesObservable(): Flow<List<Exercise>>
     suspend fun searchExercises(searchQuery: String): List<Exercise>
+    suspend fun filterExercisesByTargetMuscle(targetMuscle: String): List<Exercise>
 
     suspend fun getWorkoutPlanExercises(workoutPlanId: Long): List<Exercise>
     suspend fun getWorkoutPlanExercisesObservable(workoutPlanId: Long): Flow<List<Exercise>>
@@ -57,4 +59,6 @@ interface IGymRepository {
     fun getGymPreferences(): Flow<GymPreferences>
     suspend fun saveExerciseSetTimerDuration(timerDurationInSeconds: Int)
     suspend fun saveBreakTimeDuration(durationInSeconds: Int)
+
+    suspend fun getExerciseCategories(): List<String>
 }

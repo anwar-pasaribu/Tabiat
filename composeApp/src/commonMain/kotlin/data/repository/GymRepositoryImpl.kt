@@ -21,6 +21,7 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -307,6 +308,24 @@ class GymRepositoryImpl(
         if (!isToday(lastResetTime)) {
             resetLastDayWorkoutPlanExerciseList()
         }
+    }
+
+    override suspend fun getExerciseCategories(): List<String> {
+        return exerciseDao.getAllExerciseCategories()
+    }
+
+    override suspend fun getAllExercisesObservable(): Flow<List<Exercise>> {
+        return exerciseDao
+            .getAllExercisesObservable()
+            .onEach {
+                if (it.isEmpty()) {
+                    loadRemoteExercises()
+                }
+            }
+    }
+
+    override suspend fun filterExercisesByTargetMuscle(targetMuscle: String): List<Exercise> {
+        return exerciseDao.filterExercisesByTargetMuscle(targetMuscle)
     }
 
     private suspend fun resetLastDayWorkoutPlanExerciseList() = coroutineScope {
