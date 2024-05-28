@@ -55,9 +55,40 @@ class ExerciseListScreenViewModel(
     fun loadCategoryList() {
         viewModelScope.launch {
             _exerciseCategoryList.update {
-                getListExerciseCategoryUseCase()
+                getListExerciseCategoryUseCase().map {
+                    muscleMap.getOrElse(it) { "-" }
+                }
             }
         }
+    }
+
+    private val muscleMap: Map<String, String> = mapOf(
+        "quadriceps" to "quadrisep (paha)",
+        "shoulders" to "bahu",
+        "abdominals" to "perut",
+        "chest" to "dada",
+        "hamstrings" to "hamstring (paha blk)",
+        "triceps" to "trisep (lengan bawah)",
+        "biceps" to "bisep (lengan atas)",
+        "lats" to "latissimus (punggung)",
+        "middle back" to "punggung tengah",
+        "calves" to "betis",
+        "lower back" to "punggung bawah",
+        "forearms" to "lengan bawah",
+        "glutes" to "bokong",
+        "traps" to "trapezius (punggung)",
+        "adductors" to "adduktor (paha dlm)",
+        "abductors" to "abduktor (paha luar)",
+        "neck" to "leher"
+    )
+
+    private fun getKeyByValue(value: String): String {
+        for ((key, mapValue) in muscleMap.entries) {
+            if (mapValue == value) {
+                return key
+            }
+        }
+        return ""
     }
 
     fun searchExercise(searchQuery: String) {
@@ -70,8 +101,11 @@ class ExerciseListScreenViewModel(
 
     fun loadExerciseByCategory(category: String) {
         viewModelScope.launch {
+            val categoryInDbVersion = getKeyByValue(category)
             _uiState.update {
-                ExerciseListUiState.Success(filterExerciseByTargetMuscleCategoryUseCase.invoke(category))
+                ExerciseListUiState.Success(
+                    filterExerciseByTargetMuscleCategoryUseCase.invoke(categoryInDbVersion)
+                )
             }
         }
     }
