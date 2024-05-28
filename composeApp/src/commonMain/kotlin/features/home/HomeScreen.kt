@@ -1,6 +1,5 @@
 package features.home
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -163,68 +162,86 @@ fun HomeScreen(
             bottom = contentPadding.calculateBottomPadding()
         )
 
-        AnimatedContent(
-            targetState = homeScreenUiState
-        ) { uiState ->
-            when (uiState) {
-                is HomeScreenUiState.Loading -> {
-                    Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = .1F),
-                            )
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(132.dp)
-                            )
-                        }
-                    }
-                }
+        when (val uiState = homeScreenUiState) {
+            is HomeScreenUiState.Loading -> {
+                HomeLoadingIndicator(Modifier.fillMaxSize().padding(paddingValues))
+            }
 
-                is HomeScreenUiState.Error -> {
-                    Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
-                        EmptyState(
-                            modifier = Modifier.fillMaxWidth(),
-                            title = "Tidak, ada error nih",
-                            btnText = "Coba Tambah Workout",
-                            onClick = {
-                                onCreateNewWorkoutPlan()
-                            }
-                        )
-                    }
-                }
+            is HomeScreenUiState.Error -> {
+                HomeErrorIndicator(
+                    modifier = Modifier.fillMaxSize().padding(paddingValues),
+                    onCta = { onCreateNewWorkoutPlan() }
+                )
+            }
 
-                is HomeScreenUiState.Success -> {
-                    HomeScreenList(
-                        contentPadding = paddingValues,
-                        listItem = uiState.data,
-                        hazeState = hazeState,
-                        lazyListState = lazyListState,
-                        onWorkoutDetail = onWorkoutDetail,
-                        onEditWorkout = onEditWorkout,
-                        onDeleteWorkout = {
-                            viewModel.deleteWorkout(it)
-                        }
-                    )
-                }
-
-                HomeScreenUiState.Empty -> {
-                    Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
-                        EmptyState(
-                            modifier = Modifier.fillMaxWidth(),
-                            title = "Belum ada Rencana Workout",
-                            btnText = "Tambah Workout",
-                            onClick = {
-                                onCreateNewWorkoutPlan()
-                            }
-                        )
+            is HomeScreenUiState.Success -> {
+                HomeScreenList(
+                    contentPadding = paddingValues,
+                    listItem = uiState.data,
+                    hazeState = hazeState,
+                    lazyListState = lazyListState,
+                    onWorkoutDetail = onWorkoutDetail,
+                    onEditWorkout = onEditWorkout,
+                    onDeleteWorkout = {
+                        viewModel.deleteWorkout(it)
                     }
-                }
+                )
+            }
+
+            HomeScreenUiState.Empty -> {
+                HomeEmptyState(
+                    modifier = Modifier.fillMaxSize().padding(paddingValues),
+                    onCta = { onCreateNewWorkoutPlan() }
+                )
             }
         }
+
+    }
+}
+
+@Composable
+private fun HomeLoadingIndicator(modifier: Modifier = Modifier) {
+    Box(modifier = modifier) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = .1F),
+            )
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(132.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun HomeErrorIndicator(modifier: Modifier = Modifier, onCta: () -> Unit) {
+    Box(modifier = modifier) {
+        EmptyState(
+            modifier = Modifier.fillMaxWidth(),
+            title = "Ada error nih",
+            btnText = "Coba Tambah Workout",
+            onClick = {
+                onCta()
+            }
+        )
+    }
+}
+
+@Composable
+fun HomeEmptyState(modifier: Modifier = Modifier, onCta: () -> Unit) {
+    Box(modifier = modifier) {
+        EmptyState(
+            modifier = Modifier.fillMaxWidth(),
+            title = "Belum ada Rencana Workout",
+            btnText = "Tambah Workout",
+            onClick = {
+                onCta()
+            }
+        )
     }
 }
 
