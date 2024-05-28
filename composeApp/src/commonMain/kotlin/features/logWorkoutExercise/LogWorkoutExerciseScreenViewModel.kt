@@ -8,6 +8,7 @@ import domain.usecase.GetExerciseByIdUseCase
 import domain.usecase.GetExerciseSetListUseCase
 import domain.usecase.GetGymPreferencesUseCase
 import domain.usecase.LogExerciseUseCase
+import domain.usecase.SaveRunningTimerPreferencesUseCase
 import features.logWorkoutExercise.model.ExerciseSetToday
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,6 +25,7 @@ class LogWorkoutExerciseScreenViewModel(
     private val logExerciseUseCase: LogExerciseUseCase,
     private val deleteWorkoutPlanExerciseSetUseCase: DeleteWorkoutPlanExerciseSetUseCase,
     private val getGymPreferencesUseCase: GetGymPreferencesUseCase,
+    private val saveRunningTimerPreferencesUseCase: SaveRunningTimerPreferencesUseCase,
 ): ViewModel() {
 
     val gymPreferences: StateFlow<GymPreferences> = getGymPreferencesUseCase().stateIn(
@@ -92,6 +94,12 @@ class LogWorkoutExerciseScreenViewModel(
                 workoutPlanExerciseId = selectedWorkoutPlanExerciseId,
             )
             getExerciseSetList(workoutPlanId, exerciseId)
+        }
+    }
+
+    fun saveRunningTimer(duration: Int) {
+        viewModelScope.launch {
+            saveRunningTimerPreferencesUseCase.invoke(duration)
         }
     }
 

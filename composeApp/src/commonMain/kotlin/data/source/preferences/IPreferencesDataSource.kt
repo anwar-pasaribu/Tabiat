@@ -10,4 +10,7 @@ interface IPreferencesDataSource {
 
     suspend fun saveLastExerciseReset(lastResetTimeStamp: Long)
     suspend fun getLastExerciseResetTimeStamp(): Long
+
+    suspend fun saveRunningTimerDuration(seconds: Int)
+    fun getRunningTimerDurationTimeStamp(): Flow<Int>
 }

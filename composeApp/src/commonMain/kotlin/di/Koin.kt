@@ -21,11 +21,13 @@ import domain.usecase.GetExerciseLogListByDateTimeStampUseCase
 import domain.usecase.GetExerciseSetListUseCase
 import domain.usecase.GetGymPreferencesUseCase
 import domain.usecase.GetListExerciseCategoryUseCase
+import domain.usecase.GetRunningTimerPreferencesUseCase
 import domain.usecase.GetWorkoutPlanByIdUseCase
 import domain.usecase.GetWorkoutPlanListUseCase
 import domain.usecase.InputWorkoutPlanExerciseSetListUseCase
 import domain.usecase.LogExerciseUseCase
 import domain.usecase.ResetAllYesterdayActivitiesUseCase
+import domain.usecase.SaveRunningTimerPreferencesUseCase
 import domain.usecase.SearchExerciseUseCase
 import features.createNewExercise.CreateExerciseScreenViewModel
 import features.exerciseList.ExerciseListScreenViewModel
@@ -121,6 +123,8 @@ fun appModule() = module {
 
     singleOf(::GetListExerciseCategoryUseCase)
     singleOf(::FilterExerciseByTargetMuscleCategoryUseCase)
+    singleOf(::GetRunningTimerPreferencesUseCase)
+    singleOf(::SaveRunningTimerPreferencesUseCase)
 }
 
 fun viewModels() = module {

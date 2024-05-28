@@ -61,4 +61,7 @@ interface IGymRepository {
     suspend fun saveBreakTimeDuration(durationInSeconds: Int)
 
     suspend fun getExerciseCategories(): List<String>
+
+    fun getRunningTimerDuration(): Flow<Int>
+    suspend fun saveRunningTimerDuration(duration: Int)
 }

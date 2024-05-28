@@ -76,6 +76,7 @@ fun LogWorkoutExerciseScreen(
     workoutPlanId: Long,
     exerciseId: Long,
     onBack: () -> Unit = {},
+    onDismissTimer: (Int) -> Unit = {}
 ) {
 
     var editMode by remember { mutableStateOf(false) }
@@ -251,9 +252,15 @@ fun LogWorkoutExerciseScreen(
                             showNotification = true
                             breakTimerVisible = allExerciseFinished
                         },
-                        onCancelTimer = {
+                        onCancelTimer = { timeLeft ->
                             logExerciseTimerVisible = false
                             breakTimerVisible = allExerciseFinished
+                            onDismissTimer(timeLeft)
+                            if (allExerciseFinished) {
+                                viewModel.saveRunningTimer(breakTimeDuration)
+                            } else {
+                                viewModel.saveRunningTimer(timeLeft)
+                            }
                         }
                     )
                 }
@@ -278,7 +285,8 @@ fun LogWorkoutExerciseScreen(
                         onTimerFinished = {
                             onBack()
                         },
-                        onCancelTimer = {
+                        onCancelTimer = { timeLeft ->
+                            onDismissTimer(timeLeft)
                             onBack()
                         }
                     )

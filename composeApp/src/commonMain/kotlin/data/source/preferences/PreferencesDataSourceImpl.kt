@@ -17,6 +17,7 @@ class PreferencesDataSourceImpl(
     private val exerciseSetTimerDurationKey = intPreferencesKey("exercise_set_timer_duration")
     private val breakTimeDurationKey = intPreferencesKey("exercise_break_time_duration")
     private val lastResetExerciseFinishedDate = longPreferencesKey("last_reset_exercise_finished_date")
+    private val runningTimerDurationInSecond = intPreferencesKey("running_timer_duration_in_second")
 
     override suspend fun saveExerciseSetTimerDuration(durationSeconds: Int) {
         dataStore.edit {
@@ -48,5 +49,17 @@ class PreferencesDataSourceImpl(
     override suspend fun getLastExerciseResetTimeStamp(): Long {
         val preferences = dataStore.data.first()
         return preferences[lastResetExerciseFinishedDate] ?: 0L
+    }
+
+    override suspend fun saveRunningTimerDuration(seconds: Int) {
+        dataStore.edit {
+            it[runningTimerDurationInSecond] = seconds
+        }
+    }
+
+    override fun getRunningTimerDurationTimeStamp(): Flow<Int> {
+        return dataStore.data.map {
+            it[runningTimerDurationInSecond] ?: 0
+        }
     }
 }

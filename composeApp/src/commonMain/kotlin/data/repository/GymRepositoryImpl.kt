@@ -19,6 +19,7 @@ import domain.repository.IGymRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -312,6 +313,20 @@ class GymRepositoryImpl(
 
     override suspend fun getExerciseCategories(): List<String> {
         return exerciseDao.getAllExerciseCategories()
+    }
+
+    override fun getRunningTimerDuration(): Flow<Int> {
+        val timerFlow = preferencesDataSource.getRunningTimerDurationTimeStamp()
+        return timerFlow
+    }
+
+    override suspend fun saveRunningTimerDuration(duration: Int) {
+        var timer = duration
+        while (timer >= 0) {
+            preferencesDataSource.saveRunningTimerDuration(timer)
+            delay(1000)
+            timer = timer-1
+        }
     }
 
     override suspend fun getAllExercisesObservable(): Flow<List<Exercise>> {

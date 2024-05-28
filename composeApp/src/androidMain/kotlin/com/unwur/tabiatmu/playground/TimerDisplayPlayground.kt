@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
 import ui.component.gym.TimerDisplay
+import ui.component.gym.TimerDisplayFloating
 import ui.theme.MyAppTheme
 
 
@@ -49,6 +50,24 @@ private fun TimerDisplayBreakTime() {
                 countDown.intValue = 5
             },
             onCancelTimer = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun TimerDisplaySmallPrev() {
+    MyAppTheme {
+        val countDown = remember {
+            mutableIntStateOf(45)
+        }
+        TimerDisplayFloating(
+            countDown = countDown.intValue,
+            countDownInitial = 50,
+            onTimerFinished = {
+                println("TIMER COMPLETED")
+                countDown.intValue = 5
+            },
         )
     }
 }
