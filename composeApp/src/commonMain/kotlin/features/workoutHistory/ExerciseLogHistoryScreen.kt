@@ -147,40 +147,44 @@ private val rainbowColors = listOf(
 @Composable
 fun ExerciseHistoryDailyPieChart(itemList: List<ExerciseHistoryUiItem>) {
 
-    val combinedTargetMuscle = itemList.flatMap { it.exerciseTargetMuscle }
+    val combinedTargetMuscle = itemList.flatMap { it.exerciseTargetMuscle.take(1) }
     val muscleGroupCount = combinedTargetMuscle.groupingBy { it }.eachCount()
     val pieChartListData = mutableListOf<PieChartData>()
 
-    val dataSize = muscleGroupCount.size
-    val colors = remember {
-        derivedStateOf { (0..dataSize).map { rainbowColors[it] } }
+    // Sort the muscle groups by count in descending order and take the top 6
+    val sortedMuscleGroups = muscleGroupCount.entries.sortedByDescending { it.value }
+    val topMuscleGroups = sortedMuscleGroups.take(6)
+    val otherMuscleGroups = sortedMuscleGroups.drop(6)
+
+    val otherMuscleGroupCount = otherMuscleGroups.sumOf { it.value }
+
+    val dataSize = topMuscleGroups.size + if (otherMuscleGroupCount > 0) 1 else 0
+    val colors = remember(dataSize) {
+        derivedStateOf {
+            (0 until dataSize).map {
+                rainbowColors[it % rainbowColors.size]
+            }
+        }
     }
 
-    // Separate muscle groups with counts less than 5 and those with 5 or more
-    val (others, mainGroups) = muscleGroupCount.entries.partition {
-        val minority = dataSize > 7 && it.value < 3
-        minority
-    }
-
-    // Add the main groups to the pie chart data
-    mainGroups.forEachIndexed { index, entry ->
+    // Add the top muscle groups to the pie chart data
+    topMuscleGroups.forEachIndexed { index, entry ->
         pieChartListData.add(
             PieChartData(
                 partName = entry.key,
                 data = entry.value.toDouble(),
-                color = colors.value[index],
+                color = colors.value[index]
             )
         )
     }
 
-    // Sum the counts of the 'Others' group
-    if (others.isNotEmpty()) {
-        val othersCount = others.sumOf { it.value }
+    // Add the 'Lainnya' group if there are any other muscle groups
+    if (otherMuscleGroupCount > 0) {
         pieChartListData.add(
             PieChartData(
                 partName = "Lainnya",
-                data = othersCount.toDouble(),
-                color = colors.value.last(),
+                data = otherMuscleGroupCount.toDouble(),
+                color = colors.value.last()
             )
         )
     }
