@@ -30,7 +30,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.List
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -227,6 +229,29 @@ fun ExerciseListScreen(
                         onExerciseSelected(selectedExercise)
                     }
                 )
+            }
+
+            ExerciseListUiState.Error -> {
+                Column(
+                    modifier = Modifier.fillMaxWidth().height(300.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = null
+                    )
+                    Spacer(Modifier.height(16.dp))
+                    Text(text = "Eh, ada masalah :(")
+                    Spacer(Modifier.height(16.dp))
+                    Button(
+                        onClick = {
+                            viewModel.loadExerciseList()
+                        }
+                    ) {
+                        Text(text = "Coba Lagi")
+                    }
+                }
             }
         }
     }

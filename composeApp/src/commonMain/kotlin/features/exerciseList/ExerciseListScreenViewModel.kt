@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -20,6 +21,7 @@ import kotlinx.coroutines.launch
 @Immutable
 sealed class ExerciseListUiState {
     data object Loading: ExerciseListUiState()
+    data object Error: ExerciseListUiState()
     data class Success(val list: List<Exercise>): ExerciseListUiState()
 }
 
@@ -44,6 +46,11 @@ class ExerciseListScreenViewModel(
     fun loadExerciseList() {
         viewModelScope.launch {
             getExerciseListUseCase()
+                .catch {
+                    _uiState.update {
+                        ExerciseListUiState.Error
+                    }
+                }
                 .collect { listExercise ->
                     _uiState.update {
                         ExerciseListUiState.Success(listExercise)
@@ -55,7 +62,7 @@ class ExerciseListScreenViewModel(
     fun loadCategoryList() {
         viewModelScope.launch {
             _exerciseCategoryList.update {
-                getListExerciseCategoryUseCase().map { it.toUiDisplay() }
+                getListExerciseCategoryUseCase.invoke().map { it.toUiDisplay() }
             }
         }
     }
@@ -96,7 +103,7 @@ class ExerciseListScreenViewModel(
     fun searchExercise(searchQuery: String) {
         viewModelScope.launch {
             _uiState.update {
-                ExerciseListUiState.Success(searchExerciseUseCase(searchQuery))
+                ExerciseListUiState.Success(searchExerciseUseCase.invoke(searchQuery))
             }
         }
     }
