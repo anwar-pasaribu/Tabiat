@@ -146,11 +146,7 @@ fun viewModels() = module {
         InputWorkoutScreenViewModel(repository = get())
     }
 
-    single {
-        WorkoutHistoryScreenViewModel(
-            getExerciseLogListByDateTimeStampUseCase = get()
-        )
-    }
+    factoryOf(::WorkoutHistoryScreenViewModel)
 
     factoryOf(::WorkoutDetailScreenViewModel)
 

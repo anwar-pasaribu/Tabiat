@@ -55,11 +55,13 @@ class ExerciseListScreenViewModel(
     fun loadCategoryList() {
         viewModelScope.launch {
             _exerciseCategoryList.update {
-                getListExerciseCategoryUseCase().map {
-                    muscleMap.getOrElse(it) { "-" }
-                }
+                getListExerciseCategoryUseCase().map { it.toUiDisplay() }
             }
         }
+    }
+
+    private fun String.toUiDisplay(): String {
+        return muscleMap.getOrElse(this) { "-" }
     }
 
     private val muscleMap: Map<String, String> = mapOf(

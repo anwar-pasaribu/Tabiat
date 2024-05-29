@@ -214,7 +214,9 @@ private fun ExerciseSetListView(
     Card(
         modifier = modifier.then(Modifier.animateContentSize()),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        border = CardDefaults.outlinedCardBorder()
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
+        )
     ) {
         exerciseSets.forEachIndexed { index, item ->
             ExerciseSetItemView(

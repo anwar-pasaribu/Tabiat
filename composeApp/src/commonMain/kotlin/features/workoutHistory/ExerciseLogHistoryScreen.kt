@@ -1,32 +1,44 @@
 package features.workoutHistory
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.aay.compose.baseComponents.model.LegendPosition
+import com.aay.compose.donutChart.PieChart
+import com.aay.compose.donutChart.model.PieChartData
 import features.exerciseList.BottomSheet
+import features.workoutHistory.model.ExerciseHistoryUiItem
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.koinInject
 import ui.component.InsetNavigationHeight
+import ui.component.gym.ExerciseSetBadge
 
 @Composable
 fun ExerciseLogListBottomSheet(
@@ -60,12 +72,16 @@ fun ExerciseLogListBottomSheet(
             modifier = Modifier.align(Alignment.Start).padding(start = 8.dp)
         )
 
+        if (itemList.isNotEmpty()) {
+            ExerciseHistoryDailyPieChart(itemList)
+        }
+
         LazyColumn(
             modifier = modifier.then(Modifier.fillMaxWidth().defaultMinSize(minHeight = 300.dp)),
-            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 16.dp)
+            contentPadding = PaddingValues(start = 8.dp, end = 8.dp, bottom = 32.dp)
         ) {
 
-            items(items = itemList, key = { it.id }) { item ->
+            itemsIndexed(items = itemList, key = { _, item -> item.exerciseLogId }) { index, item ->
                 Card(
                     modifier = Modifier.fillMaxWidth().padding(bottom = 2.dp),
                     shape = MaterialTheme.shapes.extraSmall
@@ -74,18 +90,37 @@ fun ExerciseLogListBottomSheet(
                         modifier = Modifier.fillMaxWidth()
                             .padding(horizontal = 8.dp, vertical = 4.dp),
                     ) {
+
                         Row(modifier = Modifier.align(Alignment.CenterStart)) {
                             Text(
-                                text = item.exerciseId.toString(),
+                                text = (index + 1).toString().padEnd(4, ' '),
+                                style = MaterialTheme.typography.labelSmall,
                             )
-                            Spacer(Modifier.width(8.dp))
+                            Spacer(Modifier.width(4.dp))
+                            Column() {
+                                Text(
+                                    text = item.exerciseName,
+                                    style = MaterialTheme.typography.labelSmall,
+                                )
+                                Text(
+                                    text = item.exerciseTargetMuscle.firstOrNull().orEmpty(),
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontWeight = FontWeight.Bold
+                                    ),
+                                )
+                            }
+                        }
+
+                        ExerciseSetBadge(modifier = Modifier.align(Alignment.Center)) {
                             Text(
-                                text = "${item.reps} ✕ ${item.weight}",
+                                text = "${item.reps} ✕ ${item.weight.toInt()}",
+                                style = MaterialTheme.typography.labelSmall,
                             )
                         }
 
                         Text(
                             text = item.finishedDateTime.epochTimestampToShortDateTimeFormat(),
+                            style = MaterialTheme.typography.labelSmall,
                             modifier = Modifier.align(Alignment.CenterEnd)
                         )
                     }
@@ -97,6 +132,71 @@ fun ExerciseLogListBottomSheet(
             }
         }
     }
+}
+
+private val rainbowColors = listOf(
+    Color(0xFFB71C1C), // Deep Red
+    Color(0xFFF57C00), // Deep Orange
+    Color(0xFFFBC02D), // Mustard Yellow
+    Color(0xFF388E3C), // Forest Green
+    Color(0xFF1976D2), // Cobalt Blue
+    Color(0xFF303F9F), // Indigo
+    Color(0xFF8E24AA)  // Deep Violet
+)
+
+@Composable
+fun ExerciseHistoryDailyPieChart(itemList: List<ExerciseHistoryUiItem>) {
+
+    val combinedTargetMuscle = itemList.flatMap { it.exerciseTargetMuscle }
+    val muscleGroupCount = combinedTargetMuscle.groupingBy { it }.eachCount()
+    val pieChartListData = mutableListOf<PieChartData>()
+
+    val dataSize = muscleGroupCount.size
+    val colors = remember {
+        derivedStateOf { (0..dataSize).map { rainbowColors[it] } }
+    }
+
+    // Separate muscle groups with counts less than 5 and those with 5 or more
+    val (others, mainGroups) = muscleGroupCount.entries.partition {
+        val minority = dataSize > 7 && it.value < 3
+        minority
+    }
+
+    // Add the main groups to the pie chart data
+    mainGroups.forEachIndexed { index, entry ->
+        pieChartListData.add(
+            PieChartData(
+                partName = entry.key,
+                data = entry.value.toDouble(),
+                color = colors.value[index],
+            )
+        )
+    }
+
+    // Sum the counts of the 'Others' group
+    if (others.isNotEmpty()) {
+        val othersCount = others.sumOf { it.value }
+        pieChartListData.add(
+            PieChartData(
+                partName = "Lainnya",
+                data = othersCount.toDouble(),
+                color = colors.value.last(),
+            )
+        )
+    }
+
+    Surface {
+        PieChart(
+            modifier = Modifier.fillMaxWidth().height(280.dp),
+            pieChartData = pieChartListData,
+            ratioLineColor = MaterialTheme.colorScheme.primary,
+            outerCircularColor = MaterialTheme.colorScheme.primary,
+            textRatioStyle = MaterialTheme.typography.labelMedium,
+            descriptionStyle = MaterialTheme.typography.labelLarge,
+            legendPosition = LegendPosition.BOTTOM
+        )
+    }
+
 }
 
 private fun Long.epochTimestampToShortDateTimeFormat(): String {
