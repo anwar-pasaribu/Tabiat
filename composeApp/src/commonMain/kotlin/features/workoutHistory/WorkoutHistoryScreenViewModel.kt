@@ -39,21 +39,21 @@ class WorkoutHistoryScreenViewModel(
 
     fun getExerciseLogList(dateTimeStamp: Long) {
         viewModelScope.launch {
-            _exerciseLogList.value = getExerciseLogListByDateTimeStampUseCase(dateTimeStamp).map {
-                val exercise = getExerciseByIdUseCase.invoke(it.exerciseId)
+            _exerciseLogList.value = getExerciseLogListByDateTimeStampUseCase(dateTimeStamp).map { exerciseLog ->
+                val exercise = getExerciseByIdUseCase.invoke(exerciseLog.exerciseId)
                 val targetMuscles = getDecodedListFromJsonString(exercise.targetMuscle).map {
                     it.toUiDisplay()
                 }
                 ExerciseHistoryUiItem(
-                    exerciseLogId = it.id,
-                    exerciseId = it.exerciseId,
+                    exerciseLogId = exerciseLog.id,
+                    exerciseId = exerciseLog.exerciseId,
                     exerciseTargetMuscle = targetMuscles,
                     exerciseName = formatExerciseName(exercise.name),
-                    reps = it.reps,
-                    weight = it.weight,
-                    measurement = it.measurement,
-                    finishedDateTime = it.finishedDateTime,
-                    logNotes = it.logNotes
+                    reps = exerciseLog.reps,
+                    weight = exerciseLog.weight,
+                    measurement = exerciseLog.measurement,
+                    finishedDateTime = exerciseLog.finishedDateTime,
+                    logNotes = exerciseLog.logNotes
                 )
             }
         }

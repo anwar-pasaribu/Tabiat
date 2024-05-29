@@ -91,20 +91,23 @@ fun ExerciseLogListBottomSheet(
                             .padding(horizontal = 8.dp, vertical = 4.dp),
                     ) {
 
-                        Row(modifier = Modifier.align(Alignment.CenterStart)) {
+                        Row(
+                            modifier = Modifier.align(Alignment.CenterStart),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             Text(
                                 text = (index + 1).toString().padEnd(4, ' '),
-                                style = MaterialTheme.typography.labelSmall,
+                                style = MaterialTheme.typography.labelMedium,
                             )
                             Spacer(Modifier.width(4.dp))
                             Column() {
                                 Text(
                                     text = item.exerciseName,
-                                    style = MaterialTheme.typography.labelSmall,
+                                    style = MaterialTheme.typography.labelMedium,
                                 )
                                 Text(
                                     text = item.exerciseTargetMuscle.firstOrNull().orEmpty(),
-                                    style = MaterialTheme.typography.labelSmall.copy(
+                                    style = MaterialTheme.typography.labelMedium.copy(
                                         fontWeight = FontWeight.Bold
                                     ),
                                 )
@@ -114,13 +117,13 @@ fun ExerciseLogListBottomSheet(
                         ExerciseSetBadge(modifier = Modifier.align(Alignment.Center)) {
                             Text(
                                 text = "${item.reps} ✕ ${item.weight.toInt()}",
-                                style = MaterialTheme.typography.labelSmall,
+                                style = MaterialTheme.typography.labelMedium,
                             )
                         }
 
                         Text(
                             text = item.finishedDateTime.epochTimestampToShortDateTimeFormat(),
-                            style = MaterialTheme.typography.labelSmall,
+                            style = MaterialTheme.typography.labelMedium,
                             modifier = Modifier.align(Alignment.CenterEnd)
                         )
                     }

@@ -9,6 +9,8 @@ class GetExerciseLogListByDateTimeStampUseCase(
     suspend operator fun invoke(
         dateTimeStamp: Long
     ): List<ExerciseLog> {
-        return repository.getExerciseLogListByDateTimeStamp(dateTimeStamp)
+        return repository.getExerciseLogListByDateTimeStamp(dateTimeStamp).sortedByDescending {
+            it.finishedDateTime
+        }
     }
 }
