@@ -316,8 +316,7 @@ class GymRepositoryImpl(
     }
 
     override fun getRunningTimerDuration(): Flow<Int> {
-        val timerFlow = preferencesDataSource.getRunningTimerDurationTimeStamp()
-        return timerFlow
+        return preferencesDataSource.getRunningTimerDurationTimeStamp()
     }
 
     override suspend fun saveRunningTimerDuration(duration: Int) {

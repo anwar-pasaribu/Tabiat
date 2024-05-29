@@ -269,7 +269,7 @@ fun TimerDisplayFloating(
                     Row(modifier = Modifier.align(Alignment.Center)) {
 
                         val timerTextStyle = MaterialTheme.typography.headlineLarge.copy(
-                            color = MaterialTheme.colorScheme.onPrimary,
+                            color = Color.White,
                             fontSize = 32.sp,
                             fontWeight = FontWeight.ExtraBold,
                             fontFamily = FontFamily.Monospace
