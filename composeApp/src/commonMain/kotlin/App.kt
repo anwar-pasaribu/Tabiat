@@ -1,7 +1,10 @@
 import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -177,11 +180,20 @@ fun App(
                 val currentTimer by navViewModel.currentTimerLeftDuration.collectAsState()
                 val initialTimerDuration by navViewModel.initialTimerDuration.collectAsState()
                 val initialBreakTimeDuration by navViewModel.initialBreakTimeDuration.collectAsState()
-                FloatingTimerView(
-                    timerLeft = currentTimer,
-                    initialDuration = initialTimerDuration,
-                    initialBreakTimeDuration = initialBreakTimeDuration
-                )
+                val timerSoundEffect by navViewModel.timerSoundEffect.collectAsState()
+                AnimatedVisibility(
+                    visible = currentTimer != 0,
+                    enter = scaleIn(),
+                    exit = scaleOut(tween(4000)) + fadeOut(),
+                    label = "animate_floating_timer"
+                ) {
+                    FloatingTimerView(
+                        timerLeft = currentTimer,
+                        initialDuration = initialTimerDuration,
+                        initialBreakTimeDuration = initialBreakTimeDuration,
+                        timerSoundEffect = timerSoundEffect
+                    )
+                }
             }
         }
     }

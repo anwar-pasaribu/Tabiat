@@ -16,6 +16,8 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.dp
 import domain.enums.PlatformType
 import getPlatform
+import org.jetbrains.compose.ui.tooling.preview.Preview
+import ui.theme.MyAppTheme
 
 @Composable
 fun DeleteIconButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
@@ -57,4 +59,12 @@ fun BackButton(
             )
         }
     )
+}
+
+@Preview
+@Composable
+fun PrevMyBackButton() {
+    MyAppTheme {
+        BackButton {  }
+    }
 }

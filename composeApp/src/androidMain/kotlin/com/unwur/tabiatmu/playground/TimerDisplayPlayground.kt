@@ -64,10 +64,6 @@ private fun TimerDisplaySmallPrev() {
         TimerDisplayFloating(
             countDown = countDown.intValue,
             countDownInitial = 50,
-            onTimerFinished = {
-                println("TIMER COMPLETED")
-                countDown.intValue = 5
-            },
         )
     }
 }

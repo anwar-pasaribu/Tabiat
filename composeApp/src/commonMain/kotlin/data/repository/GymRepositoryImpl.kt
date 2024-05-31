@@ -431,4 +431,8 @@ class GymRepositoryImpl(
     override suspend fun searchExercises(searchQuery: String): List<Exercise> {
         return exerciseDao.searchExercises(searchQuery)
     }
+
+    override suspend fun saveTimerSoundType(soundTypeCode: Int) {
+        preferencesDataSource.setTimerSoundType(soundTypeCode)
+    }
 }

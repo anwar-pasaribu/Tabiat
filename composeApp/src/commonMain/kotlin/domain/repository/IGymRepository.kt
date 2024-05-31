@@ -64,4 +64,6 @@ interface IGymRepository {
 
     fun getRunningTimerDuration(): Flow<Int>
     suspend fun saveRunningTimerDuration(duration: Int)
+
+    suspend fun saveTimerSoundType(soundTypeCode: Int)
 }

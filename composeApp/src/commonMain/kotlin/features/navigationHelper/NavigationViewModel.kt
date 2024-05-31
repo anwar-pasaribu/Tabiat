@@ -2,6 +2,7 @@ package features.navigationHelper
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import domain.enums.SoundEffectType
 import domain.usecase.GetGymPreferencesUseCase
 import domain.usecase.GetRunningTimerPreferencesUseCase
 import domain.usecase.SaveRunningTimerPreferencesUseCase
@@ -44,6 +45,14 @@ class NavigationViewModel(
             viewModelScope,
             SharingStarted.Eagerly,
             0
+        )
+
+    var timerSoundEffect: StateFlow<SoundEffectType> = getGymPreferencesUseCase()
+        .map { it.timerSoundEffect }
+        .stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            SoundEffectType.NONE
         )
     val currentWorkoutPlanId = MutableStateFlow(0L)
     val currentExerciseId = MutableStateFlow(0L)

@@ -53,7 +53,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.input.pointer.pointerInput
@@ -63,9 +62,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import domain.enums.SoundEffectType
 import getScreenSizeInfo
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import platform.PlaySoundEffect
 import kotlin.math.roundToInt
 
 data class Digit(val digitChar: Char, val fullNumber: Int, val place: Int) {
@@ -243,7 +244,6 @@ fun TimerDisplayFloating(
     modifier: Modifier = Modifier,
     countDown: Int,
     countDownInitial: Int,
-    onTimerFinished: () -> Unit = {},
 ) {
 
     val bigCircleBackground = Color.Red
@@ -323,7 +323,12 @@ fun TimerDisplayFloating(
 }
 
 @Composable
-fun FloatingTimerView(timerLeft: Int, initialDuration: Int, initialBreakTimeDuration: Int) {
+fun FloatingTimerView(
+    timerLeft: Int,
+    initialDuration: Int,
+    initialBreakTimeDuration: Int,
+    timerSoundEffect: SoundEffectType
+) {
 
     if (initialDuration == 0 || initialBreakTimeDuration == 0) return
 
@@ -347,13 +352,12 @@ fun FloatingTimerView(timerLeft: Int, initialDuration: Int, initialBreakTimeDura
         timerDuration = timerLeft
     }
 
-    val scaleAnimVal by animateFloatAsState(
-        targetValue = if (timerVisible) 1F else 0F
-    )
+    if (!timerVisible) {
+        PlaySoundEffect(Unit, timerSoundEffect)
+    }
 
     Box(
         modifier = Modifier
-            .scale(scaleAnimVal)
             .padding(
                 vertical = WindowInsets.safeGestures.asPaddingValues().calculateTopPadding()
             )
@@ -417,10 +421,7 @@ fun FloatingTimerView(timerLeft: Int, initialDuration: Int, initialBreakTimeDura
             TimerDisplayFloating(
                 modifier = Modifier,
                 countDown = timerDuration,
-                countDownInitial = countDownInitial,
-                onTimerFinished = {
-                    timerDuration = 0
-                },
+                countDownInitial = countDownInitial
             )
         }
     }

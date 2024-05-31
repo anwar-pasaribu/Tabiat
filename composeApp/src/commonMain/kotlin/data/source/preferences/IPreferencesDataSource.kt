@@ -13,4 +13,7 @@ interface IPreferencesDataSource {
 
     suspend fun saveRunningTimerDuration(seconds: Int)
     fun getRunningTimerDurationTimeStamp(): Flow<Int>
+
+    suspend fun setTimerSoundType(timerSoundType: Int)
+
 }

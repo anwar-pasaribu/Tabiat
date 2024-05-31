@@ -60,6 +60,7 @@ import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import domain.model.gym.ExerciseSet
 import org.koin.compose.koinInject
+import platform.PlaySoundEffect
 import ui.component.BackButton
 import ui.component.DeleteIconButton
 import ui.component.gym.AddExerciseSet
@@ -120,6 +121,7 @@ fun LogWorkoutExerciseScreen(
     var showNotification by remember { mutableStateOf(false) }
     if (showNotification) {
         SendNotification("Timer Selesai", "Lanjut Latihan atau istirahat")
+        PlaySoundEffect(Unit, gymPreferences.timerSoundEffect)
     }
 
     val topAppBarAlphaDuringTimer = if(logExerciseTimerVisible || breakTimerVisible) {

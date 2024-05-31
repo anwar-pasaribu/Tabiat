@@ -89,6 +89,8 @@ kotlin {
             implementation(libs.androidx.datastore.preferences.core)
             implementation(libs.kotlinx.atomicfu)
 
+            implementation("com.soywiz.korge:korge-core:5.1.0")
+
             implementation("io.github.thechance101:chart:Beta-0.0.5")
 
             // Handle Error
