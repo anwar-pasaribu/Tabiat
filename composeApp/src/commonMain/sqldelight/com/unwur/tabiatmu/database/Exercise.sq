@@ -11,6 +11,9 @@ CREATE TABLE IF NOT EXISTS ExerciseEntity (
     description TEXT
 );
 
+exerciseListCount:
+SELECT count(*) FROM ExerciseEntity;
+
 selectAllExercise:
 SELECT * FROM ExerciseEntity;
 
@@ -29,6 +32,9 @@ WHERE targetMuscle LIKE :targetMuscle;
 
 deleteExerciseById:
 DELETE FROM ExerciseEntity WHERE id = ?;
+
+deleteAllExercise:
+DELETE FROM ExerciseEntity;
 
 getDistinctCategories:
 SELECT DISTINCT targetMuscle
