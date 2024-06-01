@@ -9,8 +9,10 @@ import features.workoutHistory.model.ExerciseHistoryUiItem
 import features.workoutHistory.model.MonthCalendarData
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
@@ -25,6 +27,10 @@ import kotlinx.datetime.todayIn
 import kotlinx.datetime.until
 import kotlinx.serialization.json.Json
 
+sealed class WorkoutHistoryUiState {
+    data object Loading: WorkoutHistoryUiState()
+    data class Success(val calendarItems: List<MonthCalendarData>): WorkoutHistoryUiState()
+}
 class WorkoutHistoryScreenViewModel(
     private val getExerciseLogListByDateTimeStampUseCase: GetExerciseLogListByDateTimeStampUseCase,
     private val getExerciseByIdUseCase: GetExerciseByIdUseCase
@@ -35,7 +41,7 @@ class WorkoutHistoryScreenViewModel(
     private var _exerciseLogList = MutableStateFlow<List<ExerciseHistoryUiItem>>(emptyList())
     val exerciseLogList = _exerciseLogList.asStateFlow()
 
-    val calenderListStateFlow = MutableStateFlow(emptyList<MonthCalendarData>())
+    val uiStateMutableStateFlow = MutableStateFlow<WorkoutHistoryUiState>(WorkoutHistoryUiState.Loading)
 
     fun getExerciseLogList(dateTimeStamp: Long) {
         viewModelScope.launch {
@@ -111,13 +117,13 @@ class WorkoutHistoryScreenViewModel(
 
     fun loadCalenderData() {
         viewModelScope.launch {
-
+            delay(600)
             withContext(Dispatchers.Default) {
                 val tz = TimeZone.currentSystemDefault()
                 val today: LocalDate = Clock.System.todayIn(tz)
                 val calendarEmojis = mutableListOf<MonthCalendarData>()
 
-                for (monthNum in 1..today.monthNumber) {
+                for (monthNum in 1..12) {
 
                     val start = LocalDate(year = today.year, monthNumber = monthNum, dayOfMonth = 1)
                     val end = start.plus(1, DateTimeUnit.MONTH)
@@ -155,7 +161,9 @@ class WorkoutHistoryScreenViewModel(
                     )
                 }
 
-                calenderListStateFlow.emit(calendarEmojis)
+                uiStateMutableStateFlow.update {
+                    WorkoutHistoryUiState.Success(calendarEmojis)
+                }
             }
         }
 

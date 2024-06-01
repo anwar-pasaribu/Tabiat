@@ -232,7 +232,7 @@ private fun HomeErrorIndicator(modifier: Modifier = Modifier, onCta: () -> Unit)
 }
 
 @Composable
-fun HomeEmptyState(modifier: Modifier = Modifier, onCta: () -> Unit) {
+private fun HomeEmptyState(modifier: Modifier = Modifier, onCta: () -> Unit) {
     Box(modifier = modifier) {
         EmptyState(
             modifier = Modifier.fillMaxWidth(),

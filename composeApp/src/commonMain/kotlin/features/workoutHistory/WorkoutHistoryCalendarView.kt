@@ -21,7 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.platform.LocalDensity
@@ -68,7 +67,6 @@ private fun EmojiCalendarCell(
             if (signal) {
                 Box(
                     modifier = Modifier
-                        .aspectRatio(1f)
                         .fillMaxSize()
                         .background(color = MaterialTheme.colorScheme.errorContainer)
                 )
@@ -92,7 +90,9 @@ private fun EmojiCalendarCell(
 
 @Composable
 private fun WeekdayCell(weekday: Int, modifier: Modifier = Modifier) {
-    val text = DayOfWeek(weekday).name.take(3).lowercase().replaceFirstChar { it.uppercaseChar() }
+    val text = remember {
+        DayOfWeek(weekday).name.take(3).lowercase().replaceFirstChar { it.uppercaseChar() }
+    }
     Box(
         modifier = modifier.fillMaxSize().padding(vertical = 4.dp),
         contentAlignment = Alignment.Center
@@ -117,6 +117,7 @@ private fun EmojiCalendarGrid(
     val day1ThisMonth = date.minus(dayOfMonth - 1, DateTimeUnit.DAY)
     val diffDaysLastMonth = kotlin.math.abs(day1ThisMonth.dayOfWeek.isoDayNumber - 1)
     val weekdays = remember { (1..7) }
+    val dayOfYearOfToday = remember { Clock.System.todayIn(TimeZone.currentSystemDefault()).dayOfYear }
 
     EmojiCalendarCustomLayout(modifier = modifier) {
         weekdays.forEach {
@@ -132,14 +133,14 @@ private fun EmojiCalendarGrid(
             val containData = it.exerciseActivityCount >= 1
             EmojiCalendarCell(
                 cellText = it.day.dayOfMonth.toString(),
-                signal = it.day.dayOfYear == Clock.System.todayIn(TimeZone.currentSystemDefault()).dayOfYear,
+                signal = it.day.dayOfYear == dayOfYearOfToday,
                 enabled = containData,
                 isFuture = it.isFutureDate,
                 onClick = { onClick(it) },
                 cellExtraContent = {
                     if (containData) {
                         Box(
-                            Modifier.padding(bottom = 4.dp).background(Color.Red, CircleShape)
+                            Modifier.padding(bottom = 6.dp).background(Color.Red, CircleShape)
                                 .size(6.dp).align(Alignment.BottomCenter)
                         )
                     }
