@@ -4,6 +4,7 @@ import domain.model.gym.Exercise
 import kotlinx.coroutines.flow.Flow
 
 interface IExerciseDao {
+    suspend fun exerciseListCount(): Long
     suspend fun getAllExerciseCategories(): List<String>
     suspend fun getAllExercises(): List<Exercise>
     fun getAllExercisesObservable(): Flow<List<Exercise>>
@@ -24,4 +25,5 @@ interface IExerciseDao {
         description: String,
     )
 
+    suspend fun deleteAllExerciseData()
 }

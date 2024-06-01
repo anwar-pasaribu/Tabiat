@@ -2,10 +2,12 @@ package features.settings
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,6 +26,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import domain.enums.SoundEffectType
@@ -62,6 +65,9 @@ fun SettingBottomSheetDialog(
             },
             onTimerSoundChangeClick = {
                 viewModel.saveSoundEffectSelection(it)
+            },
+            onResetAllExerciseData = {
+                viewModel.resetExerciseData()
             }
         )
     }
@@ -75,6 +81,7 @@ fun SettingPage(
     onPerSetTimerClick: (duration: Int) -> Unit = {},
     onPerBreakTimeClick: (duration: Int) -> Unit = {},
     onTimerSoundChangeClick: (soundEffectType: SoundEffectType) -> Unit = {},
+    onResetAllExerciseData: () -> Unit = {},
 ) {
     val selectedSetTimer = remember { mutableStateOf(0) }
     val selectedBreakTime = remember { mutableStateOf(0) }
@@ -162,6 +169,26 @@ private fun ColumnScope.SettingSectionLabel(modifier: Modifier = Modifier, title
         style = MaterialTheme.typography.titleMedium
     )
     Spacer(modifier = Modifier.height(8.dp))
+}
+
+@Composable
+private fun ColumnScope.SettingListMenu(
+    modifier: Modifier = Modifier,
+    menuIcon: ImageVector,
+    textContent: @Composable RowScope.() -> Unit,
+    onClick: () -> Unit
+) {
+
+    Row(
+        modifier = Modifier.clickable { onClick() }
+            .then(modifier)
+    ) {
+        Icon(
+            imageVector = menuIcon,
+            contentDescription = null
+        )
+        textContent()
+    }
 }
 
 @Composable

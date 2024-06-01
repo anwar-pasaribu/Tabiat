@@ -21,8 +21,8 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -329,13 +329,14 @@ class GymRepositoryImpl(
     }
 
     override suspend fun getAllExercisesObservable(): Flow<List<Exercise>> {
-        return exerciseDao
-            .getAllExercisesObservable()
-            .onEach {
-                if (it.isEmpty()) {
-                    loadRemoteExercises()
-                }
+        val exerciseCount = exerciseDao.exerciseListCount()
+        if (exerciseCount == 0L) {
+            val succeed = loadRemoteExercises()
+            if (!succeed) return flow {
+                throw Exception("")
             }
+        }
+        return exerciseDao.getAllExercisesObservable()
     }
 
     override suspend fun filterExercisesByTargetMuscle(targetMuscle: String): List<Exercise> {
@@ -380,20 +381,9 @@ class GymRepositoryImpl(
         return today == timestampDate
     }
 
-    override suspend fun getExercises(): List<Exercise> {
-
-        val exercises = exerciseDao.getAllExercises()
-
-        if (exercises.size <= 10) {
-            loadRemoteExercises()
-        }
-
-        return exercises
-    }
-
-    private suspend fun loadRemoteExercises() = coroutineScope {
-        val networkExercises = gymApi.loadExerciseList()
-        withContext(Dispatchers.IO) {
+    private suspend fun loadRemoteExercises(): Boolean = coroutineScope {
+        try {
+            val networkExercises = gymApi.loadExerciseList()
             networkExercises.forEach { networkExercise ->
                 val difficultyLevel = when (networkExercise.level) {
                     "beginner" -> DifficultyLevel.BEGINNER.level
@@ -425,11 +415,20 @@ class GymRepositoryImpl(
                     type = 0L
                 )
             }
+            return@coroutineScope true
+        } catch (e: Exception) {
+            return@coroutineScope false
         }
     }
 
     override suspend fun searchExercises(searchQuery: String): List<Exercise> {
         return exerciseDao.searchExercises(searchQuery)
+    }
+
+    override suspend fun deleteAllExerciseData() {
+        withContext(Dispatchers.IO) {
+            exerciseDao.deleteAllExerciseData()
+        }
     }
 
     override suspend fun saveTimerSoundType(soundTypeCode: Int) {

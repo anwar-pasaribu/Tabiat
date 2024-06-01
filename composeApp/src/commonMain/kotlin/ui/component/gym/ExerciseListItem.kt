@@ -47,6 +47,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -64,6 +67,7 @@ fun ExerciseListItemView(
     imageUrlList: List<String> = emptyList(),
     selected: Boolean = false,
     enabled: Boolean = true,
+    highlightedText: String = "",
     onClick: () -> Unit = {}
 ) {
     val imageAvailable = image.isNotEmpty() || imageUrlList.isNotEmpty()
@@ -160,7 +164,11 @@ fun ExerciseListItemView(
             ) {
 
                 Column(modifier = Modifier.padding(end = 32.dp, top = 6.dp, bottom = 6.dp)) {
-                    Text(text = title, style = MaterialTheme.typography.titleLarge)
+                    if (highlightedText.isEmpty()) {
+                        Text(text = title, style = MaterialTheme.typography.titleLarge)
+                    } else {
+                        HighlightText(text = title, highlightedText = highlightedText)
+                    }
                     Text(text = description, style = MaterialTheme.typography.labelMedium)
                 }
 
@@ -182,7 +190,29 @@ fun ExerciseListItemView(
     }
 }
 
-@OptIn(ExperimentalResourceApi::class)
+@Composable
+fun HighlightText(text: String, highlightedText: String) {
+    val annotatedString = remember(text, highlightedText) {
+        buildAnnotatedString {
+            val startIndex = text.indexOf(highlightedText, ignoreCase = true)
+            if (startIndex != -1) {
+                append(text.substring(0, startIndex))
+                withStyle(style = SpanStyle(background = Color.Yellow.copy(alpha = .5F))) {
+                    append(text.substring(startIndex, startIndex + highlightedText.length))
+                }
+                append(text.substring(startIndex + highlightedText.length))
+            } else {
+                append(text)
+            }
+        }
+    }
+
+    Text(
+        text = annotatedString,
+        style = MaterialTheme.typography.titleLarge,
+    )
+}
+
 @Composable
 fun WorkoutExerciseItemView(
     modifier: Modifier = Modifier,

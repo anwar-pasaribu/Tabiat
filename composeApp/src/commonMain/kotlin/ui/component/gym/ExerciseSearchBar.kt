@@ -7,6 +7,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,6 +34,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,19 +58,12 @@ fun ExerciseSearchView(
     onClearQuery: () -> Unit = {}
 ) {
     val queryState = rememberTextFieldState(initialText = "")
-    LaunchedEffect(queryState) {
-        queryState.textAsFlow()
-            .debounce(600)
-            .collectLatest {
-                onQueryChange(it.toString())
-            }
-    }
 
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
 
     val searchInteractionSource = remember { MutableInteractionSource() }
-
+    val focused by searchInteractionSource.collectIsFocusedAsState()
     LaunchedEffect(searchInteractionSource) {
         searchInteractionSource.interactions.collectLatest {
             if (it is FocusInteraction.Focus) {
@@ -77,6 +72,16 @@ fun ExerciseSearchView(
                 println("FOCUS NO")
             }
         }
+    }
+
+    LaunchedEffect(queryState) {
+        queryState.textAsFlow()
+            .debounce(600)
+            .collectLatest {
+                if (focused) {
+                    onQueryChange(it.toString())
+                }
+            }
     }
 
     Card(

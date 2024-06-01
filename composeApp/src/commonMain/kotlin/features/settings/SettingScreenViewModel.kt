@@ -73,4 +73,10 @@ class SettingScreenViewModel(
         }
     }
 
+    fun resetExerciseData() {
+        viewModelScope.launch {
+            repository.deleteAllExerciseData()
+        }
+    }
+
 }

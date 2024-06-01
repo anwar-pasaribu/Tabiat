@@ -20,7 +20,6 @@ interface IGymRepository {
     suspend fun getWorkoutPlanProgressListObservable(): Flow<List<WorkoutPlanProgress>>
 
     suspend fun createNewExercise(newExercise: Exercise): Boolean
-    suspend fun getExercises(): List<Exercise>
     suspend fun getAllExercisesObservable(): Flow<List<Exercise>>
     suspend fun searchExercises(searchQuery: String): List<Exercise>
     suspend fun filterExercisesByTargetMuscle(targetMuscle: String): List<Exercise>
@@ -66,4 +65,6 @@ interface IGymRepository {
     suspend fun saveRunningTimerDuration(duration: Int)
 
     suspend fun saveTimerSoundType(soundTypeCode: Int)
+
+    suspend fun deleteAllExerciseData()
 }

@@ -60,6 +60,7 @@ import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import domain.model.gym.ExerciseSet
 import org.koin.compose.koinInject
+import platform.BackHandler
 import platform.PlaySoundEffect
 import ui.component.BackButton
 import ui.component.DeleteIconButton
@@ -67,6 +68,13 @@ import ui.component.gym.AddExerciseSet
 import ui.component.gym.ExerciseSetItemView
 import ui.component.gym.TimerDisplay
 import ui.extension.dummyClickable
+
+sealed class LogWorkoutExerciseUiState {
+    data object Default: LogWorkoutExerciseUiState()
+    data object LoggerView: LogWorkoutExerciseUiState()
+    data class SetTimer(val timerDuration: Int): LogWorkoutExerciseUiState()
+    data class BreakTimer(val timerDuration: Int): LogWorkoutExerciseUiState()
+}
 
 @OptIn(
     ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class,
@@ -79,6 +87,8 @@ fun LogWorkoutExerciseScreen(
     onBack: () -> Unit = {},
     onDismissTimer: (Int) -> Unit = {}
 ) {
+
+    var uiState by remember { mutableStateOf<LogWorkoutExerciseUiState>(LogWorkoutExerciseUiState.Default) }
 
     var editMode by remember { mutableStateOf(false) }
     val lazyListState = rememberLazyListState()
@@ -127,6 +137,24 @@ fun LogWorkoutExerciseScreen(
     val topAppBarAlphaDuringTimer = if(logExerciseTimerVisible || breakTimerVisible) {
         0F
     } else 1F
+
+    BackHandler {
+        when (val state = uiState) {
+            LogWorkoutExerciseUiState.Default -> onBack()
+            LogWorkoutExerciseUiState.LoggerView -> {
+                logExerciseSpinnerVisible = false
+                uiState = LogWorkoutExerciseUiState.Default
+            }
+            is LogWorkoutExerciseUiState.BreakTimer -> {
+                viewModel.saveRunningTimer(state.timerDuration)
+                onBack()
+            }
+            is LogWorkoutExerciseUiState.SetTimer -> {
+                viewModel.saveRunningTimer(state.timerDuration)
+                onBack()
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -195,6 +223,7 @@ fun LogWorkoutExerciseScreen(
                                     setWeight = item.weight,
                                     finished = item.finished,
                                     onSetItemClick = {
+                                        uiState = LogWorkoutExerciseUiState.LoggerView
                                         logExerciseSpinnerVisible = !logExerciseSpinnerVisible
                                         selectedWorkoutPlanExerciseId = item.workoutPlanExerciseId
                                         selectedExerciseSet =
@@ -259,7 +288,8 @@ fun LogWorkoutExerciseScreen(
                             breakTimerVisible = allExerciseFinished
                             onDismissTimer(timeLeft)
                             if (allExerciseFinished) {
-                                viewModel.saveRunningTimer(breakTimeDuration)
+                                uiState = LogWorkoutExerciseUiState.BreakTimer(timeLeft)
+                                viewModel.saveRunningTimer(breakTimeDuration + timeLeft)
                             } else {
                                 viewModel.saveRunningTimer(timeLeft)
                             }
@@ -338,6 +368,7 @@ fun LogWorkoutExerciseScreen(
                                 logExerciseSpinnerVisible = false
                                 showNotification = false
                                 logExerciseTimerVisible = true
+                                uiState = LogWorkoutExerciseUiState.SetTimer(exerciseSetTimerDuration)
                             }
                         )
                     }

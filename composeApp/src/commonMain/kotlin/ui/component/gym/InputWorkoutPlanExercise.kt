@@ -1,12 +1,18 @@
 package ui.component.gym
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -93,12 +99,21 @@ fun InputWorkoutPlanExerciseView(
                     AnimatedVisibility(
                         visible = selectedExerciseName.isNotEmpty()
                     ) {
-                        Text(
-                            text = selectedExerciseName,
-                            style = MaterialTheme.typography.bodyLarge.copy(
-                                fontWeight = FontWeight.Bold
+                        AnimatedContent(
+                            targetState = selectedExerciseName,
+                            transitionSpec = {
+                                (slideInVertically { height -> height } + fadeIn()).togetherWith(
+                                    slideOutVertically { height -> -height } + fadeOut())
+                            }
+                        ) {
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                text = it,
+                                style = MaterialTheme.typography.bodyLarge.copy(
+                                    fontWeight = FontWeight.Bold
+                                )
                             )
-                        )
+                        }
                     }
                 }
 

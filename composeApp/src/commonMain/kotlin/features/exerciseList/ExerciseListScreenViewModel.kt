@@ -23,6 +23,8 @@ sealed class ExerciseListUiState {
     data object Loading: ExerciseListUiState()
     data object Error: ExerciseListUiState()
     data class Success(val list: List<Exercise>): ExerciseListUiState()
+    data class Search(val queryString: String, val list: List<Exercise>): ExerciseListUiState()
+    data class Filter(val list: List<Exercise>): ExerciseListUiState()
 }
 
 class ExerciseListScreenViewModel(
@@ -44,8 +46,11 @@ class ExerciseListScreenViewModel(
 
 
     fun loadExerciseList() {
+        _uiState.update {
+            ExerciseListUiState.Loading
+        }
         viewModelScope.launch {
-            getExerciseListUseCase()
+            getExerciseListUseCase.invoke()
                 .catch {
                     _uiState.update {
                         ExerciseListUiState.Error
@@ -103,7 +108,10 @@ class ExerciseListScreenViewModel(
     fun searchExercise(searchQuery: String) {
         viewModelScope.launch {
             _uiState.update {
-                ExerciseListUiState.Success(searchExerciseUseCase.invoke(searchQuery))
+                ExerciseListUiState.Search(
+                    searchQuery,
+                    searchExerciseUseCase.invoke(searchQuery)
+                )
             }
         }
     }
@@ -112,7 +120,7 @@ class ExerciseListScreenViewModel(
         viewModelScope.launch {
             val categoryInDbVersion = getKeyByValue(category)
             _uiState.update {
-                ExerciseListUiState.Success(
+                ExerciseListUiState.Filter(
                     filterExerciseByTargetMuscleCategoryUseCase.invoke(categoryInDbVersion)
                 )
             }

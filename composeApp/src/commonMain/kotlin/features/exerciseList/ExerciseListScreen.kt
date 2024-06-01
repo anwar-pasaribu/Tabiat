@@ -58,6 +58,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import domain.model.gym.Exercise
 import org.koin.compose.koinInject
+import ui.component.BackButton
 import ui.component.CategorySection
 import ui.component.InsetNavigationHeight
 import ui.component.gym.ExerciseListItemView
@@ -117,6 +118,9 @@ fun ExerciseListBottomSheet(
         ExerciseListScreen(
             modifier = Modifier,
             selectedExerciseId = selectedExerciseId,
+            onBack = {
+                onDismiss()
+            },
             onExerciseSelected = { selectedId ->
                 onSelectExercise(selectedId)
                 onDismiss()
@@ -133,6 +137,7 @@ fun ExerciseListBottomSheet(
 fun ExerciseListScreen(
     modifier: Modifier = Modifier,
     selectedExerciseId: Long,
+    onBack: () -> Unit = {},
     onExerciseSelected: (Exercise) -> Unit = {},
     onCreateNewExerciseRequested: () -> Unit = {},
     viewModel: ExerciseListScreenViewModel = koinInject(),
@@ -175,6 +180,9 @@ fun ExerciseListScreen(
         Box(
             modifier = Modifier.fillMaxWidth().height(56.dp)
         ) {
+            BackButton(modifier = Modifier.padding(start = 6.dp)) {
+                onBack()
+            }
             TextButton(
                 modifier = Modifier.align(Alignment.CenterEnd).padding(end = 16.dp),
                 onClick = {
@@ -253,6 +261,30 @@ fun ExerciseListScreen(
                     }
                 }
             }
+
+            is ExerciseListUiState.Filter -> {
+                ExerciseLazyList(
+                    modifier = Modifier.fillMaxWidth(),
+                    lazyListState = listState,
+                    listExercise = state.list,
+                    selectedExerciseId = selectedExerciseId,
+                    onItemClick = { selectedExercise ->
+                        onExerciseSelected(selectedExercise)
+                    }
+                )
+            }
+            is ExerciseListUiState.Search -> {
+                ExerciseLazyList(
+                    modifier = Modifier.fillMaxWidth(),
+                    lazyListState = listState,
+                    listExercise = state.list,
+                    selectedExerciseId = selectedExerciseId,
+                    highlightedText = state.queryString,
+                    onItemClick = { selectedExercise ->
+                        onExerciseSelected(selectedExercise)
+                    }
+                )
+            }
         }
     }
 }
@@ -264,6 +296,7 @@ fun ExerciseLazyList(
     lazyListState: LazyListState,
     listExercise: List<Exercise>,
     selectedExerciseId: Long = 0L,
+    highlightedText: String = "",
     onItemClick: (Exercise) -> Unit
 ) {
     AnimatedContent(
@@ -298,6 +331,7 @@ fun ExerciseLazyList(
                             animationSpec = tween(delayMillis = 150)
                         ).padding(bottom = 8.dp),
                         selected = exercise.id == selectedExerciseId,
+                        highlightedText = highlightedText,
                         title = exercise.name,
                         description = exercise.description,
                         imageUrlList = exercise.imageList,
