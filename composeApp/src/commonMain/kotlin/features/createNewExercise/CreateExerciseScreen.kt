@@ -29,6 +29,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,7 +48,6 @@ import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import domain.model.gym.Exercise
-import domain.model.gym.MuscleGroup
 import features.exerciseList.BottomSheet
 import org.koin.compose.koinInject
 import ui.component.BackButton
@@ -64,6 +65,12 @@ fun CreateExerciseScreen(
     val hazeState = remember { HazeState() }
 
     val viewModel = koinInject<CreateExerciseScreenViewModel>()
+
+    val muscleGroups by viewModel.exerciseMuscleTargetList.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.loadMuscleGroupList()
+    }
 
     Scaffold(
         topBar = {
@@ -103,6 +110,7 @@ fun CreateExerciseScreen(
         ) {
             CreateExerciseForm(
                 modifier = Modifier.fillMaxWidth(),
+                muscleGroups = muscleGroups,
                 onSave = {
                     viewModel.saveExercise(it)
                     onNewExerciseCreated()
@@ -113,10 +121,14 @@ fun CreateExerciseScreen(
 }
 
 @Composable
-fun CreateExerciseForm(modifier: Modifier = Modifier, onSave: (Exercise) -> Unit) {
+fun CreateExerciseForm(
+    modifier: Modifier = Modifier,
+    onSave: (Exercise) -> Unit,
+    muscleGroups: List<String> = emptyList()
+) {
 
     var shouldShowTargetMuscleList by remember { mutableStateOf(false) }
-    var exerciseMuscleTarget by remember { mutableStateOf(MuscleGroup(0, "")) }
+    var exerciseMuscleTarget by remember { mutableStateOf("") }
 
     Surface {
 
@@ -144,7 +156,7 @@ fun CreateExerciseForm(modifier: Modifier = Modifier, onSave: (Exercise) -> Unit
             Spacer(Modifier.height(8.dp))
             ButtonRowWithAnimatedContent(
                 title = "Target Otot",
-                animatedText = exerciseMuscleTarget.name,
+                animatedText = exerciseMuscleTarget,
                 onClick = {
                     shouldShowTargetMuscleList = true
                 }
@@ -179,7 +191,7 @@ fun CreateExerciseForm(modifier: Modifier = Modifier, onSave: (Exercise) -> Unit
                             id = 0L,
                             name = exerciseName,
                             description = exerciseNotes,
-                            targetMuscle = exerciseMuscleTarget.name,
+                            targetMuscle = exerciseMuscleTarget,
                             difficulty = 0,
                             equipment = "",
                             instructions = "",
@@ -203,15 +215,7 @@ fun CreateExerciseForm(modifier: Modifier = Modifier, onSave: (Exercise) -> Unit
             },
             showFullScreen = false
         ) {
-            val muscleTarget = listOf(
-                MuscleGroup(1, "Bahu"),
-                MuscleGroup(2, "Dada"),
-                MuscleGroup(3, "Punggung"),
-                MuscleGroup(4, "Lengan"),
-                MuscleGroup(5, "Perut"),
-                MuscleGroup(6, "Pantat"),
-                MuscleGroup(7, "Kaki"),
-            )
+            val muscleTarget = muscleGroups
             Text(
                 modifier = Modifier.padding(16.dp),
                 text = "Pilih Target Otot",
@@ -230,7 +234,7 @@ fun CreateExerciseForm(modifier: Modifier = Modifier, onSave: (Exercise) -> Unit
                     ) {
                         Text(
                             modifier = Modifier.padding(16.dp),
-                            text = item.name, style = MaterialTheme.typography.titleLarge
+                            text = item, style = MaterialTheme.typography.titleLarge
                         )
                     }
                 }

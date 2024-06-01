@@ -261,7 +261,7 @@ class GymRepositoryImpl(
             instructions = newExercise.instructions,
             video = newExercise.video,
             image = newExercise.image,
-            targetMuscle = "",
+            targetMuscle = Json.encodeToString(listOf(newExercise.targetMuscle)),
             description = newExercise.description,
             type = 0L
         )
