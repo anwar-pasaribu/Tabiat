@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
 import java.util.Properties
 
 plugins {
@@ -9,14 +11,10 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
 }
 
+@OptIn(ExperimentalKotlinGradlePluginApi::class)
 kotlin {
-    androidTarget {
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "11"
-            }
-        }
-    }
+    jvmToolchain(17)
+    androidTarget { instrumentedTestVariant.sourceSetTree.set(KotlinSourceSetTree.test) }
 
     listOf(
         iosX64(),
@@ -28,11 +26,19 @@ kotlin {
             isStatic = true
         }
     }
+
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
     
     sourceSets {
 
         all {
             languageSettings.optIn("kotlin.RequiresOptIn")
+            languageSettings.optIn("androidx.compose.material.ExperimentalMaterialApi")
+            languageSettings.optIn("androidx.compose.material3.ExperimentalMaterial3Api")
+            languageSettings.optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
+            languageSettings.optIn("org.jetbrains.compose.resources.ExperimentalResourceApi")
         }
         
         androidMain.dependencies {
@@ -151,10 +157,10 @@ android {
             proguardFiles("proguard-rules.pro")
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
+//    compileOptions {
+//        sourceCompatibility = JavaVersion.VERSION_11
+//        targetCompatibility = JavaVersion.VERSION_11
+//    }
     dependencies {
         debugImplementation(libs.compose.ui.tooling)
     }
