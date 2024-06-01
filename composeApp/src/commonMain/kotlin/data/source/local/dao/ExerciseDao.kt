@@ -14,6 +14,10 @@ class ExerciseDao(
     private val database: TabiatDatabase
 ) : IExerciseDao {
 
+    override suspend fun exerciseListCount(): Long {
+        return database.exerciseQueries.exerciseListCount().executeAsOne()
+    }
+
     override suspend fun getAllExerciseCategories(): List<String> {
         val rawList = database
             .exerciseQueries
@@ -109,6 +113,12 @@ class ExerciseDao(
                 targetMuscle = targetMuscle,
                 description = description
             )
+    }
+
+    override suspend fun deleteAllExerciseData() {
+        database
+            .exerciseQueries
+            .deleteAllExercise()
     }
 
     private fun ExerciseEntity.toDomain(): Exercise {
