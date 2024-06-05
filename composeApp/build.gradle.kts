@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.sqlDelight)
     alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.spotless)
 }
 
 @OptIn(ExperimentalKotlinGradlePluginApi::class)
@@ -181,6 +182,25 @@ sqldelight {
         create("TabiatDatabase") {
             packageName.set("com.unwur.tabiatmu.database")
         }
+    }
+}
+
+configure<com.diffplug.gradle.spotless.SpotlessExtension> {
+    kotlin {
+        target("**/*.kt")
+        targetExclude("${layout.buildDirectory}/**/*.kt")
+        targetExclude("bin/**/*.kt")
+        ktlint().editorConfigOverride(
+            mapOf(
+                "ktlint_standard_filename" to "disabled",
+                "ktlint_standard_function-naming" to "disabled",
+            ),
+        )
+        licenseHeaderFile(rootProject.file("licenses/MIT"))
+    }
+    kotlinGradle {
+        target("**/*.gradle.kts")
+        ktlint()
     }
 }
 
