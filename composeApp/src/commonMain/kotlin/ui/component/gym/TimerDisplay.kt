@@ -66,6 +66,7 @@ import domain.enums.SoundEffectType
 import getScreenSizeInfo
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import platform.BackHandler
 import platform.PlaySoundEffect
 import kotlin.math.roundToInt
 
@@ -119,6 +120,10 @@ fun TimerDisplay(
         MaterialTheme.colorScheme.primary
     } else {
         MaterialTheme.colorScheme.primary
+    }
+
+    BackHandler {
+        onCancelTimer(timeLeft)
     }
 
     Box(

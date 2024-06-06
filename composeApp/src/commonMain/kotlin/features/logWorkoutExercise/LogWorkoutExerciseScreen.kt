@@ -72,8 +72,8 @@ import ui.extension.dummyClickable
 sealed class LogWorkoutExerciseUiState {
     data object Default: LogWorkoutExerciseUiState()
     data object LoggerView: LogWorkoutExerciseUiState()
-    data class SetTimer(val timerDuration: Int): LogWorkoutExerciseUiState()
-    data class BreakTimer(val timerDuration: Int): LogWorkoutExerciseUiState()
+    data object EditMode: LogWorkoutExerciseUiState()
+    data object SetTimer: LogWorkoutExerciseUiState()
 }
 
 @OptIn(
@@ -85,7 +85,6 @@ fun LogWorkoutExerciseScreen(
     workoutPlanId: Long,
     exerciseId: Long,
     onBack: () -> Unit = {},
-    onDismissTimer: (Int) -> Unit = {}
 ) {
 
     var uiState by remember { mutableStateOf<LogWorkoutExerciseUiState>(LogWorkoutExerciseUiState.Default) }
@@ -134,24 +133,24 @@ fun LogWorkoutExerciseScreen(
         PlaySoundEffect(Unit, gymPreferences.timerSoundEffect)
     }
 
-    val topAppBarAlphaDuringTimer = if(logExerciseTimerVisible || breakTimerVisible) {
+    val topAppBarAlphaDuringTimer = if(logExerciseTimerVisible) {
         0F
     } else 1F
 
     BackHandler {
-        when (val state = uiState) {
+        when (uiState) {
             LogWorkoutExerciseUiState.Default -> onBack()
             LogWorkoutExerciseUiState.LoggerView -> {
                 logExerciseSpinnerVisible = false
                 uiState = LogWorkoutExerciseUiState.Default
             }
-            is LogWorkoutExerciseUiState.BreakTimer -> {
-                viewModel.saveRunningTimer(state.timerDuration)
+            is LogWorkoutExerciseUiState.SetTimer -> {
                 onBack()
             }
-            is LogWorkoutExerciseUiState.SetTimer -> {
-                viewModel.saveRunningTimer(state.timerDuration)
-                onBack()
+
+            LogWorkoutExerciseUiState.EditMode -> {
+                editMode = false
+                uiState = LogWorkoutExerciseUiState.Default
             }
         }
     }
@@ -176,7 +175,10 @@ fun LogWorkoutExerciseScreen(
                     },
                     title = { Text("") },
                     actions = {
-                        IconButton(onClick = { editMode = !editMode }) {
+                        IconButton(onClick = {
+                            editMode = !editMode
+                            uiState = LogWorkoutExerciseUiState.EditMode
+                        }) {
                             Icon(
                                 imageVector = if (editMode) Icons.Default.Close else Icons.Outlined.Edit,
                                 contentDescription = ""
@@ -230,7 +232,8 @@ fun LogWorkoutExerciseScreen(
                                             ExerciseSet(item.setOrder, item.repsCount, item.weight)
                                     },
                                     onSetItemLongClick = {
-                                        editMode = !editMode
+                                        editMode = true
+                                        uiState = LogWorkoutExerciseUiState.EditMode
                                     }
                                 )
                                 androidx.compose.animation.AnimatedVisibility(
@@ -276,23 +279,21 @@ fun LogWorkoutExerciseScreen(
                         .background(MaterialTheme.colorScheme.onBackground.copy(alpha = .75F)),
                     contentAlignment = Alignment.Center
                 ) {
+                    val timerDuration = if (allExerciseFinished) {
+                        exerciseSetTimerDuration + breakTimeDuration
+                    } else {
+                        exerciseSetTimerDuration
+                    }
                     TimerDisplay(
-                        countDown = exerciseSetTimerDuration,
+                        countDown = timerDuration,
+                        breakTime = allExerciseFinished,
                         onTimerFinished = {
                             logExerciseTimerVisible = false
                             showNotification = true
-                            breakTimerVisible = allExerciseFinished
                         },
                         onCancelTimer = { timeLeft ->
                             logExerciseTimerVisible = false
-                            breakTimerVisible = allExerciseFinished
-                            onDismissTimer(timeLeft)
-                            if (allExerciseFinished) {
-                                uiState = LogWorkoutExerciseUiState.BreakTimer(timeLeft)
-                                viewModel.saveRunningTimer(breakTimeDuration + timeLeft)
-                            } else {
-                                viewModel.saveRunningTimer(timeLeft)
-                            }
+                            viewModel.saveRunningTimer(timeLeft)
                         }
                     )
                 }
@@ -318,7 +319,7 @@ fun LogWorkoutExerciseScreen(
                             onBack()
                         },
                         onCancelTimer = { timeLeft ->
-                            onDismissTimer(timeLeft)
+                            viewModel.saveRunningTimer(timeLeft)
                             onBack()
                         }
                     )
@@ -368,7 +369,7 @@ fun LogWorkoutExerciseScreen(
                                 logExerciseSpinnerVisible = false
                                 showNotification = false
                                 logExerciseTimerVisible = true
-                                uiState = LogWorkoutExerciseUiState.SetTimer(exerciseSetTimerDuration)
+                                uiState = LogWorkoutExerciseUiState.SetTimer
                             }
                         )
                     }

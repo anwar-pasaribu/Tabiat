@@ -7,6 +7,7 @@ import domain.usecase.DeleteWorkoutPlanExerciseSetUseCase
 import domain.usecase.GetExerciseByIdUseCase
 import domain.usecase.GetExerciseSetListUseCase
 import domain.usecase.GetGymPreferencesUseCase
+import domain.usecase.GetRunningTimerPreferencesUseCase
 import domain.usecase.LogExerciseUseCase
 import domain.usecase.SaveRunningTimerPreferencesUseCase
 import features.logWorkoutExercise.model.ExerciseSetToday
@@ -26,6 +27,7 @@ class LogWorkoutExerciseScreenViewModel(
     private val deleteWorkoutPlanExerciseSetUseCase: DeleteWorkoutPlanExerciseSetUseCase,
     private val getGymPreferencesUseCase: GetGymPreferencesUseCase,
     private val saveRunningTimerPreferencesUseCase: SaveRunningTimerPreferencesUseCase,
+    private val getRunningTimerPreferencesUseCase: GetRunningTimerPreferencesUseCase,
 ): ViewModel() {
 
     val gymPreferences: StateFlow<GymPreferences> = getGymPreferencesUseCase().stateIn(
