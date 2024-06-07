@@ -138,7 +138,7 @@ fun LogWorkoutExerciseScreen(
         PlaySoundEffect(Unit, gymPreferences.timerSoundEffect)
     }
 
-    val topAppBarAlphaDuringTimer = if(logExerciseTimerVisible) {
+    val topAppBarAlphaDuringTimer = if(logExerciseTimerVisible || logExerciseSpinnerVisible) {
         0F
     } else 1F
 
