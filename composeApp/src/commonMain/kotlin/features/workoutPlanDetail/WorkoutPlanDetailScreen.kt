@@ -61,6 +61,7 @@ import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import domain.model.gym.ExerciseProgress
 import org.koin.compose.koinInject
+import platform.BackHandler
 import ui.component.BackButton
 import ui.component.DeleteIconButton
 import ui.component.EmptyState
@@ -95,6 +96,14 @@ fun WorkoutDetailScreen(
     LaunchedEffect(workoutPlanId) {
         viewModel.loadWorkoutPlanById(workoutPlanId)
         viewModel.loadWorkoutPlan(workoutPlanId)
+    }
+
+    BackHandler {
+        if (editMode) {
+            editMode = false
+        } else {
+            onBack()
+        }
     }
 
     Scaffold(
