@@ -46,9 +46,14 @@ class LogWorkoutExerciseScreenViewModel(
     private val _exerciseName = MutableStateFlow("")
     val exerciseName: StateFlow<String> = _exerciseName.asStateFlow()
 
+    private val _exercisePics = MutableStateFlow(emptyList<String>())
+    val exercisePics: StateFlow<List<String>> = _exercisePics.asStateFlow()
+
     fun getExerciseDetail(exerciseId: Long) {
         viewModelScope.launch {
-            _exerciseName.value = getExerciseByIdUseCase(exerciseId).name
+            val exercise = getExerciseByIdUseCase.invoke(exerciseId)
+            _exerciseName.value = exercise.name
+            _exercisePics.value = exercise.imageList
         }
     }
 

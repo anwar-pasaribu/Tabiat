@@ -52,6 +52,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import dev.chrisbanes.haze.HazeState
@@ -64,8 +66,10 @@ import platform.BackHandler
 import platform.PlaySoundEffect
 import ui.component.BackButton
 import ui.component.DeleteIconButton
+import ui.component.PagerIndicator
 import ui.component.gym.AddExerciseSet
 import ui.component.gym.ExerciseSetItemView
+import ui.component.gym.ImagePager
 import ui.component.gym.TimerDisplay
 import ui.extension.dummyClickable
 
@@ -111,6 +115,7 @@ fun LogWorkoutExerciseScreen(
 
     val exerciseSetList by viewModel.exerciseSetList.collectAsState()
     val exerciseName by viewModel.exerciseName.collectAsState()
+    val exerciseImages by viewModel.exercisePics.collectAsState()
     val allExerciseFinished by viewModel.allExerciseSetFinished.collectAsState(false)
 
     LaunchedEffect(gymPreferences) {
@@ -171,14 +176,20 @@ fun LogWorkoutExerciseScreen(
                             modifier = Modifier.alpha(animateAlphaValue).scale(animateAlphaValue),
                             enabled = !editMode,
                             onClick = { onBack() },
+                            showBackground = true
                         )
                     },
                     title = { Text("") },
                     actions = {
-                        IconButton(onClick = {
-                            editMode = !editMode
-                            uiState = LogWorkoutExerciseUiState.EditMode
-                        }) {
+                        IconButton(
+                            onClick = {
+                                editMode = !editMode
+                                uiState = LogWorkoutExerciseUiState.EditMode
+                            },
+                            colors = IconButtonDefaults.filledIconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.background
+                            )
+                        ) {
                             Icon(
                                 imageVector = if (editMode) Icons.Default.Close else Icons.Outlined.Edit,
                                 contentDescription = ""
@@ -194,10 +205,43 @@ fun LogWorkoutExerciseScreen(
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
+            val imagePagerHeight = 320.dp
+            if (exerciseImages.isNotEmpty()) {
+                Box(modifier = Modifier.fillMaxWidth()) {
+
+                    var activePage by remember {
+                        mutableStateOf(0)
+                    }
+
+                    ImagePager(
+                        modifier = Modifier.fillMaxWidth().height(imagePagerHeight),
+                        imageUrlList = exerciseImages,
+                        pageSpacing = 0.dp,
+                        fillWidth = true,
+                        contentScale = ContentScale.Crop,
+                        shape = RectangleShape,
+                        onPageChange = { currentPage ->
+                            activePage = currentPage
+                        }
+                    )
+
+                    PagerIndicator(
+                        modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 6.dp),
+                        pageCount = exerciseImages.size,
+                        activePage = activePage
+                    )
+                }
+            }
+
+            val contentTopPadding = if(exerciseImages.isEmpty()) {
+                contentPadding.calculateTopPadding() + 16.dp
+            } else {
+                imagePagerHeight + 8.dp
+            }
             Column(
                 modifier = Modifier.padding(
                     start = contentPadding.calculateStartPadding(LayoutDirection.Ltr) + 16.dp,
-                    top = contentPadding.calculateTopPadding() + 16.dp,
+                    top = contentTopPadding,
                     end = contentPadding.calculateEndPadding(LayoutDirection.Ltr) + 16.dp,
                     bottom = contentPadding.calculateBottomPadding()
                 )

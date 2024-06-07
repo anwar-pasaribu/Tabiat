@@ -45,15 +45,16 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import tabiat.composeapp.generated.resources.Res
 import tabiat.composeapp.generated.resources.full_screen_24dp
 import ui.component.ImageWrapper
@@ -301,7 +302,6 @@ fun WorkoutExerciseItemView(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalResourceApi::class)
 @Composable
 fun FullScreenImageViewer(
     modifier: Modifier = Modifier,
@@ -314,16 +314,8 @@ fun FullScreenImageViewer(
             usePlatformDefaultWidth = false
         )
     ) {
-        val pagerState = rememberPagerState(initialPage = 0) {
-            imageUrlList.size
-        }
-        val contentPaddingValues = if (imageUrlList.size == 1) {
-            PaddingValues(0.dp)
-        } else {
-            PaddingValues(horizontal = 8.dp, vertical = 0.dp)
-        }
         Surface(
-            modifier = Modifier.fillMaxSize(),
+            modifier = modifier.then(Modifier.fillMaxSize()),
             color = Color.Transparent
         ) {
             Box(
@@ -334,24 +326,48 @@ fun FullScreenImageViewer(
                 ).fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                HorizontalPager(
-                    modifier = Modifier.fillMaxWidth(),
-                    state = pagerState,
-                    contentPadding = contentPaddingValues,
-                    pageSpacing = 4.dp
-                ) {
-                    ImageWrapper(
-                        modifier = Modifier.clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                            onClick = { }
-                        ).clip(RoundedCornerShape(6.dp)).fillMaxWidth(),
-                        imageUrl = imageUrlList[it],
-                        contentDescription = "Picture $it",
-                        contentScale = ContentScale.FillWidth
-                    )
-                }
+                ImagePager(modifier = Modifier.fillMaxWidth(), imageUrlList)
             }
         }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun ImagePager(
+    modifier: Modifier = Modifier,
+    imageUrlList: List<String>,
+    pageSpacing: Dp = 4.dp,
+    fillWidth: Boolean = false,
+    contentScale: ContentScale = ContentScale.FillWidth,
+    shape: Shape = RoundedCornerShape(6.dp),
+    onPageChange: (Int) -> Unit = {}
+) {
+    val pagerState = rememberPagerState(initialPage = 0) {
+        imageUrlList.size
+    }
+    val contentPaddingValues = if (imageUrlList.size == 1 || fillWidth) {
+        PaddingValues(0.dp)
+    } else {
+        PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+    }
+
+    HorizontalPager(
+        modifier = modifier,
+        state = pagerState,
+        contentPadding = contentPaddingValues,
+        pageSpacing = pageSpacing
+    ) {
+        onPageChange(it)
+        ImageWrapper(
+            modifier = Modifier.clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = { }
+            ).clip(shape).fillMaxWidth(),
+            imageUrl = imageUrlList[it],
+            contentDescription = "Picture $it",
+            contentScale = contentScale
+        )
     }
 }
