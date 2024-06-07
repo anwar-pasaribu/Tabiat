@@ -29,6 +29,7 @@ import domain.usecase.LogExerciseUseCase
 import domain.usecase.ResetAllYesterdayActivitiesUseCase
 import domain.usecase.SaveRunningTimerPreferencesUseCase
 import domain.usecase.SearchExerciseUseCase
+import domain.usecase.UpdateWorkoutExerciseRepsAndWeightUseCase
 import features.createNewExercise.CreateExerciseScreenViewModel
 import features.exerciseList.ExerciseListScreenViewModel
 import features.home.HomeScreenViewModel
@@ -125,6 +126,7 @@ fun appModule() = module {
     singleOf(::FilterExerciseByTargetMuscleCategoryUseCase)
     singleOf(::GetRunningTimerPreferencesUseCase)
     singleOf(::SaveRunningTimerPreferencesUseCase)
+    singleOf(::UpdateWorkoutExerciseRepsAndWeightUseCase)
 }
 
 fun viewModels() = module {

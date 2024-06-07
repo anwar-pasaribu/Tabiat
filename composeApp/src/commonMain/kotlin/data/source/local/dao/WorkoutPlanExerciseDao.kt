@@ -130,4 +130,18 @@ class WorkoutPlanExerciseDao(
                 id = workoutPlanExerciseId,
             )
     }
+
+    override suspend fun updateWorkoutPlanExerciseRepsAndWeight(
+        workoutPlanExerciseId: Long,
+        reps: Long,
+        weight: Long
+    ) {
+        database
+            .workoutPlanExerciseQueries
+            .updateWorkoutPlanExerciseDetail(
+                id = workoutPlanExerciseId,
+                reps = reps,
+                weight = weight
+            )
+    }
 }

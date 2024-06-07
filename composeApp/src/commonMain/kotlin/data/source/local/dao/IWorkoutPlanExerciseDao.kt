@@ -36,4 +36,10 @@ interface IWorkoutPlanExerciseDao {
         reps: Long,
         weight: Long
     )
+
+    suspend fun updateWorkoutPlanExerciseRepsAndWeight(
+        workoutPlanExerciseId: Long,
+        reps: Long,
+        weight: Long
+    )
 }

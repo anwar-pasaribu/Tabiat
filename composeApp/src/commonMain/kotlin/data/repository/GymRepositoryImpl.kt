@@ -216,6 +216,21 @@ class GymRepositoryImpl(
         return true
     }
 
+    override suspend fun updateWorkoutExerciseRepsAndWeight(
+        workoutPlanExerciseId: Long,
+        reps: Int,
+        weight: Int
+    ): Boolean {
+
+        workoutPlanExerciseDao.updateWorkoutPlanExerciseRepsAndWeight(
+            workoutPlanExerciseId = workoutPlanExerciseId,
+            reps = reps.toLong(),
+            weight = weight.toLong()
+        )
+
+        return true
+    }
+
     override suspend fun getExerciseLogListByDateTimeStamp(dateTimeStamp: Long): List<ExerciseLog> {
         val tz = TimeZone.currentSystemDefault()
         val endOfTimeStampOfSelectedDate = LocalTime(hour = 23, minute = 59, second = 59)
