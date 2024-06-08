@@ -25,10 +25,14 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.minus
+import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.encodeToString
@@ -59,11 +63,12 @@ class GymRepositoryImpl(
         workoutName: String,
         notes: String
     ): Boolean {
-        workoutPlanDao.updateWorkoutPlan(
-            workoutPlanId = workoutPlanId,
-            name = workoutName,
-            description = notes
-        )
+//        workoutPlanDao.updateWorkoutPlan(
+//            workoutPlanId = workoutPlanId,
+//            name = workoutName,
+//            description = notes
+//        )
+        generateDummyData()
         return true
     }
 
@@ -448,5 +453,90 @@ class GymRepositoryImpl(
 
     override suspend fun saveTimerSoundType(soundTypeCode: Int) {
         preferencesDataSource.setTimerSoundType(soundTypeCode)
+    }
+
+    private fun LocalDate.toEpochTimeStamp(): Long {
+        val tz = TimeZone.currentSystemDefault()
+        val endOfTimeStampOfSelectedDate = LocalTime(hour = 23, minute = 59, second = 59)
+        val dateTime = LocalDateTime(date = this, time = endOfTimeStampOfSelectedDate)
+        return dateTime.toInstant(tz).toEpochMilliseconds()
+    }
+
+    private suspend fun generateDummyData() = coroutineScope {
+        val tz = TimeZone.currentSystemDefault()
+        val today = Clock.System.now().toLocalDateTime(tz)
+        val todayDate = today.date
+        val threeMonthsAgo = todayDate.minus(3, DateTimeUnit.MONTH)
+        val dateList = mutableListOf<Long>() // Change to store epochMillis
+        var currentDate = threeMonthsAgo
+
+        while (currentDate <= todayDate) {
+            // Convert LocalDate to epochMillis and add to list
+            dateList.add(currentDate.toEpochTimeStamp())
+            currentDate = currentDate.plus(1, DateTimeUnit.DAY)
+        }
+
+        withContext(Dispatchers.IO) {
+            // create workout plan
+            repeat(5) {
+                workoutPlanDao.insertWorkoutPlan(
+                    name = "Wo Plan $it",
+                    description = "Wo desc $it",
+                    datetimeStamp = 0L,
+                    orderingNumber = it
+                )
+            }
+
+            delay(2000)
+
+            val listOfWoPlan = workoutPlanDao.getAllWorkoutPlan()
+            val listOfAllExercise = exerciseDao.getAllExercises()
+            val listOfExerciseId = listOfAllExercise.map { it.id }
+            listOfWoPlan.forEach { woPlan ->
+                // create wo plan exercise
+                repeat(5) {
+                    workoutPlanExerciseDao.insertWorkoutPlanExercise(
+                        exerciseId = listOfExerciseId.random(),
+                        workoutPlanId = woPlan.id,
+                        reps = 12L,
+                        weight = listOf(6L, 12L, 14L).random(),
+                        setNumberOrder = it+1L,
+                        finishedDateTime = 0L
+                    )
+                }
+            }
+
+            delay(2000)
+
+            // create exercise log
+            listOfWoPlan.forEach { workoutPlan ->
+                val listOfWorkoutPlanExercise = workoutPlanExerciseDao.getAllWorkoutPlanExercise(
+                    workoutPlanId = workoutPlan.id
+                )
+                val woExerciseIdList = listOfWorkoutPlanExercise.map { it.exerciseId }
+                val woExerciseWeightList = listOfWorkoutPlanExercise.map { it.weight }
+                // log exercise
+                dateList.forEach { dateTimeStamp ->
+                    listOfWorkoutPlanExercise.forEach { woExercise ->
+                        exerciseLogDao.insertExerciseLog(
+                            exerciseId = woExercise.exerciseId,
+                            workoutPlanId = woExercise.workoutPlanId,
+                            reps = listOf(6L,12L).random(),
+                            weight = woExercise.weight.toLong(),
+                            difficulty = 0L,
+                            measurement = "kg",
+                            setNumberOrder = 0L,
+                            finishedDateTime = dateTimeStamp,
+                            logNotes = "Note $dateTimeStamp",
+                            latitude = 0.0,
+                            longitude = 0.0
+
+                        )
+                    }
+
+                }
+
+            }
+        }
     }
 }
