@@ -127,7 +127,7 @@ fun TimerDisplay(
     }
 
     Box(
-        modifier = modifier.then(Modifier.fillMaxSize().background(breakTimeBackground)),
+        modifier = modifier.then(Modifier.fillMaxSize().background(Color.Black.copy(alpha = .75F))),
         contentAlignment = Alignment.Center
     ) {
 
