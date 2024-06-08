@@ -133,12 +133,7 @@ fun viewModels() = module {
 
     singleOf(::NavigationViewModel)
 
-    single {
-        HomeScreenViewModel(
-            repository = get(),
-            resetAllYesterdayActivitiesUseCase = get()
-        )
-    }
+    singleOf(::HomeScreenViewModel)
 
     single {
         InputExerciseScreenViewModel(inputWorkoutPlanExerciseSetListUseCase = get())

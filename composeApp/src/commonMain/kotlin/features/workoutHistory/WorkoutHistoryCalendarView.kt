@@ -40,7 +40,7 @@ import kotlinx.datetime.todayIn
 @Composable
 private fun EmojiCalendarCell(
     cellText: String,
-    signal: Boolean = false,
+    isToday: Boolean = false,
     enabled: Boolean = true,
     isFuture: Boolean = false,
     onClick: () -> Unit,
@@ -64,7 +64,7 @@ private fun EmojiCalendarCell(
                 .clickable(enabled = enabled) { onClick() }
                 .fillMaxSize()
         ) {
-            if (signal) {
+            if (isToday) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -131,17 +131,22 @@ private fun EmojiCalendarGrid(
 
         monthCalendarData.dailyDataList.forEach {
             val containData = it.exerciseActivityCount >= 1
+            val isToday = it.day.dayOfYear == dayOfYearOfToday
+            val dotColor = if (isToday) Color.Red else MaterialTheme.colorScheme.primary
             EmojiCalendarCell(
                 cellText = it.day.dayOfMonth.toString(),
-                signal = it.day.dayOfYear == dayOfYearOfToday,
+                isToday = isToday,
                 enabled = containData,
                 isFuture = it.isFutureDate,
                 onClick = { onClick(it) },
                 cellExtraContent = {
                     if (containData) {
                         Box(
-                            Modifier.padding(bottom = 6.dp).background(Color.Red, CircleShape)
-                                .size(6.dp).align(Alignment.BottomCenter)
+                            Modifier
+                                .padding(bottom = 6.dp)
+                                .background(dotColor, CircleShape)
+                                .size(6.dp)
+                                .align(Alignment.BottomCenter)
                         )
                     }
                 }
