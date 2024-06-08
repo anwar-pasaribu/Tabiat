@@ -63,12 +63,11 @@ class GymRepositoryImpl(
         workoutName: String,
         notes: String
     ): Boolean {
-//        workoutPlanDao.updateWorkoutPlan(
-//            workoutPlanId = workoutPlanId,
-//            name = workoutName,
-//            description = notes
-//        )
-        generateDummyData()
+        workoutPlanDao.updateWorkoutPlan(
+            workoutPlanId = workoutPlanId,
+            name = workoutName,
+            description = notes
+        )
         return true
     }
 
