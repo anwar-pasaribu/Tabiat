@@ -22,6 +22,11 @@ UPDATE WorkoutPlanExerciseEntity
 SET finishedDateTime = :finishedDateTime, reps = :reps, weight = :weight
 WHERE id = :id;
 
+updateWorkoutPlanExerciseDetail:
+UPDATE WorkoutPlanExerciseEntity
+SET reps = :reps, weight = :weight
+WHERE id = :id;
+
 selectLatestWorkoutPlanExercise:
 SELECT * FROM WorkoutPlanExerciseEntity ORDER BY setNumberOrder DESC LIMIT 1;
 

@@ -16,12 +16,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.dp
 
@@ -39,6 +41,16 @@ fun ExerciseSetItemView(
     onSetItemLongClick: () -> Unit = {},
 ) {
 
+    val rowBackgroundColor = if (finished) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        Color.Transparent
+    }
+    val setNumberCircleBackground = if (finished) {
+        MaterialTheme.colorScheme.surfaceContainerHighest
+    } else {
+        MaterialTheme.colorScheme.onPrimary
+    }
     Row(modifier = modifier.then(
         Modifier
             .combinedClickable(
@@ -50,6 +62,7 @@ fun ExerciseSetItemView(
                     onSetItemLongClick()
                 }
             )
+            .background(rowBackgroundColor)
             .padding(horizontal = 16.dp, vertical = 10.dp)
             .fillMaxWidth()
     )) {
@@ -57,21 +70,23 @@ fun ExerciseSetItemView(
         Box(
             modifier = Modifier
                 .background(
-                    MaterialTheme.colorScheme.surfaceContainerHighest,
+                    setNumberCircleBackground,
                     CircleShape
                 )
                 .size(40.dp)
                 .border(1.dp, MaterialTheme.colorScheme.onPrimaryContainer, CircleShape),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = "$setNumber")
+            Text(text = "$setNumber", style = MaterialTheme.typography.titleMedium)
         }
 
         Spacer(modifier = Modifier.width(16.dp))
         Text(
             modifier = Modifier.align(Alignment.CenterVertically),
             text = "$setCount ✕ $setWeight kg",
-            style = MaterialTheme.typography.titleLarge
+            style = MaterialTheme.typography.titleLarge.copy(
+                color = if (finished) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary
+            )
         )
 
         Box (
@@ -91,7 +106,8 @@ fun ExerciseSetItemView(
                     painter = rememberVectorPainter(
                         image = icon
                     ),
-                    contentDescription = ""
+                    contentDescription = "",
+                    tint = if (finished) MaterialTheme.colorScheme.onPrimary else IconButtonDefaults.iconButtonColors().contentColor
                 )
             } else {
                 stateIcon()

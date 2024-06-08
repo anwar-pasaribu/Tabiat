@@ -78,6 +78,7 @@ fun HomeScreen(
 
     val viewModel = koinInject<HomeScreenViewModel>()
     val homeScreenUiState by viewModel.workoutListStateFlow.collectAsState()
+    val homeWeeklyData by viewModel.weeklyDataListStateFlow.collectAsState()
 
     var selectedDateTimeStamp by remember { mutableStateOf(0L) }
     var dailyExerciseLogVisible by remember { mutableStateOf(false) }
@@ -141,12 +142,14 @@ fun HomeScreen(
                     }
                 )
 
-                WeekView(modifier = Modifier.padding(start = 8.dp, end = 8.dp),
+                WeekView(
+                    modifier = Modifier.padding(start = 8.dp, end = 8.dp),
+                    listWeeklyUiData = homeWeeklyData,
                     onMonthNameClick = {
                         openHistoryScreen()
                     },
                     onWeekDayClick = {
-                        selectedDateTimeStamp = it
+                        selectedDateTimeStamp = viewModel.getAllDayTimeStamp(it)
                         dailyExerciseLogVisible = true
                     }
                 )

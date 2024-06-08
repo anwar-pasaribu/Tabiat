@@ -42,12 +42,16 @@ fun DeleteIconButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
 fun BackButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    showBackground: Boolean = false,
     onClick: () -> Unit
 ) {
     IconButton(
         modifier = modifier,
         enabled = enabled,
         onClick = { onClick() },
+        colors = IconButtonDefaults.filledIconButtonColors(
+            containerColor = if (showBackground) MaterialTheme.colorScheme.background else Color.Transparent
+        ),
         content = {
             Icon(
                 painter = rememberVectorPainter(

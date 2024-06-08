@@ -53,6 +53,12 @@ interface IGymRepository {
         weight: Int
     ): Boolean
 
+    suspend fun updateWorkoutExerciseRepsAndWeight(
+        workoutPlanExerciseId: Long,
+        reps: Int,
+        weight: Int
+    ): Boolean
+
     suspend fun getExerciseLogListByDateTimeStamp(dateTimeStamp: Long): List<ExerciseLog>
 
     fun getGymPreferences(): Flow<GymPreferences>

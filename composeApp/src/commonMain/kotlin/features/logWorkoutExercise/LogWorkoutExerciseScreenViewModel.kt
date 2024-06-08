@@ -9,6 +9,7 @@ import domain.usecase.GetExerciseSetListUseCase
 import domain.usecase.GetGymPreferencesUseCase
 import domain.usecase.LogExerciseUseCase
 import domain.usecase.SaveRunningTimerPreferencesUseCase
+import domain.usecase.UpdateWorkoutExerciseRepsAndWeightUseCase
 import features.logWorkoutExercise.model.ExerciseSetToday
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,6 +27,7 @@ class LogWorkoutExerciseScreenViewModel(
     private val deleteWorkoutPlanExerciseSetUseCase: DeleteWorkoutPlanExerciseSetUseCase,
     private val getGymPreferencesUseCase: GetGymPreferencesUseCase,
     private val saveRunningTimerPreferencesUseCase: SaveRunningTimerPreferencesUseCase,
+    private val updateWorkoutExerciseRepsAndWeightUseCase: UpdateWorkoutExerciseRepsAndWeightUseCase,
 ): ViewModel() {
 
     val gymPreferences: StateFlow<GymPreferences> = getGymPreferencesUseCase().stateIn(
@@ -44,9 +46,14 @@ class LogWorkoutExerciseScreenViewModel(
     private val _exerciseName = MutableStateFlow("")
     val exerciseName: StateFlow<String> = _exerciseName.asStateFlow()
 
+    private val _exercisePics = MutableStateFlow(emptyList<String>())
+    val exercisePics: StateFlow<List<String>> = _exercisePics.asStateFlow()
+
     fun getExerciseDetail(exerciseId: Long) {
         viewModelScope.launch {
-            _exerciseName.value = getExerciseByIdUseCase(exerciseId).name
+            val exercise = getExerciseByIdUseCase.invoke(exerciseId)
+            _exerciseName.value = exercise.name
+            _exercisePics.value = exercise.imageList
         }
     }
 
@@ -72,10 +79,15 @@ class LogWorkoutExerciseScreenViewModel(
         weight: Int
     ) {
         viewModelScope.launch {
-            logExerciseUseCase(
+            logExerciseUseCase.invoke(
                 workoutPlanExerciseId = selectedWorkoutPlanExerciseId,
                 workoutPlanId = workoutPlanId,
                 exerciseId = exerciseId,
+                reps = reps,
+                weight = weight
+            )
+            updateWorkoutExerciseRepsAndWeightUseCase.invoke(
+                workoutPlanExerciseId = selectedWorkoutPlanExerciseId,
                 reps = reps,
                 weight = weight
             )
