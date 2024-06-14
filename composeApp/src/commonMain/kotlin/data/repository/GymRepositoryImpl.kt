@@ -461,7 +461,10 @@ class GymRepositoryImpl(
         return dateTime.toInstant(tz).toEpochMilliseconds()
     }
 
-    private suspend fun generateDummyData() = coroutineScope {
+    /**
+     * For debug purposes only to generate dummy gym data
+     */
+    override suspend fun generateDummyData() = coroutineScope {
         val tz = TimeZone.currentSystemDefault()
         val today = Clock.System.now().toLocalDateTime(tz)
         val todayDate = today.date
@@ -490,6 +493,7 @@ class GymRepositoryImpl(
 
             val listOfWoPlan = workoutPlanDao.getAllWorkoutPlan()
             val listOfAllExercise = exerciseDao.getAllExercises()
+            if (listOfAllExercise.isEmpty()) return@withContext
             val listOfExerciseId = listOfAllExercise.map { it.id }
             listOfWoPlan.forEach { woPlan ->
                 // create wo plan exercise

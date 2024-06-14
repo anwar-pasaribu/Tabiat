@@ -73,4 +73,6 @@ interface IGymRepository {
     suspend fun saveTimerSoundType(soundTypeCode: Int)
 
     suspend fun deleteAllExerciseData()
+
+    suspend fun generateDummyData()
 }
