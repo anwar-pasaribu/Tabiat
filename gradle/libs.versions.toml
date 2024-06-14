@@ -27,7 +27,6 @@ koinCompose = "1.2.0-alpha3"
 haze = "0.7.1"
 sqlDelight = "2.0.2"
 ktor = "2.3.11"
-atomicfu = "0.24.0"
 spotless = "6.25.0"
 
 [libraries]
