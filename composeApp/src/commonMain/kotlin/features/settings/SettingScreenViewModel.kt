@@ -73,9 +73,9 @@ class SettingScreenViewModel(
         }
     }
 
-    fun resetExerciseData() {
+    fun createDummyData() {
         viewModelScope.launch {
-            repository.deleteAllExerciseData()
+            repository.generateDummyData()
         }
     }
 

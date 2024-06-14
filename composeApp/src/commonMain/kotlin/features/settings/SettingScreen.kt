@@ -2,7 +2,10 @@ package features.settings
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -66,13 +69,14 @@ fun SettingBottomSheetDialog(
             onTimerSoundChangeClick = {
                 viewModel.saveSoundEffectSelection(it)
             },
-            onResetAllExerciseData = {
-                viewModel.resetExerciseData()
+            onCreateDummyData = {
+                viewModel.createDummyData()
             }
         )
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SettingPage(
     modifier: Modifier = Modifier,
@@ -81,7 +85,7 @@ fun SettingPage(
     onPerSetTimerClick: (duration: Int) -> Unit = {},
     onPerBreakTimeClick: (duration: Int) -> Unit = {},
     onTimerSoundChangeClick: (soundEffectType: SoundEffectType) -> Unit = {},
-    onResetAllExerciseData: () -> Unit = {},
+    onCreateDummyData: () -> Unit = {},
 ) {
     val selectedSetTimer = remember { mutableStateOf(0) }
     val selectedBreakTime = remember { mutableStateOf(0) }
@@ -98,6 +102,15 @@ fun SettingPage(
     ) {
         Text(
             modifier = Modifier
+                .combinedClickable(
+                    enabled = true,
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = {},
+                    onDoubleClick = {
+                        onCreateDummyData()
+                    }
+                )
                 .fillMaxWidth()
                 .padding(horizontal = 8.dp),
             text = "Settings",
