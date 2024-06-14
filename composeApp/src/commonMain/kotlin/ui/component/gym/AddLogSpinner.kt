@@ -135,7 +135,7 @@ fun AddExerciseSet(
                 ) {
                     Text(
                         text = "Repetisi",
-                        style = MaterialTheme.typography.labelMedium.copy(
+                        style = MaterialTheme.typography.bodyMedium.copy(
                             textAlign = TextAlign.Center
                         )
                     )
@@ -163,7 +163,7 @@ fun AddExerciseSet(
                     ) {
                         Text(
                             text = "Berat (kg)",
-                            style = MaterialTheme.typography.labelMedium.copy(
+                            style = MaterialTheme.typography.bodyMedium.copy(
                                 textAlign = TextAlign.Center
                             )
                         )
