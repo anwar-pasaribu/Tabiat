@@ -135,13 +135,9 @@ fun viewModels() = module {
 
     singleOf(::HomeScreenViewModel)
 
-    single {
-        InputExerciseScreenViewModel(inputWorkoutPlanExerciseSetListUseCase = get())
-    }
+    factoryOf(::InputExerciseScreenViewModel)
 
-    single {
-        InputWorkoutScreenViewModel(repository = get())
-    }
+    factoryOf(::InputWorkoutScreenViewModel)
 
     factoryOf(::WorkoutHistoryScreenViewModel)
 
