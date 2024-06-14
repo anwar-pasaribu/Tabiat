@@ -92,7 +92,7 @@ fun AddExerciseSet(
     onWeightChange: (Int) -> Unit = {},
     addExerciseSetDone: (reps: Int, weight: Int) -> Unit = { _: Int, _: Int -> }
 ) {
-    val repsOptionList = (1..30).toList()
+    val repsOptionList = (1..60).toList()
     var selectedReps by remember {
         mutableStateOf(0)
     }
