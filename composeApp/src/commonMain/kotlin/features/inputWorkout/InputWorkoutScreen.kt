@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -44,15 +43,12 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.hazeChild
-import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
-import dev.chrisbanes.haze.materials.HazeMaterials
 import org.koin.compose.koinInject
 import ui.component.BackButton
+import ui.component.MyPrimaryButton
 
 @OptIn(
-    ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class
+    ExperimentalMaterial3Api::class
 )
 @Composable
 fun InputWorkoutScreen(
@@ -62,8 +58,6 @@ fun InputWorkoutScreen(
 ) {
 
     val editMode = workoutPlanId > 0
-    val hazeState = remember { HazeState() }
-
     val viewModel = koinInject<InputWorkoutScreenViewModel>()
 
     if (editMode) {
@@ -73,10 +67,7 @@ fun InputWorkoutScreen(
     Scaffold(
         topBar = {
             Column(
-                modifier = Modifier.fillMaxWidth().hazeChild(
-                    state = hazeState,
-                    style = HazeMaterials.regular(MaterialTheme.colorScheme.background)
-                ).background(Color.Transparent)
+                modifier = Modifier.fillMaxWidth().background(Color.Transparent)
             ) {
                 CenterAlignedTopAppBar(
                     modifier = Modifier.fillMaxWidth(),
@@ -178,9 +169,15 @@ fun InputWorkoutScreen(
 
                 Spacer(Modifier.height(32.dp))
 
-                Button(
-                    modifier = Modifier.width(200.dp).align(Alignment.CenterHorizontally),
+                MyPrimaryButton(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).align(Alignment.CenterHorizontally),
                     enabled = workoutName.isNotEmpty(),
+                    textContent = {
+                        if (editMode)
+                            Text(text = "Ubah Workout")
+                        else
+                            Text(text = "Buat Workout")
+                    },
                     onClick = {
                         if (editMode) {
                             viewModel.saveWorkout(
@@ -193,12 +190,7 @@ fun InputWorkoutScreen(
                         }
                         onWorkoutSaved()
                     }
-                ) {
-                    if (editMode)
-                        Text(text = "Ubah Workout")
-                    else
-                        Text(text = "Buat Workout")
-                }
+                )
 
                 Spacer(Modifier.height(16.dp))
             }
