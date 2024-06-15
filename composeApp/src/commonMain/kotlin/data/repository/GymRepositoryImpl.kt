@@ -23,6 +23,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
@@ -138,18 +139,18 @@ class GymRepositoryImpl(
             .getAllWorkoutPlanObservable().map { workoutPlanList ->
                 workoutPlanList.map { workoutPlan ->
                     val woExerciseProgressList =
-                    workoutPlanExerciseDao.getAllWorkoutPlanExercise(
-                        workoutPlanId = workoutPlan.id
-                    ).map { workoutPlanExercise ->
-                        getExerciseProgress(
-                            workoutPlanId = workoutPlanExercise.workoutPlanId,
-                            exerciseId = workoutPlanExercise.exerciseId
-                        )
-                    }
+                        workoutPlanExerciseDao.getAllWorkoutPlanExercise(
+                            workoutPlanId = workoutPlan.id
+                        ).map { workoutPlanExercise ->
+                            getExerciseProgress(
+                                workoutPlanId = workoutPlanExercise.workoutPlanId,
+                                exerciseId = workoutPlanExercise.exerciseId
+                            )
+                        }
                     val total = woExerciseProgressList.sumOf { it.sessionTotal }
                     val progress = woExerciseProgressList.sumOf { it.sessionDoneCount }
                     val latestExerciseLog = exerciseLogDao.getLatestExerciseLog(
-                            workoutPlanId = workoutPlan.id
+                        workoutPlanId = workoutPlan.id
                     )
                     val lastExercise = latestExerciseLog?.let {
                         exerciseDao.getExerciseById(it.exerciseId)
@@ -343,7 +344,7 @@ class GymRepositoryImpl(
         while (timer >= 0) {
             preferencesDataSource.saveRunningTimerDuration(timer)
             delay(1000)
-            timer = timer-1
+            timer = timer - 1
         }
     }
 
@@ -402,37 +403,41 @@ class GymRepositoryImpl(
 
     private suspend fun loadRemoteExercises(): Boolean = coroutineScope {
         try {
-            val networkExercises = gymApi.loadExerciseList()
-            networkExercises.forEach { networkExercise ->
-                val difficultyLevel = when (networkExercise.level) {
-                    "beginner" -> DifficultyLevel.BEGINNER.level
-                    "intermediate" -> DifficultyLevel.INTERMEDIATE.level
-                    "expert" -> DifficultyLevel.EXPERT.level
-                    else -> {
-                        0L
-                    }
-                }
+            withContext(Dispatchers.IO) {
+                val networkExercises = gymApi.loadExerciseList()
+                networkExercises.forEach { networkExercise ->
 
-                val description = """
+                    launch {
+                        val difficultyLevel = when (networkExercise.level) {
+                            "beginner" -> DifficultyLevel.BEGINNER.level
+                            "intermediate" -> DifficultyLevel.INTERMEDIATE.level
+                            "expert" -> DifficultyLevel.EXPERT.level
+                            else -> {
+                                0L
+                            }
+                        }
+
+                        val description = """
                         Category: ${networkExercise.category}
                         Mechanics: ${networkExercise.mechanic}
                         Force: ${networkExercise.force}
                     """.trimIndent()
 
-
-                exerciseDao.insertExercise(
-                    name = networkExercise.name.orEmpty(),
-                    difficulty = difficultyLevel,
-                    equipment = networkExercise.equipment.orEmpty(),
-                    instructions = Json.encodeToString(networkExercise.instructions),
-                    video = "",
-                    image = Json.encodeToString(networkExercise.images),
-                    targetMuscle = Json.encodeToString(
-                        networkExercise.primaryMuscles.orEmpty() + networkExercise.secondaryMuscles.orEmpty()
-                    ),
-                    description = description,
-                    type = 0L
-                )
+                        exerciseDao.insertExercise(
+                            name = networkExercise.name.orEmpty(),
+                            difficulty = difficultyLevel,
+                            equipment = networkExercise.equipment.orEmpty(),
+                            instructions = Json.encodeToString(networkExercise.instructions),
+                            video = "",
+                            image = Json.encodeToString(networkExercise.images),
+                            targetMuscle = Json.encodeToString(
+                                networkExercise.primaryMuscles.orEmpty() + networkExercise.secondaryMuscles.orEmpty()
+                            ),
+                            description = description,
+                            type = 0L
+                        )
+                    }
+                }
             }
             return@coroutineScope true
         } catch (e: Exception) {
@@ -478,12 +483,36 @@ class GymRepositoryImpl(
             currentDate = currentDate.plus(1, DateTimeUnit.DAY)
         }
 
+        val dummyWoPlanName = listOf(
+            "Latihan Biceps Barbell",
+            "Latihan Triceps Kabel",
+            "Latihan Kaki Leg Press",
+            "Latihan Abs Crunches",
+            "Latihan Chest Barbell",
+            "Latihan Punggung Pull-Up",
+            "Latihan Bahu Dumbbell",
+            "Latihan Kardio Treadmill",
+            "Latihan Kaki Squat",
+            "Latihan Punggung Kabel"
+        )
+        val woPlanDescs = listOf(
+            "Angkat barbel untuk biceps.",
+            "Tarik kabel untuk triceps.",
+            "Tekan beban dengan kaki.",
+            "Kencangkan perut dengan crunches.",
+            "Angkat barbel untuk dada.",
+            "Tarik tubuh ke atas.",
+            "Dumbbell untuk otot bahu.",
+            "Lari di treadmill untuk kardio.",
+            "Squat untuk kaki dan glutes.",
+            "Latihan punggung dengan kabel."
+        )
         withContext(Dispatchers.IO) {
             // create workout plan
-            repeat(5) {
+            repeat(dummyWoPlanName.size - 1) {
                 workoutPlanDao.insertWorkoutPlan(
-                    name = "Wo Plan $it",
-                    description = "Wo desc $it",
+                    name = dummyWoPlanName[it],
+                    description = woPlanDescs[it],
                     datetimeStamp = 0L,
                     orderingNumber = it
                 )
@@ -498,14 +527,19 @@ class GymRepositoryImpl(
             listOfWoPlan.forEach { woPlan ->
                 // create wo plan exercise
                 repeat(5) {
-                    workoutPlanExerciseDao.insertWorkoutPlanExercise(
-                        exerciseId = listOfExerciseId.random(),
-                        workoutPlanId = woPlan.id,
-                        reps = 12L,
-                        weight = listOf(6L, 12L, 14L).random(),
-                        setNumberOrder = it+1L,
-                        finishedDateTime = 0L
-                    )
+                    // add 4 set for each exercise
+                    val exerciseId = listOfExerciseId.random()
+                    val weightInKg = listOf(6L, 12L, 14L).random()
+                    repeat(4) {
+                        workoutPlanExerciseDao.insertWorkoutPlanExercise(
+                            exerciseId = exerciseId,
+                            workoutPlanId = woPlan.id,
+                            reps = 12L,
+                            weight = weightInKg,
+                            setNumberOrder = it + 1L,
+                            finishedDateTime = 0L
+                        )
+                    }
                 }
             }
 
@@ -516,15 +550,13 @@ class GymRepositoryImpl(
                 val listOfWorkoutPlanExercise = workoutPlanExerciseDao.getAllWorkoutPlanExercise(
                     workoutPlanId = workoutPlan.id
                 )
-                val woExerciseIdList = listOfWorkoutPlanExercise.map { it.exerciseId }
-                val woExerciseWeightList = listOfWorkoutPlanExercise.map { it.weight }
                 // log exercise
                 dateList.forEach { dateTimeStamp ->
                     listOfWorkoutPlanExercise.forEach { woExercise ->
                         exerciseLogDao.insertExerciseLog(
                             exerciseId = woExercise.exerciseId,
                             workoutPlanId = woExercise.workoutPlanId,
-                            reps = listOf(6L,12L).random(),
+                            reps = listOf(6L, 12L).random(),
                             weight = woExercise.weight.toLong(),
                             difficulty = 0L,
                             measurement = "kg",
