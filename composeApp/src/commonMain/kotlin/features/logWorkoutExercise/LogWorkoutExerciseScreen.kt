@@ -369,7 +369,7 @@ fun LogWorkoutExerciseScreen(
                     modifier = Modifier
                         .dummyClickable()
                         .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.onBackground.copy(alpha = .75F)),
+                        .background(MaterialTheme.colorScheme.inverseSurface.copy(alpha = .85F)),
                     contentAlignment = Alignment.Center
                 ) {
 
