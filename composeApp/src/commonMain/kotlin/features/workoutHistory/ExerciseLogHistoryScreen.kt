@@ -1,7 +1,11 @@
 package features.workoutHistory
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,14 +13,17 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -67,13 +74,18 @@ fun ExerciseLogListBottomSheet(
             modifier = Modifier.align(Alignment.Start).padding(start = 8.dp)
         )
 
-        Text(
-            text = targetDateTimeStamp.epochTimestampToLongDateFormat(),
-            modifier = Modifier.align(Alignment.Start).padding(start = 8.dp)
+        LogHistoryDetailView(
+            itemList.size,
+            targetDateTimeStamp
         )
 
+        val darkMode = isSystemInDarkTheme()
+        DisposableEffect(darkMode) {
+            onDispose {  }
+        }
         if (itemList.isNotEmpty()) {
-            ExerciseHistoryDailyPieChart(itemList)
+            Spacer(Modifier.height(8.dp))
+            ExerciseHistoryDailyPieChart(itemList, isSystemInDarkTheme())
         }
 
         LazyColumn(
@@ -137,7 +149,43 @@ fun ExerciseLogListBottomSheet(
     }
 }
 
-private val rainbowColors = listOf(
+@Composable
+private fun ColumnScope.LogHistoryDetailView(size: Int, targetDateTimeStamp: Long) {
+    Row(
+        modifier = Modifier.align(Alignment.Start).padding(start = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        if (size != 0) {
+            Text(
+                text = "$size Latihan",
+            )
+        } else {
+            Text(
+                text = "Tidak ada latihan",
+                style = MaterialTheme.typography.labelMedium
+            )
+        }
+        Box(
+            Modifier.size(4.dp).background(MaterialTheme.colorScheme.onBackground, CircleShape)
+        )
+        Text(
+            text = targetDateTimeStamp.epochTimestampToLongDateFormat(),
+        )
+    }
+}
+
+private val darkRainbowColors = listOf(
+    Color(0xFFB22222), // Dark Red
+    Color(0xFFD2691E), // Dark Orange
+    Color(0xFFB8860B), // Dark Goldenrod
+    Color(0xFF006400), // Dark Green
+    Color(0xFF008B8B), // Dark Cyan
+    Color(0xFF00008B), // Dark Blue
+    Color(0xFF8B008B)  // Dark Magenta
+)
+
+private val lightRainbowColors = listOf(
     Color(0xFFB71C1C), // Deep Red
     Color(0xFFF57C00), // Deep Orange
     Color(0xFFFBC02D), // Mustard Yellow
@@ -148,9 +196,9 @@ private val rainbowColors = listOf(
 )
 
 @Composable
-fun ExerciseHistoryDailyPieChart(itemList: List<ExerciseHistoryUiItem>) {
+fun ExerciseHistoryDailyPieChart(itemList: List<ExerciseHistoryUiItem>, darkMode: Boolean) {
 
-    val combinedTargetMuscle = itemList.flatMap { it.exerciseTargetMuscle.take(1) }
+    val combinedTargetMuscle = itemList.flatMap { it.exerciseTargetMuscle }
     val muscleGroupCount = combinedTargetMuscle.groupingBy { it }.eachCount()
     val pieChartListData = mutableListOf<PieChartData>()
 
@@ -158,14 +206,19 @@ fun ExerciseHistoryDailyPieChart(itemList: List<ExerciseHistoryUiItem>) {
     val sortedMuscleGroups = muscleGroupCount.entries.sortedByDescending { it.value }
     val topMuscleGroups = sortedMuscleGroups.take(6)
     val otherMuscleGroups = sortedMuscleGroups.drop(6)
-
     val otherMuscleGroupCount = otherMuscleGroups.sumOf { it.value }
 
     val dataSize = topMuscleGroups.size + if (otherMuscleGroupCount > 0) 1 else 0
+
+    val color = if (darkMode) {
+        darkRainbowColors
+    } else {
+        lightRainbowColors
+    }
     val colors = remember(dataSize) {
         derivedStateOf {
             (0 until dataSize).map {
-                rainbowColors[it % rainbowColors.size]
+                color[it % color.size]
             }
         }
     }
