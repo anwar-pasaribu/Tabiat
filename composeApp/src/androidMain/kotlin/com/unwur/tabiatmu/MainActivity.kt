@@ -2,6 +2,7 @@ package com.unwur.tabiatmu
 
 import App
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -32,6 +33,7 @@ class MainActivity : ComponentActivity() {
                         darkScrim,
                     ) { darkTheme },
                 )
+                window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                 onDispose {}
             }
             App(shouldDarkTheme = darkTheme)

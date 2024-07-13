@@ -20,14 +20,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -46,6 +44,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import domain.model.gym.ExerciseSet
 import features.exerciseList.ExerciseListBottomSheet
+import ui.component.MyPrimaryButton
 
 @Composable
 fun InputWorkoutPlanExerciseView(
@@ -204,17 +203,18 @@ fun InputWorkoutPlanExerciseView(
 
             Spacer(Modifier.height(32.dp))
 
-            Button(
+            MyPrimaryButton(
                 modifier = Modifier
-                    .width(200.dp)
-                    .align(Alignment.CenterHorizontally),
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
                 enabled = exerciseSetList.isNotEmpty() && selectedExerciseId != 0L,
+                textContent = {
+                    Text(text = "Simpan Latihan")
+                },
                 onClick = {
                     onSave(selectedExerciseId, exerciseSetList)
                 }
-            ) {
-                Text(text = "Simpan Latihan")
-            }
+            )
 
             Spacer(Modifier.height(16.dp))
         }

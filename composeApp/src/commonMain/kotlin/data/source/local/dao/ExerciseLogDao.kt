@@ -1,8 +1,13 @@
 package data.source.local.dao
 
+import app.cash.sqldelight.coroutines.asFlow
+import app.cash.sqldelight.coroutines.mapToList
 import com.unwur.tabiatmu.database.ExerciseLogEntity
 import com.unwur.tabiatmu.database.TabiatDatabase
 import domain.model.gym.ExerciseLog
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class ExerciseLogDao(
     private val database: TabiatDatabase
@@ -30,6 +35,19 @@ class ExerciseLogDao(
             .selectExerciseLogByDateTimeStampRange(startDateTime, endDateTime)
             .executeAsList()
             .map { it.toDomain() }
+    }
+
+    override suspend fun getExerciseLogByExerciseId(exerciseId: Long): Flow<List<ExerciseLog>> {
+        return database
+            .exerciseLogQueries
+            .selectAllExerciseLogById(exerciseId = exerciseId)
+            .asFlow()
+            .mapToList(Dispatchers.Default)
+            .map {
+                logs -> logs.map {
+                    it.toDomain()
+                }
+            }
     }
 
     override suspend fun insertExerciseLog(

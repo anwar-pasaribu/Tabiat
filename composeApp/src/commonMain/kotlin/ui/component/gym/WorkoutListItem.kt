@@ -9,10 +9,10 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -70,7 +70,7 @@ fun WorkoutPlanItemView(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(132.dp)
+                .heightIn(min = 132.dp)
         ) {
 
             Column(
@@ -217,14 +217,12 @@ fun LatestExercise(
     upperLabel: String,
     lowerLabel: String,
 ) {
-    val circleSize = 36.dp
-    val shape = remember {
-        RoundedCornerShape(
-            topStartPercent = 50,
-            bottomStartPercent = 50,
-            topEndPercent = 25,
-            bottomEndPercent = 25
-        )
+    val exerciseImageCLipSize = 36.dp
+    val outerShape = remember {
+        RoundedCornerShape(10.dp)
+    }
+    val innerShape = remember {
+        RoundedCornerShape(8.dp)
     }
 
     Row(
@@ -232,18 +230,19 @@ fun LatestExercise(
             Modifier
                 .background(
                     color = MaterialTheme.colorScheme.onPrimary.copy(alpha = .15F),
-                    shape = shape
+                    shape = outerShape
                 )
-                .padding(end = 8.dp, top = 2.dp, bottom = 2.dp)
+                .heightIn(min = 40.dp)
+                .padding(end = 8.dp)
         ),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Spacer(modifier = Modifier.width(2.dp))
-        Card(Modifier.size(circleSize), shape = CircleShape) {
+        Card(Modifier.size(exerciseImageCLipSize), shape = innerShape) {
             ImageWrapper(
                 modifier = Modifier
-                    .clip(CircleShape)
-                    .size(circleSize),
+                    .clip(innerShape)
+                    .size(exerciseImageCLipSize),
                 contentDescription = "",
                 imageUrl = exerciseImageUrl,
             )

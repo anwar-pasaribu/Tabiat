@@ -5,6 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -16,8 +17,6 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.dp
 import domain.enums.PlatformType
 import getPlatform
-import org.jetbrains.compose.ui.tooling.preview.Preview
-import ui.theme.MyAppTheme
 
 @Composable
 fun DeleteIconButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
@@ -65,10 +64,21 @@ fun BackButton(
     )
 }
 
-@Preview
 @Composable
-fun PrevMyBackButton() {
-    MyAppTheme {
-        BackButton {  }
+fun MyPrimaryButton(
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    textContent: @Composable () -> Unit,
+    onClick: () -> Unit
+) {
+    Button(
+        modifier = modifier,
+        enabled = enabled,
+        shape = MaterialTheme.shapes.small,
+        onClick = {
+            onClick()
+        }
+    ) {
+        textContent()
     }
 }

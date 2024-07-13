@@ -1,6 +1,7 @@
 package data.source.local.dao
 
 import domain.model.gym.ExerciseLog
+import kotlinx.coroutines.flow.Flow
 
 interface IExerciseLogDao {
 
@@ -14,6 +15,10 @@ interface IExerciseLogDao {
         startDateTime: Long,
         endDateTime: Long,
     ): List<ExerciseLog>
+
+    suspend fun getExerciseLogByExerciseId(
+        exerciseId: Long,
+    ): Flow<List<ExerciseLog>>
 
     suspend fun insertExerciseLog(
         exerciseId: Long,

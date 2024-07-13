@@ -13,8 +13,8 @@ androidx-lifecycle = "2.8.0"
 androidx-navigation = "2.7.0-alpha07"
 androidxCoreSplashscreen = "1.0.1"
 coilCompose = "3.0.0-alpha06"
-compose = "1.6.7"
-compose-multiplatform = "1.6.10"
+compose = "1.6.8"
+compose-multiplatform = "1.6.11"
 composeCompiler = "1.5.8"
 datastorePreferencesCore = "1.1.1"
 junit = "4.13.2"
@@ -27,7 +27,6 @@ koinCompose = "1.2.0-alpha3"
 haze = "0.7.1"
 sqlDelight = "2.0.2"
 ktor = "2.3.11"
-atomicfu = "0.24.0"
 spotless = "6.25.0"
 
 [libraries]
@@ -46,6 +45,7 @@ androidx-activity-compose = { module = "androidx.activity:activity-compose", ver
 androidx-lifecycle-runtime-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-viewmodel-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "androidx-lifecycle" }
 androidx-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "androidx-navigation" }
+androidx-ui-tooling-preview-desktop = { group = "androidx.compose.ui", name = "ui-tooling-preview-desktop", version.ref = "compose" }
 
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }

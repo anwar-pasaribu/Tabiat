@@ -18,6 +18,7 @@ import domain.usecase.GetExerciseByIdUseCase
 import domain.usecase.GetExerciseListByWorkoutPlanUseCase
 import domain.usecase.GetExerciseListUseCase
 import domain.usecase.GetExerciseLogListByDateTimeStampUseCase
+import domain.usecase.GetExerciseLogListByExerciseIdUseCase
 import domain.usecase.GetExerciseSetListUseCase
 import domain.usecase.GetGymPreferencesUseCase
 import domain.usecase.GetListExerciseCategoryUseCase
@@ -105,6 +106,7 @@ fun appModule() = module {
     single {
         GetExerciseLogListByDateTimeStampUseCase(repository = get())
     }
+    singleOf(::GetExerciseLogListByExerciseIdUseCase)
 
     single {
         SearchExerciseUseCase(repository = get())
@@ -135,13 +137,9 @@ fun viewModels() = module {
 
     singleOf(::HomeScreenViewModel)
 
-    single {
-        InputExerciseScreenViewModel(inputWorkoutPlanExerciseSetListUseCase = get())
-    }
+    factoryOf(::InputExerciseScreenViewModel)
 
-    single {
-        InputWorkoutScreenViewModel(repository = get())
-    }
+    factoryOf(::InputWorkoutScreenViewModel)
 
     factoryOf(::WorkoutHistoryScreenViewModel)
 

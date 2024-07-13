@@ -8,6 +8,7 @@ import domain.usecase.FilterExerciseByTargetMuscleCategoryUseCase
 import domain.usecase.GetExerciseListUseCase
 import domain.usecase.GetListExerciseCategoryUseCase
 import domain.usecase.SearchExerciseUseCase
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -50,6 +51,7 @@ class ExerciseListScreenViewModel(
             ExerciseListUiState.Loading
         }
         viewModelScope.launch {
+            delay(300)
             getExerciseListUseCase.invoke()
                 .catch {
                     _uiState.update {

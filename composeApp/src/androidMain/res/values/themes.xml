@@ -23,5 +23,6 @@
         <item name="windowSplashScreenAnimatedIcon">@drawable/avd_blink_eye</item>
         <item name="postSplashScreenTheme">@style/Theme.MyAppTheme</item>
         <item name="windowSplashScreenAnimationDuration">600</item>
+        <item name="android:windowBackground">@color/etongPrimary</item>
     </style>
 </resources>

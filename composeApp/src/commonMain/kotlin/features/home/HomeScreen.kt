@@ -22,7 +22,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.outlined.Menu
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -123,7 +123,7 @@ fun HomeScreen(
                     navigationIcon = {
                         IconButton(onClick = { settingScreenVisible = true }) {
                             Icon(
-                                imageVector = Icons.Outlined.Menu,
+                                imageVector = Icons.Outlined.Settings,
                                 contentDescription = "Setting Menu"
                             )
                         }
@@ -281,7 +281,7 @@ fun HomeScreenList(
                 lastActivityInfo = {
                     if (item.lastActivityDetail.isNotEmpty()) {
                         LatestExercise(
-                            modifier = Modifier.padding(start = 8.dp, bottom = 8.dp),
+                            modifier = Modifier.padding(start = 10.dp, bottom = 10.dp),
                             exerciseImageUrl = item.exerciseImageUrl,
                             upperLabel = item.lastActivityDate,
                             lowerLabel = item.lastActivityDetail

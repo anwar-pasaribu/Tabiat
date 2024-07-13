@@ -49,7 +49,7 @@ private fun WorkoutListItemViewPreview() {
                 total = 10,
                 lastActivityInfo = {
                     LatestExercise(
-                        modifier = Modifier.padding(start = 8.dp, bottom = 8.dp),
+                        modifier = Modifier.padding(start = 10.dp, bottom = 10.dp),
                         exerciseImageUrl = "",
                         upperLabel = "Latihan terakhir 12 Juni 2024",
                         lowerLabel = "Barbell Bench Press (10 x 12kg)"
@@ -65,7 +65,7 @@ private fun WorkoutListItemViewPreview() {
 private fun LatestExercisePrev() {
     MyAppTheme {
         LatestExercise(
-            modifier = Modifier.padding(start = 8.dp, bottom = 8.dp),
+            modifier = Modifier.padding(start = 10.dp, bottom = 10.dp),
             exerciseImageUrl = "",
             upperLabel = "Push ups",
             lowerLabel = "10"
