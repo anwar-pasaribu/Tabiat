@@ -68,6 +68,8 @@ import ui.component.BackButton
 import ui.component.DeleteIconButton
 import ui.component.PagerIndicator
 import ui.component.gym.AddExerciseSet
+import ui.component.gym.ExerciseAxisData
+import ui.component.gym.ExerciseProgressLineChart
 import ui.component.gym.ExerciseSetItemView
 import ui.component.gym.ImagePager
 import ui.component.gym.TimerDisplay
@@ -108,7 +110,6 @@ fun LogWorkoutExerciseScreen(
     var logExerciseSpinnerVisible by remember { mutableStateOf(false) }
 
     val viewModel = koinInject<LogWorkoutExerciseScreenViewModel>()
-    val gymPreferences by viewModel.gymPreferences.collectAsState()
     var exerciseSetTimerDuration by remember { mutableStateOf(0) }
     var breakTimeDuration by remember { mutableStateOf(0) }
 
@@ -117,14 +118,24 @@ fun LogWorkoutExerciseScreen(
         label = "animateAlphaValue"
     )
 
+    val gymPreferences by viewModel.gymPreferences.collectAsState()
     val exerciseSetList by viewModel.exerciseSetList.collectAsState()
+    val exerciseLogs by viewModel.exerciseLogs.collectAsState()
     val exerciseName by viewModel.exerciseName.collectAsState()
     val exerciseImages by viewModel.exercisePics.collectAsState()
     val allExerciseFinished by viewModel.allExerciseSetFinished.collectAsState(false)
 
+    val chartXAxisData = remember { mutableStateOf(emptyList<Double>()) }
+    val chartYAxisData = remember { mutableStateOf(emptyList<Long>()) }
+
     LaunchedEffect(gymPreferences) {
         exerciseSetTimerDuration = gymPreferences.setTimerDuration
         breakTimeDuration = gymPreferences.breakTimeDuration
+    }
+
+    LaunchedEffect(exerciseLogs) {
+        chartXAxisData.value = exerciseLogs.map { it.weight }
+        chartYAxisData.value = exerciseLogs.map { it.dateTimestamp }
     }
 
     LaunchedEffect(workoutPlanId, exerciseId) {
@@ -201,10 +212,9 @@ fun LogWorkoutExerciseScreen(
         },
     ) { contentPadding ->
 
-        Box(
-            modifier = Modifier.fillMaxSize().haze(hazeState)
-        ) {
-            val imagePagerHeight = 320.dp
+        Box(modifier = Modifier.fillMaxSize().haze(hazeState)) {
+
+            val imagePagerHeight = 240.dp
             if (exerciseImages.isNotEmpty()) {
                 Box(modifier = Modifier.fillMaxWidth()) {
 
@@ -237,24 +247,21 @@ fun LogWorkoutExerciseScreen(
             } else {
                 imagePagerHeight + 8.dp
             }
+
             Column(
                 modifier = Modifier.padding(
                     start = contentPadding.calculateStartPadding(LayoutDirection.Ltr) + 16.dp,
                     top = contentTopPadding,
                     end = contentPadding.calculateEndPadding(LayoutDirection.Ltr) + 16.dp,
-                    bottom = contentPadding.calculateBottomPadding()
+                    bottom = contentPadding.calculateBottomPadding() + 166.dp
                 )
             ) {
                 Text(
                     text = exerciseName,
                     style = MaterialTheme.typography.headlineMedium
                 )
-                Card(
-                    modifier = Modifier.padding(vertical = 16.dp)
-                ) {
-                    LazyColumn(
-                        state = lazyListState,
-                    ) {
+                Card(modifier = Modifier.padding(vertical = 16.dp)) {
+                    LazyColumn(state = lazyListState) {
                         items(
                             items = exerciseSetList,
                             key = { it.workoutPlanExerciseId }
@@ -270,9 +277,14 @@ fun LogWorkoutExerciseScreen(
                                     onSetItemClick = {
                                         uiState = LogWorkoutExerciseUiState.LoggerView
                                         logExerciseSpinnerVisible = !logExerciseSpinnerVisible
-                                        selectedWorkoutPlanExerciseId = item.workoutPlanExerciseId
+                                        selectedWorkoutPlanExerciseId =
+                                            item.workoutPlanExerciseId
                                         selectedExerciseSet =
-                                            ExerciseSet(item.setOrder, item.repsCount, item.weight)
+                                            ExerciseSet(
+                                                item.setOrder,
+                                                item.repsCount,
+                                                item.weight
+                                            )
                                     },
                                     onSetItemLongClick = {
                                         editMode = true
@@ -306,8 +318,24 @@ fun LogWorkoutExerciseScreen(
                                 }
                             }
                         }
+
                     }
                 }
+            }
+
+            val axisData = ExerciseAxisData(
+                title = exerciseName,
+                xAxis = chartXAxisData.value,
+                yAxis = chartYAxisData.value
+            )
+
+            Box(modifier = Modifier.align(Alignment.BottomCenter)
+                .padding(bottom = contentPadding.calculateBottomPadding())
+            ) {
+                ExerciseProgressLineChart(
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    axisData
+                )
             }
 
             AnimatedContent(

@@ -257,6 +257,12 @@ class GymRepositoryImpl(
         )
     }
 
+    override suspend fun getExerciseLogListByExerciseId(exerciseId: Long): Flow<List<ExerciseLog>> {
+        return exerciseLogDao.getExerciseLogByExerciseId(
+            exerciseId = exerciseId
+        )
+    }
+
     override fun getGymPreferences(): Flow<GymPreferences> {
         return preferencesDataSource.getGymPreference()
     }

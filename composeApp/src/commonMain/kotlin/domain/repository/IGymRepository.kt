@@ -61,6 +61,8 @@ interface IGymRepository {
 
     suspend fun getExerciseLogListByDateTimeStamp(dateTimeStamp: Long): List<ExerciseLog>
 
+    suspend fun getExerciseLogListByExerciseId(exerciseId: Long): Flow<List<ExerciseLog>>
+
     fun getGymPreferences(): Flow<GymPreferences>
     suspend fun saveExerciseSetTimerDuration(timerDurationInSeconds: Int)
     suspend fun saveBreakTimeDuration(durationInSeconds: Int)
