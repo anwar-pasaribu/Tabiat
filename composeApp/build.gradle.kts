@@ -6,6 +6,8 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
+    id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.sqlDelight)
@@ -59,6 +61,14 @@ kotlin {
 
             implementation(libs.ktor.client.okhttp)
             implementation("org.slf4j:slf4j-simple:2.0.7")
+
+            // Import the BoM for the Firebase platform
+            implementation(project.dependencies.platform("com.google.firebase:firebase-bom:33.1.2"))
+
+            // Add the dependencies for the Crashlytics and Analytics libraries
+            // When using the BoM, you don't specify versions in Firebase library dependencies
+            implementation("com.google.firebase:firebase-crashlytics")
+            implementation("com.google.firebase:firebase-analytics")
         }
         iosMain.dependencies {
             implementation(libs.sqldelight.nativeDriver)
