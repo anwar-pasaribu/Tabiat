@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="fastlane.lanes">
+    
+    
+    
+      
+      <testcase classname="fastlane.lanes" name="0: default_platform" time="0.00022">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="1: git config --global user.email &apos;anwar_pasaribu@live.com&apos;" time="0.014905">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="2: git config --global user.name &apos;Anwar Pasaribu&apos;" time="0.011947">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="3: telegram" time="0.785196">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="4: android_set_version_code" time="0.002393">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="5: android_set_version_name" time="0.001546">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="6: git_commit" time="0.033568">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="7: push_to_git_remote" time="7.027636">
+        
+      </testcase>
+    
+  </testsuite>
+</testsuites>

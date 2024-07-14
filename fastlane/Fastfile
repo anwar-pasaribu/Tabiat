@@ -1,0 +1,149 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:android)
+
+platform :android do
+
+  before_all do |lane|
+    sh "git config --global user.email 'anwar_pasaribu@live.com'"
+    sh "git config --global user.name 'Anwar Pasaribu'"
+    # For pure Ruby, without ActiveSupport
+    # Adjusting UTC to GMT+7
+    gmt_plus_7 = Time.now.utc + (7*60*60)
+    current_datetime = gmt_plus_7.strftime("%d %b %Y, %I:%M%P")
+    telegram(
+        token: ENV['TELEGRAM_BOT_TOKEN'], # get token from @BotFather
+        chat_id: ENV['TELEGRAM_CHAT_ID'], # https://stackoverflow.com/questions/33858927/how-to-obtain-the-chat-id-of-a-private-telegram-channel
+        text: "🚀 Tabiat lane starts to build at #{current_datetime} .",
+    )
+  end
+
+  lane :playstore do
+    version_code = increment_version_code(
+      gradle_file_path: "composeApp/build.gradle.kts"
+    )
+
+    git_commit(
+      path: "composeApp/build.gradle.kts",
+      message: "Production: Released new build #{version_code} to Google PlayStore"
+    )
+
+    gradle(
+      task: 'clean bundle',
+      build_type: 'Release'
+    )
+
+    # upload_to_play_store # Uploads the AAB built in the gradle step above
+    upload_to_play_store(
+          track: 'production', # production, beta, alpha, internal
+          release_status: 'completed',
+          aab: 'composeApp/build/outputs/bundle/release/composeApp-release.aab',
+          skip_upload_apk: true,
+          skip_upload_metadata: true,
+          skip_upload_changelogs: true,
+          skip_upload_images: true,
+          skip_upload_screenshots: true,
+          timeout: 600
+    )
+  end
+
+  lane :internal_playstore do
+    version_code = android_set_version_code(
+      gradle_file: "composeApp/build.gradle.kts",
+    )
+    version_name = android_set_version_name(
+      gradle_file: "composeApp/build.gradle.kts",
+      bump_type: "patch"
+    )
+
+    current_datetime = Time.now.strftime("%d %b %Y, %I:%M%P")
+    git_commit(
+      path: "composeApp/build.gradle.kts",
+      message: "Bumped version to #{version_name} (build #{version_code}) on #{current_datetime}"
+    )
+
+    push_to_git_remote(
+      remote: "origin",         # optional, default: "origin"
+      remote_branch: "develop", # optional, default is set to local_branch
+      tags: false,    # optional, default: true
+    )
+
+    gradle(
+      task: 'clean bundle',
+      build_type: 'Release'
+    )
+
+    upload_to_play_store(
+      track: 'internal',
+      release_status: 'completed',
+      aab: 'composeApp/build/outputs/bundle/release/composeApp-release.aab',
+      skip_upload_apk: true,
+      skip_upload_metadata: true,
+      skip_upload_changelogs: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+    )
+  end
+
+  lane :test_versioning do
+
+    version_code = android_set_version_code(
+      gradle_file: "composeApp/build.gradle.kts",
+    )
+    version_name = android_set_version_name(
+      gradle_file: "composeApp/build.gradle.kts",
+      bump_type: "patch"
+    )
+
+    git_commit(
+      path: "composeApp/build.gradle.kts",
+      message: "Bump version #{version_name} (#{version_code})"
+    )
+
+    push_to_git_remote(
+      remote: "origin",         # optional, default: "origin"
+#       local_branch: "develop",  # optional, aliased by "branch", default is set to current branch
+      remote_branch: "develop", # optional, default is set to local_branch
+      force: false,    # optional, default: false
+      force_with_lease: false,   # optional, default: false
+      tags: false,    # optional, default: true
+      no_verify: false,# optional, default: false
+      set_upstream: false        # optional, default: false
+    )
+  end
+
+  after_all do |lane|
+      # This block is called, only if the executed lane was successful
+      gmt_plus_7 = Time.now.utc + (7*60*60)
+      current_datetime = gmt_plus_7.strftime("%d %b %Y, %I:%M%P")
+      telegram(
+        token: ENV['TELEGRAM_BOT_TOKEN'],
+        chat_id: ENV['TELEGRAM_CHAT_ID'],
+        text: "🎉 Tabiat lane successful #{current_datetime} .",
+      )
+  end
+
+  error do |lane, exception|
+
+      gmt_plus_7 = Time.now.utc + (7*60*60)
+      current_datetime = gmt_plus_7.strftime("%d %b %Y, %I:%M%P")
+      telegram(
+        token: ENV['TELEGRAM_BOT_TOKEN'],
+        chat_id: ENV['TELEGRAM_CHAT_ID'],
+        text: "😭 Tabiat lane failed at #{current_datetime} Msg: #{exception.message} .",
+      )
+  end
+end
