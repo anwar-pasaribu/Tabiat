@@ -1,0 +1,76 @@
+version: 2.1
+orbs:
+  android: circleci/android@2.5.0
+
+commands:
+  send_telegram_message:
+    parameters:
+      message:
+        type: string
+    steps:
+      - run: |
+          # Adjusting for GMT+7 and formatting the date
+          MESSAGE="<< parameters.message >> - $(TZ='Asia/Bangkok' date +"%d %b %Y at %H:%M")"
+          curl -s -X POST https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage \
+            -d chat_id=$TELEGRAM_CHAT_ID \
+            -d text="$MESSAGE"
+
+
+jobs:
+  build:
+    working_directory: ~/code
+    docker:
+      - image: cimg/android:2024.01
+    environment:
+      JVM_OPTS: -Xmx3200m
+    steps:
+      - checkout
+      - send_telegram_message:
+          message: "⚙️ Tabiat Pipeline Started"
+      - run:
+          name: Chmod permissions
+          command: sudo chmod +x ./gradlew
+      - run:
+          name: Download Dependencies
+          command: ./gradlew androidDependencies
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: jars-{{ .Environment.CACHE_VERSION }}-{{ checksum "build.gradle.kts" }}-{{ checksum  "composeApp/build.gradle.kts" }}
+      - run:
+          name: Decode Android keystore
+          command: echo $KEYSTORE_BASE64 | base64 -d > TabiatKeystore
+      - run:
+          name: Decode keystore.properties
+          command: echo $KEYSTORE_PROPERTIES | base64 -d > keystore.properties
+      - run:
+          name: Create Google Play key
+          command: echo $GOOGLE_PLAY_KEY > fastlane/anwar-p-431ed38b447a.json
+      - run:
+          name: Create Google Services JSON
+          command: echo $GOOGLE_SERVICES_JSON > composeApp/google-services.json
+      - run:
+          name: Create Fastlane Environment Variable
+          command: printf 'TELEGRAM_BOT_TOKEN=%s\nTELEGRAM_CHAT_ID=%s\nFIREBASE_APP_ID_RELEASE=%s\nFIREBASE_CLI_TOKEN=%s' \
+            $TELEGRAM_BOT_TOKEN $TELEGRAM_CHAT_ID $FIREBASE_APP_ID_RELEASE $FIREBASE_CLI_TOKEN > fastlane/.env
+      - run:
+          name: Install Fastlane
+          command: sudo gem install fastlane
+      - run:
+          name: Uploading an AAB to Playstore (Internal)
+          command: fastlane internal_playstore
+      - run:
+          name: Publish Firebase App Distribution
+          command: fastlane publish_app_distribution
+      - send_telegram_message:
+          message: "✅ Tabiat Pipeline Finished"
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only:
+                - master

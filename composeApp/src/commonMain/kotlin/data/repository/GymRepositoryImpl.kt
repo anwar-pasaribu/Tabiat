@@ -513,6 +513,7 @@ class GymRepositoryImpl(
             "Squat untuk kaki dan glutes.",
             "Latihan punggung dengan kabel."
         )
+        val weightInKg = listOf(6L, 12L, 14L, 16L, 18L, 6L, 12L, 14L, 16L, 18L)
         withContext(Dispatchers.IO) {
             // create workout plan
             repeat(dummyWoPlanName.size - 1) {
@@ -535,13 +536,12 @@ class GymRepositoryImpl(
                 repeat(5) {
                     // add 4 set for each exercise
                     val exerciseId = listOfExerciseId.random()
-                    val weightInKg = listOf(6L, 12L, 14L).random()
                     repeat(4) {
                         workoutPlanExerciseDao.insertWorkoutPlanExercise(
                             exerciseId = exerciseId,
                             workoutPlanId = woPlan.id,
                             reps = 12L,
-                            weight = weightInKg,
+                            weight = weightInKg.random(),
                             setNumberOrder = it + 1L,
                             finishedDateTime = 0L
                         )
@@ -563,7 +563,7 @@ class GymRepositoryImpl(
                             exerciseId = woExercise.exerciseId,
                             workoutPlanId = woExercise.workoutPlanId,
                             reps = listOf(6L, 12L).random(),
-                            weight = woExercise.weight.toLong(),
+                            weight = weightInKg.random(),
                             difficulty = 0L,
                             measurement = "kg",
                             setNumberOrder = 0L,
