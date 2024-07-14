@@ -125,6 +125,21 @@ platform :android do
     )
   end
 
+    lane :publish_app_distribution do
+        build_android_app(task: "clean bundle", build_type: 'Release')
+        # build_android_app is a built-in fastlane action.
+        release = firebase_app_distribution(
+            app: ENV['FIREBASE_APP_ID_RELEASE'],
+            testers: 'anwar_pasaribu@live.com',
+            groups: 'Devs',
+            debug: true,
+            release_notes: 'Lots of amazing new features to test out',
+            android_artifact_type: 'AAB',
+            android_artifact_path: 'composeApp/build/outputs/bundle/release/composeApp-release.aab',
+            firebase_cli_token: ENV['FIREBASE_CLI_TOKEN']
+        )
+    end
+
   after_all do |lane|
       # This block is called, only if the executed lane was successful
       gmt_plus_7 = Time.now.utc + (7*60*60)

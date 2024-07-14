@@ -59,6 +59,9 @@ jobs:
       - run:
           name: Uploading an AAB to Playstore (Internal)
           command: fastlane internal_playstore
+      - run:
+          name: Publish Firebase App Distribution
+          command: fastlane publish_app_distribution
       - send_telegram_message:
           message: "✅ Tabiat Pipeline Finished"
 
