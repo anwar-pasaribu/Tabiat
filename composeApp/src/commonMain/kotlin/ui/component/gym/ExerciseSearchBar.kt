@@ -29,7 +29,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
@@ -41,13 +40,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text2.BasicTextField2
-import androidx.compose.foundation.text2.input.TextFieldLineLimits
-import androidx.compose.foundation.text2.input.clearText
-import androidx.compose.foundation.text2.input.rememberTextFieldState
-import androidx.compose.foundation.text2.input.textAsFlow
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.clearText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
@@ -61,6 +58,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
@@ -73,7 +71,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 
-@OptIn(ExperimentalFoundationApi::class, FlowPreview::class)
+@OptIn(FlowPreview::class)
 @Composable
 fun ExerciseSearchView(
     modifier: Modifier = Modifier,
@@ -82,7 +80,7 @@ fun ExerciseSearchView(
     onSearch: (String) -> Unit = {},
     onClearQuery: () -> Unit = {},
 ) {
-    val queryState = rememberTextFieldState(initialText = "")
+    val queryState = remember { TextFieldState( initialText = "") }
 
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
@@ -100,8 +98,8 @@ fun ExerciseSearchView(
     }
 
     LaunchedEffect(queryState) {
-        queryState.textAsFlow()
-            .debounce(600)
+        snapshotFlow { queryState.text }
+            .debounce(300)
             .collectLatest {
                 if (focused) {
                     onQueryChange(it.toString())
@@ -119,7 +117,7 @@ fun ExerciseSearchView(
     ) {
         Column {
             Spacer(modifier = Modifier.height(4.dp))
-            BasicTextField2(
+            BasicTextField(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
@@ -131,20 +129,15 @@ fun ExerciseSearchView(
                 state = queryState,
                 interactionSource = searchInteractionSource,
                 keyboardOptions = KeyboardOptions(
-                    autoCorrect = false,
-                    imeAction = if (queryState.text.isNotEmpty()) ImeAction.Search else ImeAction.Default,
+                    autoCorrectEnabled = false,
+                    imeAction = if (queryState.text.isNotEmpty()) ImeAction.Search else ImeAction.Default
                 ),
-                keyboardActions = KeyboardActions(
-                    onDone = {
-                        focusManager.clearFocus()
-                        keyboardController?.hide()
-                    },
-                    onSearch = {
-                        focusManager.clearFocus()
-                        keyboardController?.hide()
-                        onSearch(queryState.text.toString())
-                    },
-                ),
+                onKeyboardAction = { imeAction ->
+                    println("Ime: $imeAction")
+                    focusManager.clearFocus()
+                    keyboardController?.hide()
+                    onSearch(queryState.text.toString())
+                },
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                 lineLimits = TextFieldLineLimits.SingleLine,
                 decorator = { innerTextField ->
