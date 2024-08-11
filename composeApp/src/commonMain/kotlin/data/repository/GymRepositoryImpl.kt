@@ -1,3 +1,28 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2024 Anwar Pasaribu
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Project Name: Tabiat
+ */
 package data.repository
 
 import data.source.local.dao.IExerciseDao
@@ -45,7 +70,7 @@ class GymRepositoryImpl(
     private val workoutPlanDao: IWorkoutPlanDao,
     private val workoutPlanExerciseDao: IWorkoutPlanExerciseDao,
     private val exerciseLogDao: IExerciseLogDao,
-    private val preferencesDataSource: IPreferencesDataSource
+    private val preferencesDataSource: IPreferencesDataSource,
 ) : IGymRepository {
 
     override suspend fun createWorkoutPlan(workoutName: String, notes: String): Boolean {
@@ -54,7 +79,7 @@ class GymRepositoryImpl(
             name = workoutName,
             description = notes,
             datetimeStamp = Clock.System.now().toEpochMilliseconds(),
-            orderingNumber = latestWoPlan.orderingNumber + 1
+            orderingNumber = latestWoPlan.orderingNumber + 1,
         )
         return true
     }
@@ -62,12 +87,12 @@ class GymRepositoryImpl(
     override suspend fun updateWorkoutPlan(
         workoutPlanId: Long,
         workoutName: String,
-        notes: String
+        notes: String,
     ): Boolean {
         workoutPlanDao.updateWorkoutPlan(
             workoutPlanId = workoutPlanId,
             name = workoutName,
-            description = notes
+            description = notes,
         )
         return true
     }
@@ -109,19 +134,19 @@ class GymRepositoryImpl(
 
     override suspend fun getWorkoutPlanExerciseProgress(
         workoutPlanId: Long,
-        exerciseId: Long
+        exerciseId: Long,
     ): ExerciseProgress {
         return getExerciseProgress(workoutPlanId, exerciseId)
     }
 
     private suspend fun getExerciseProgress(
         workoutPlanId: Long,
-        exerciseId: Long
+        exerciseId: Long,
     ): ExerciseProgress {
         val workoutPlanExerciseList =
             workoutPlanExerciseDao.selectWorkoutPlanExerciseByWorkoutPlanIdAndExerciseId(
                 workoutPlanId = workoutPlanId,
-                exerciseId = exerciseId
+                exerciseId = exerciseId,
             )
         val total = workoutPlanExerciseList.size
         val progressCount = workoutPlanExerciseList.count { it.finishedDateTime != 0L }
@@ -130,7 +155,7 @@ class GymRepositoryImpl(
         return ExerciseProgress(
             exercise = exercise,
             sessionTotal = total,
-            sessionDoneCount = progressCount
+            sessionDoneCount = progressCount,
         )
     }
 
@@ -140,17 +165,17 @@ class GymRepositoryImpl(
                 workoutPlanList.map { workoutPlan ->
                     val woExerciseProgressList =
                         workoutPlanExerciseDao.getAllWorkoutPlanExercise(
-                            workoutPlanId = workoutPlan.id
+                            workoutPlanId = workoutPlan.id,
                         ).map { workoutPlanExercise ->
                             getExerciseProgress(
                                 workoutPlanId = workoutPlanExercise.workoutPlanId,
-                                exerciseId = workoutPlanExercise.exerciseId
+                                exerciseId = workoutPlanExercise.exerciseId,
                             )
                         }
                     val total = woExerciseProgressList.sumOf { it.sessionTotal }
                     val progress = woExerciseProgressList.sumOf { it.sessionDoneCount }
                     val latestExerciseLog = exerciseLogDao.getLatestExerciseLog(
-                        workoutPlanId = workoutPlan.id
+                        workoutPlanId = workoutPlan.id,
                     )
                     val lastExercise = latestExerciseLog?.let {
                         exerciseDao.getExerciseById(it.exerciseId)
@@ -160,7 +185,7 @@ class GymRepositoryImpl(
                         total = total,
                         progress = progress,
                         lastExerciseLog = latestExerciseLog,
-                        lastExercise = lastExercise
+                        lastExercise = lastExercise,
                     )
                 }
             }
@@ -168,11 +193,11 @@ class GymRepositoryImpl(
 
     override suspend fun deleteWorkoutPlanExerciseByWorkoutPlanIdAndExerciseId(
         workoutPlanId: Long,
-        exerciseId: Long
+        exerciseId: Long,
     ): Boolean {
         workoutPlanExerciseDao.deleteWorkoutPlanExerciseByWorkoutPlanIdAndExerciseId(
             workoutPlanId = workoutPlanId,
-            exerciseId = exerciseId
+            exerciseId = exerciseId,
         )
         return true
     }
@@ -192,9 +217,8 @@ class GymRepositoryImpl(
         workoutPlanId: Long,
         exerciseId: Long,
         reps: Int,
-        weight: Int
+        weight: Int,
     ): Boolean {
-
         val finishedDateTime = Clock.System.now().toEpochMilliseconds()
 
         exerciseLogDao.insertExerciseLog(
@@ -208,14 +232,14 @@ class GymRepositoryImpl(
             finishedDateTime = finishedDateTime,
             logNotes = "",
             latitude = -1.0,
-            longitude = -1.0
+            longitude = -1.0,
         )
 
         workoutPlanExerciseDao.updateWorkoutPlanExerciseFinishedDateTime(
             workoutPlanExerciseId = workoutPlanExerciseId,
             finishedDateTime = finishedDateTime,
             reps = reps.toLong(),
-            weight = weight.toLong()
+            weight = weight.toLong(),
         )
 
         return true
@@ -224,13 +248,12 @@ class GymRepositoryImpl(
     override suspend fun updateWorkoutExerciseRepsAndWeight(
         workoutPlanExerciseId: Long,
         reps: Int,
-        weight: Int
+        weight: Int,
     ): Boolean {
-
         workoutPlanExerciseDao.updateWorkoutPlanExerciseRepsAndWeight(
             workoutPlanExerciseId = workoutPlanExerciseId,
             reps = reps.toLong(),
-            weight = weight.toLong()
+            weight = weight.toLong(),
         )
 
         return true
@@ -241,25 +264,26 @@ class GymRepositoryImpl(
         val endOfTimeStampOfSelectedDate = LocalTime(hour = 23, minute = 59, second = 59)
         val dateTime = LocalDateTime(
             date = Instant.fromEpochMilliseconds(dateTimeStamp).toLocalDateTime(tz).date,
-            time = endOfTimeStampOfSelectedDate
+            time = endOfTimeStampOfSelectedDate,
         )
         val untilTimeStampMillis = dateTime.toInstant(tz).toEpochMilliseconds()
 
         val selectedDateTime = Instant.fromEpochMilliseconds(
-            untilTimeStampMillis
+            untilTimeStampMillis,
         ).toLocalDateTime(tz)
         val firstSecondOfTheDay = LocalTime(hour = 0, minute = 0, second = 1)
         val dateTimeTodayMorning =
             LocalDateTime(date = selectedDateTime.date, time = firstSecondOfTheDay)
         val startTimeStampMillis = dateTimeTodayMorning.toInstant(tz).toEpochMilliseconds()
         return exerciseLogDao.getExerciseLogByDateTimeRange(
-            startTimeStampMillis, untilTimeStampMillis
+            startTimeStampMillis,
+            untilTimeStampMillis,
         )
     }
 
     override suspend fun getExerciseLogListByExerciseId(exerciseId: Long): Flow<List<ExerciseLog>> {
         return exerciseLogDao.getExerciseLogByExerciseId(
-            exerciseId = exerciseId
+            exerciseId = exerciseId,
         )
     }
 
@@ -269,13 +293,13 @@ class GymRepositoryImpl(
 
     override suspend fun saveExerciseSetTimerDuration(timerDurationInSeconds: Int) {
         preferencesDataSource.saveExerciseSetTimerDuration(
-            timerDurationInSeconds
+            timerDurationInSeconds,
         )
     }
 
     override suspend fun saveBreakTimeDuration(durationInSeconds: Int) {
         preferencesDataSource.saveExerciseBreakTimeDuration(
-            durationInSeconds
+            durationInSeconds,
         )
     }
 
@@ -289,14 +313,14 @@ class GymRepositoryImpl(
             image = newExercise.image,
             targetMuscle = Json.encodeToString(listOf(newExercise.targetMuscle)),
             description = newExercise.description,
-            type = 0L
+            type = 0L,
         )
         return true
     }
 
     override suspend fun getExerciseSetList(
         workoutPlanId: Long,
-        exerciseId: Long
+        exerciseId: Long,
     ): List<WorkoutPlanExercise> {
         return workoutPlanExerciseDao.getAllWorkoutPlanExercise(workoutPlanId).filter {
             it.exerciseId == exerciseId
@@ -311,7 +335,7 @@ class GymRepositoryImpl(
     override suspend fun insertExerciseSetList(
         workoutPlanId: Long,
         exerciseId: Long,
-        exerciseSetList: List<ExerciseSet>
+        exerciseSetList: List<ExerciseSet>,
     ): Boolean {
         exerciseSetList.forEach { exerciseSet ->
             workoutPlanExerciseDao.insertWorkoutPlanExercise(
@@ -320,7 +344,7 @@ class GymRepositoryImpl(
                 reps = exerciseSet.reps.toLong(),
                 weight = exerciseSet.weight.toLong(),
                 setNumberOrder = exerciseSet.setNumber.toLong(),
-                finishedDateTime = 0L
+                finishedDateTime = 0L,
             )
         }
         return true
@@ -358,8 +382,10 @@ class GymRepositoryImpl(
         val exerciseCount = exerciseDao.exerciseListCount()
         if (exerciseCount == 0L) {
             val succeed = loadRemoteExercises()
-            if (!succeed) return flow {
-                throw Exception("")
+            if (!succeed) {
+                return flow {
+                    throw Exception("")
+                }
             }
         }
         return exerciseDao.getAllExercisesObservable()
@@ -380,12 +406,12 @@ class GymRepositoryImpl(
                                 workoutPlanExerciseId = workoutPlanExercise.id,
                                 finishedDateTime = 0L,
                                 reps = workoutPlanExercise.reps.toLong(),
-                                weight = workoutPlanExercise.weight.toLong()
+                                weight = workoutPlanExercise.weight.toLong(),
                             )
                         }
                     }
                 preferencesDataSource.saveLastExerciseReset(
-                    Clock.System.now().toEpochMilliseconds()
+                    Clock.System.now().toEpochMilliseconds(),
                 )
             }
         }
@@ -427,7 +453,7 @@ class GymRepositoryImpl(
                         Category: ${networkExercise.category}
                         Mechanics: ${networkExercise.mechanic}
                         Force: ${networkExercise.force}
-                    """.trimIndent()
+                        """.trimIndent()
 
                         exerciseDao.insertExercise(
                             name = networkExercise.name.orEmpty(),
@@ -437,10 +463,10 @@ class GymRepositoryImpl(
                             video = "",
                             image = Json.encodeToString(networkExercise.images),
                             targetMuscle = Json.encodeToString(
-                                networkExercise.primaryMuscles.orEmpty() + networkExercise.secondaryMuscles.orEmpty()
+                                networkExercise.primaryMuscles.orEmpty() + networkExercise.secondaryMuscles.orEmpty(),
                             ),
                             description = description,
-                            type = 0L
+                            type = 0L,
                         )
                     }
                 }
@@ -499,7 +525,7 @@ class GymRepositoryImpl(
             "Latihan Bahu Dumbbell",
             "Latihan Kardio Treadmill",
             "Latihan Kaki Squat",
-            "Latihan Punggung Kabel"
+            "Latihan Punggung Kabel",
         )
         val woPlanDescs = listOf(
             "Angkat barbel untuk biceps.",
@@ -511,7 +537,7 @@ class GymRepositoryImpl(
             "Dumbbell untuk otot bahu.",
             "Lari di treadmill untuk kardio.",
             "Squat untuk kaki dan glutes.",
-            "Latihan punggung dengan kabel."
+            "Latihan punggung dengan kabel.",
         )
         val weightInKg = listOf(6L, 12L, 14L, 16L, 18L, 6L, 12L, 14L, 16L, 18L)
         withContext(Dispatchers.IO) {
@@ -521,7 +547,7 @@ class GymRepositoryImpl(
                     name = dummyWoPlanName[it],
                     description = woPlanDescs[it],
                     datetimeStamp = 0L,
-                    orderingNumber = it
+                    orderingNumber = it,
                 )
             }
 
@@ -543,7 +569,7 @@ class GymRepositoryImpl(
                             reps = 12L,
                             weight = weightInKg.random(),
                             setNumberOrder = it + 1L,
-                            finishedDateTime = 0L
+                            finishedDateTime = 0L,
                         )
                     }
                 }
@@ -554,7 +580,7 @@ class GymRepositoryImpl(
             // create exercise log
             listOfWoPlan.forEach { workoutPlan ->
                 val listOfWorkoutPlanExercise = workoutPlanExerciseDao.getAllWorkoutPlanExercise(
-                    workoutPlanId = workoutPlan.id
+                    workoutPlanId = workoutPlan.id,
                 )
                 // log exercise
                 dateList.forEach { dateTimeStamp ->
@@ -570,13 +596,11 @@ class GymRepositoryImpl(
                             finishedDateTime = dateTimeStamp,
                             logNotes = "Note $dateTimeStamp",
                             latitude = 0.0,
-                            longitude = 0.0
+                            longitude = 0.0,
 
                         )
                     }
-
                 }
-
             }
         }
     }

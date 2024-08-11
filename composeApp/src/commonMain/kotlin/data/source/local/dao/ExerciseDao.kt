@@ -1,3 +1,28 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2024 Anwar Pasaribu
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Project Name: Tabiat
+ */
 package data.source.local.dao
 
 import app.cash.sqldelight.coroutines.asFlow
@@ -11,7 +36,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
 
 class ExerciseDao(
-    private val database: TabiatDatabase
+    private val database: TabiatDatabase,
 ) : IExerciseDao {
 
     override suspend fun exerciseListCount(): Long {
@@ -41,10 +66,10 @@ class ExerciseDao(
             .asFlow()
             .mapToList(Dispatchers.Default)
             .map {
-                exerciseList -> exerciseList.map { it.toDomain() }
+                    exerciseList ->
+                exerciseList.map { it.toDomain() }
             }
     }
-
 
     override suspend fun getAllExercises(): List<Exercise> {
         return database
@@ -76,7 +101,6 @@ class ExerciseDao(
 
     override suspend fun getExerciseById(id: Long): Exercise? {
         try {
-
             val exerciseEntity = database
                 .exerciseQueries
                 .selectExerciseById(id)
@@ -97,9 +121,8 @@ class ExerciseDao(
         video: String,
         image: String,
         targetMuscle: String,
-        description: String
+        description: String,
     ) {
-
         database
             .exerciseQueries
             .insertNewExercise(
@@ -111,7 +134,7 @@ class ExerciseDao(
                 video = video,
                 image = image,
                 targetMuscle = targetMuscle,
-                description = description
+                description = description,
             )
     }
 
@@ -133,7 +156,7 @@ class ExerciseDao(
             image = imageUrlList.getOrNull(0).orEmpty(),
             imageList = imageUrlList,
             targetMuscle = this.targetMuscle.orEmpty(),
-            description = this.description.orEmpty()
+            description = this.description.orEmpty(),
         )
     }
 

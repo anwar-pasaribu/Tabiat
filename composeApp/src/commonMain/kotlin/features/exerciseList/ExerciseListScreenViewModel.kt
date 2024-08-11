@@ -1,3 +1,28 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2024 Anwar Pasaribu
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Project Name: Tabiat
+ */
 package features.exerciseList
 
 import androidx.compose.runtime.Immutable
@@ -21,19 +46,19 @@ import kotlinx.coroutines.launch
 
 @Immutable
 sealed class ExerciseListUiState {
-    data object Loading: ExerciseListUiState()
-    data object Error: ExerciseListUiState()
-    data class Success(val list: List<Exercise>): ExerciseListUiState()
-    data class Search(val queryString: String, val list: List<Exercise>): ExerciseListUiState()
-    data class Filter(val list: List<Exercise>): ExerciseListUiState()
+    data object Loading : ExerciseListUiState()
+    data object Error : ExerciseListUiState()
+    data class Success(val list: List<Exercise>) : ExerciseListUiState()
+    data class Search(val queryString: String, val list: List<Exercise>) : ExerciseListUiState()
+    data class Filter(val list: List<Exercise>) : ExerciseListUiState()
 }
 
 class ExerciseListScreenViewModel(
     private val getExerciseListUseCase: GetExerciseListUseCase,
     private val searchExerciseUseCase: SearchExerciseUseCase,
     private val getListExerciseCategoryUseCase: GetListExerciseCategoryUseCase,
-    private val filterExerciseByTargetMuscleCategoryUseCase: FilterExerciseByTargetMuscleCategoryUseCase
-): ViewModel() {
+    private val filterExerciseByTargetMuscleCategoryUseCase: FilterExerciseByTargetMuscleCategoryUseCase,
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ExerciseListUiState>(ExerciseListUiState.Loading)
     val uiState: StateFlow<ExerciseListUiState> = _uiState.asStateFlow()
@@ -44,7 +69,6 @@ class ExerciseListScreenViewModel(
 
     private val _exerciseCategoryList = MutableStateFlow<List<String>>(emptyList())
     val exerciseCategoryList: StateFlow<List<String>> = _exerciseCategoryList.asStateFlow()
-
 
     fun loadExerciseList() {
         _uiState.update {
@@ -95,7 +119,7 @@ class ExerciseListScreenViewModel(
         "traps" to "trapezius (punggung)",
         "adductors" to "adduktor (paha dlm)",
         "abductors" to "abduktor (paha luar)",
-        "neck" to "leher"
+        "neck" to "leher",
     )
 
     private fun getKeyByValue(value: String): String {
@@ -112,7 +136,7 @@ class ExerciseListScreenViewModel(
             _uiState.update {
                 ExerciseListUiState.Search(
                     searchQuery,
-                    searchExerciseUseCase.invoke(searchQuery)
+                    searchExerciseUseCase.invoke(searchQuery),
                 )
             }
         }
@@ -123,10 +147,9 @@ class ExerciseListScreenViewModel(
             val categoryInDbVersion = getKeyByValue(category)
             _uiState.update {
                 ExerciseListUiState.Filter(
-                    filterExerciseByTargetMuscleCategoryUseCase.invoke(categoryInDbVersion)
+                    filterExerciseByTargetMuscleCategoryUseCase.invoke(categoryInDbVersion),
                 )
             }
         }
     }
-
 }

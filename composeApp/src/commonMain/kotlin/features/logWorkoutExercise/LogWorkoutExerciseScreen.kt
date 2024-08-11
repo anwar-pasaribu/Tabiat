@@ -1,3 +1,28 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2024 Anwar Pasaribu
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Project Name: Tabiat
+ */
 package features.logWorkoutExercise
 
 import PlayHapticAndSound
@@ -89,7 +114,7 @@ sealed class TimerState {
 
 @OptIn(
     ExperimentalMaterial3Api::class,
-    ExperimentalFoundationApi::class
+    ExperimentalFoundationApi::class,
 )
 @Composable
 fun LogWorkoutExerciseScreen(
@@ -97,7 +122,6 @@ fun LogWorkoutExerciseScreen(
     exerciseId: Long,
     onBack: () -> Unit = {},
 ) {
-
     var uiState by remember { mutableStateOf<LogWorkoutExerciseUiState>(LogWorkoutExerciseUiState.Default) }
     var timerState by remember { mutableStateOf<TimerState>(TimerState.NoTimer) }
 
@@ -115,7 +139,7 @@ fun LogWorkoutExerciseScreen(
 
     val animateAlphaValue by animateFloatAsState(
         targetValue = if (editMode) 0f else 1f,
-        label = "animateAlphaValue"
+        label = "animateAlphaValue",
     )
 
     val gymPreferences by viewModel.gymPreferences.collectAsState()
@@ -156,7 +180,9 @@ fun LogWorkoutExerciseScreen(
     val topAppBarAlphaDuringTimer =
         if (timerState !is TimerState.NoTimer || logExerciseSpinnerVisible) {
             0F
-        } else 1F
+        } else {
+            1F
+        }
 
     BackHandler {
         when (uiState) {
@@ -176,7 +202,7 @@ fun LogWorkoutExerciseScreen(
     Scaffold(
         topBar = {
             Column(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 CenterAlignedTopAppBar(
                     modifier = Modifier.fillMaxWidth().alpha(topAppBarAlphaDuringTimer),
@@ -186,7 +212,7 @@ fun LogWorkoutExerciseScreen(
                             modifier = Modifier.alpha(animateAlphaValue).scale(animateAlphaValue),
                             enabled = !editMode,
                             onClick = { onBack() },
-                            showBackground = true
+                            showBackground = true,
                         )
                     },
                     title = { Text("") },
@@ -197,15 +223,15 @@ fun LogWorkoutExerciseScreen(
                                 uiState = LogWorkoutExerciseUiState.EditMode
                             },
                             colors = IconButtonDefaults.filledIconButtonColors(
-                                containerColor = MaterialTheme.colorScheme.background
-                            )
+                                containerColor = MaterialTheme.colorScheme.background,
+                            ),
                         ) {
                             Icon(
                                 imageVector = if (editMode) Icons.Default.Close else Icons.Outlined.Edit,
-                                contentDescription = ""
+                                contentDescription = "",
                             )
                         }
-                    }
+                    },
                 )
                 Spacer(Modifier.height(8.dp))
             }
@@ -213,11 +239,9 @@ fun LogWorkoutExerciseScreen(
     ) { contentPadding ->
 
         Box(modifier = Modifier.fillMaxSize().haze(hazeState)) {
-
             val imagePagerHeight = 240.dp
             if (exerciseImages.isNotEmpty()) {
                 Box(modifier = Modifier.fillMaxWidth()) {
-
                     var activePage by remember {
                         mutableStateOf(0)
                     }
@@ -231,13 +255,13 @@ fun LogWorkoutExerciseScreen(
                         shape = RectangleShape,
                         onPageChange = { currentPage ->
                             activePage = currentPage
-                        }
+                        },
                     )
 
                     PagerIndicator(
                         modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 6.dp),
                         pageCount = exerciseImages.size,
-                        activePage = activePage
+                        activePage = activePage,
                     )
                 }
             }
@@ -253,18 +277,18 @@ fun LogWorkoutExerciseScreen(
                     start = contentPadding.calculateStartPadding(LayoutDirection.Ltr) + 16.dp,
                     top = contentTopPadding,
                     end = contentPadding.calculateEndPadding(LayoutDirection.Ltr) + 16.dp,
-                    bottom = contentPadding.calculateBottomPadding() + 166.dp
-                )
+                    bottom = contentPadding.calculateBottomPadding() + 166.dp,
+                ),
             ) {
                 Text(
                     text = exerciseName,
-                    style = MaterialTheme.typography.headlineMedium
+                    style = MaterialTheme.typography.headlineMedium,
                 )
                 Card(modifier = Modifier.padding(vertical = 16.dp)) {
                     LazyColumn(state = lazyListState) {
                         items(
                             items = exerciseSetList,
-                            key = { it.workoutPlanExerciseId }
+                            key = { it.workoutPlanExerciseId },
                         ) { item ->
                             Box(modifier = Modifier.fillMaxWidth().animateItemPlacement()) {
                                 ExerciseSetItemView(
@@ -283,13 +307,13 @@ fun LogWorkoutExerciseScreen(
                                             ExerciseSet(
                                                 item.setOrder,
                                                 item.repsCount,
-                                                item.weight
+                                                item.weight,
                                             )
                                     },
                                     onSetItemLongClick = {
                                         editMode = true
                                         uiState = LogWorkoutExerciseUiState.EditMode
-                                    }
+                                    },
                                 )
                                 androidx.compose.animation.AnimatedVisibility(
                                     visible = editMode,
@@ -298,10 +322,10 @@ fun LogWorkoutExerciseScreen(
                                     enter = scaleIn(
                                         animationSpec = spring(
                                             dampingRatio = Spring.DampingRatioMediumBouncy,
-                                            stiffness = Spring.StiffnessMediumLow
-                                        )
+                                            stiffness = Spring.StiffnessMediumLow,
+                                        ),
                                     ),
-                                    exit = scaleOut(animationSpec = tween(150))
+                                    exit = scaleOut(animationSpec = tween(150)),
                                 ) {
                                     Row {
                                         Spacer(Modifier.width(8.dp))
@@ -310,15 +334,14 @@ fun LogWorkoutExerciseScreen(
                                                 viewModel.deleteExerciseSet(
                                                     workoutPlanId = workoutPlanId,
                                                     exerciseId = exerciseId,
-                                                    selectedWorkoutPlanExerciseId = item.workoutPlanExerciseId
+                                                    selectedWorkoutPlanExerciseId = item.workoutPlanExerciseId,
                                                 )
-                                            }
+                                            },
                                         )
                                     }
                                 }
                             }
                         }
-
                     }
                 }
             }
@@ -326,15 +349,16 @@ fun LogWorkoutExerciseScreen(
             val axisData = ExerciseAxisData(
                 title = exerciseName,
                 xAxis = chartXAxisData.value,
-                yAxis = chartYAxisData.value
+                yAxis = chartYAxisData.value,
             )
 
-            Box(modifier = Modifier.align(Alignment.BottomCenter)
-                .padding(bottom = contentPadding.calculateBottomPadding())
+            Box(
+                modifier = Modifier.align(Alignment.BottomCenter)
+                    .padding(bottom = contentPadding.calculateBottomPadding()),
             ) {
                 ExerciseProgressLineChart(
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    axisData
+                    axisData,
                 )
             }
 
@@ -344,11 +368,11 @@ fun LogWorkoutExerciseScreen(
                 transitionSpec = {
                     fadeIn(
                         animationSpec = tween(
-                            220
-                        )
+                            220,
+                        ),
                     ).togetherWith(fadeOut(animationSpec = tween(90)))
                 },
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) { targetTimerState ->
                 when (targetTimerState) {
                     TimerState.NoTimer -> {}
@@ -367,7 +391,7 @@ fun LogWorkoutExerciseScreen(
                             onCancelTimer = { timeLeft ->
                                 timerState = TimerState.NoTimer
                                 viewModel.saveRunningTimer(timeLeft)
-                            }
+                            },
                         )
                     }
 
@@ -382,7 +406,7 @@ fun LogWorkoutExerciseScreen(
                             onCancelTimer = { timeLeft ->
                                 timerState = TimerState.NoTimer
                                 viewModel.saveRunningTimer(timeLeft)
-                            }
+                            },
                         )
                     }
                 }
@@ -391,27 +415,26 @@ fun LogWorkoutExerciseScreen(
             AnimatedVisibility(
                 visible = logExerciseSpinnerVisible,
                 enter = fadeIn(),
-                exit = fadeOut()
+                exit = fadeOut(),
             ) {
                 Box(
                     modifier = Modifier
                         .dummyClickable()
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.inverseSurface.copy(alpha = .85F)),
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.Center,
                 ) {
-
                     Column {
                         IconButton(
                             modifier = Modifier.align(Alignment.Start).padding(start = 4.dp),
                             colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
                             onClick = {
                                 logExerciseSpinnerVisible = false
-                            }
+                            },
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Close,
-                                contentDescription = ""
+                                contentDescription = "",
                             )
                         }
                         Spacer(Modifier.height(8.dp))
@@ -426,12 +449,12 @@ fun LogWorkoutExerciseScreen(
                                     workoutPlanId = workoutPlanId,
                                     exerciseId = exerciseId,
                                     reps = reps,
-                                    weight = weight
+                                    weight = weight,
                                 )
                                 logExerciseSpinnerVisible = false
                                 showNotification = false
                                 timerState = TimerState.SetTimer
-                            }
+                            },
                         )
                     }
                 }

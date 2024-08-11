@@ -1,3 +1,28 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2024 Anwar Pasaribu
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Project Name: Tabiat
+ */
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -43,11 +68,10 @@ actual fun getScreenSizeInfo(): ScreenSizeInfo {
             hPX = with(density) { hDp.roundToPx() },
             wPX = with(density) { wDp.roundToPx() },
             hDP = hDp,
-            wDP = wDp
+            wDP = wDp,
         )
     }
 }
-
 
 @Composable
 actual fun PlayHapticAndSound(trigger: Any) {
@@ -61,8 +85,8 @@ actual fun PlayHapticAndSound(trigger: Any) {
         ContextCompat.getSystemService(context, AudioManager::class.java)
     }
 
-    //val player = MediaPlayer.create(context, Settings.System.DEFAULT_NOTIFICATION_URI)
-    //player.start()
+    // val player = MediaPlayer.create(context, Settings.System.DEFAULT_NOTIFICATION_URI)
+    // player.start()
     LaunchedEffect(trigger) {
         audioManager?.playSoundEffect(AudioManager.FX_KEYPRESS_STANDARD, -1f)
         haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
@@ -70,8 +94,8 @@ actual fun PlayHapticAndSound(trigger: Any) {
             vibrator?.vibrate(
                 VibrationEffect.createOneShot(
                     50,
-                    VibrationEffect.DEFAULT_AMPLITUDE
-                )
+                    VibrationEffect.DEFAULT_AMPLITUDE,
+                ),
             )
         }
     }
@@ -90,7 +114,7 @@ actual fun SendNotification(title: String, body: String) {
         val channel = NotificationChannel(
             "YOUR_CHANNEL_ID",
             "YOUR_CHANNEL_NAME",
-            NotificationManager.IMPORTANCE_HIGH
+            NotificationManager.IMPORTANCE_HIGH,
         )
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

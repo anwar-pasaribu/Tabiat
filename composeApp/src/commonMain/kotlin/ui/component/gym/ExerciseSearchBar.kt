@@ -1,3 +1,28 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2024 Anwar Pasaribu
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Project Name: Tabiat
+ */
 package ui.component.gym
 
 import androidx.compose.animation.AnimatedVisibility
@@ -55,7 +80,7 @@ fun ExerciseSearchView(
     query: String = "",
     onQueryChange: (String) -> Unit,
     onSearch: (String) -> Unit = {},
-    onClearQuery: () -> Unit = {}
+    onClearQuery: () -> Unit = {},
 ) {
     val queryState = rememberTextFieldState(initialText = "")
 
@@ -68,7 +93,7 @@ fun ExerciseSearchView(
         searchInteractionSource.interactions.collectLatest {
             if (it is FocusInteraction.Focus) {
                 println("FOCUS YES")
-            } else if(it is FocusInteraction.Unfocus) {
+            } else if (it is FocusInteraction.Unfocus) {
                 println("FOCUS NO")
             }
         }
@@ -89,8 +114,8 @@ fun ExerciseSearchView(
         shape = MaterialTheme.shapes.large,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.background
-        )
+            containerColor = MaterialTheme.colorScheme.background,
+        ),
     ) {
         Column {
             Spacer(modifier = Modifier.height(4.dp))
@@ -101,13 +126,13 @@ fun ExerciseSearchView(
                     .padding(start = 16.dp, end = 4.dp),
                 textStyle = MaterialTheme.typography.titleLarge.copy(
                     textAlign = TextAlign.Start,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.primary,
                 ),
                 state = queryState,
                 interactionSource = searchInteractionSource,
                 keyboardOptions = KeyboardOptions(
                     autoCorrect = false,
-                    imeAction = if (queryState.text.isNotEmpty()) ImeAction.Search else ImeAction.Default
+                    imeAction = if (queryState.text.isNotEmpty()) ImeAction.Search else ImeAction.Default,
                 ),
                 keyboardActions = KeyboardActions(
                     onDone = {
@@ -118,19 +143,19 @@ fun ExerciseSearchView(
                         focusManager.clearFocus()
                         keyboardController?.hide()
                         onSearch(queryState.text.toString())
-                    }
+                    },
                 ),
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                 lineLimits = TextFieldLineLimits.SingleLine,
                 decorator = { innerTextField ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Icon(
                             imageVector = Icons.Default.Search,
                             tint = MaterialTheme.colorScheme.primary,
-                            contentDescription = "Search Icon"
+                            contentDescription = "Search Icon",
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Box(modifier = Modifier.weight(1f)) {
@@ -139,8 +164,8 @@ fun ExerciseSearchView(
                                     text = "Cari latihan...",
                                     style = MaterialTheme.typography.titleLarge.copy(
                                         textAlign = TextAlign.Start,
-                                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5F)
-                                    )
+                                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5F),
+                                    ),
                                 )
                             }
                             innerTextField()
@@ -149,24 +174,23 @@ fun ExerciseSearchView(
                         AnimatedVisibility(
                             visible = queryState.text.isNotEmpty(),
                             enter = EnterTransition.None,
-                            exit = fadeOut()
+                            exit = fadeOut(),
                         ) {
                             IconButton(
                                 onClick = {
                                     queryState.clearText()
                                     onClearQuery()
-                                }
+                                },
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Clear,
                                     tint = MaterialTheme.colorScheme.primary,
-                                    contentDescription = "Clear search text"
+                                    contentDescription = "Clear search text",
                                 )
                             }
                         }
-
                     }
-                }
+                },
             )
             Spacer(modifier = Modifier.height(4.dp))
         }

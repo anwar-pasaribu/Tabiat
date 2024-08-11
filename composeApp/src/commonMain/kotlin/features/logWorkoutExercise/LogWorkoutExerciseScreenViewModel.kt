@@ -1,3 +1,28 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2024 Anwar Pasaribu
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Project Name: Tabiat
+ */
 package features.logWorkoutExercise
 
 import androidx.lifecycle.ViewModel
@@ -33,12 +58,12 @@ class LogWorkoutExerciseScreenViewModel(
     private val saveRunningTimerPreferencesUseCase: SaveRunningTimerPreferencesUseCase,
     private val updateWorkoutExerciseRepsAndWeightUseCase: UpdateWorkoutExerciseRepsAndWeightUseCase,
     private val getExerciseLogListByExerciseIdUseCase: GetExerciseLogListByExerciseIdUseCase,
-): ViewModel() {
+) : ViewModel() {
 
     val gymPreferences: StateFlow<GymPreferences> = getGymPreferencesUseCase().stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
-        GymPreferences.DefaultGymPreferences
+        GymPreferences.DefaultGymPreferences,
     )
 
     private val _exerciseSetList = MutableStateFlow<List<ExerciseSetToday>>(emptyList())
@@ -72,7 +97,7 @@ class LogWorkoutExerciseScreenViewModel(
                                     setOrder = it.setNumberOrder,
                                     repsCount = it.reps,
                                     weight = it.weight,
-                                    dateTimestamp = it.finishedDateTime
+                                    dateTimestamp = it.finishedDateTime,
                                 )
                             }
                         }
@@ -89,7 +114,7 @@ class LogWorkoutExerciseScreenViewModel(
                     setOrder = it.setNumberOrder,
                     repsCount = it.reps,
                     weight = it.weight,
-                    finished = it.finishedDateTime != 0L
+                    finished = it.finishedDateTime != 0L,
                 )
             }
         }
@@ -100,7 +125,7 @@ class LogWorkoutExerciseScreenViewModel(
         workoutPlanId: Long,
         exerciseId: Long,
         reps: Int,
-        weight: Int
+        weight: Int,
     ) {
         viewModelScope.launch {
             logExerciseUseCase.invoke(
@@ -108,12 +133,12 @@ class LogWorkoutExerciseScreenViewModel(
                 workoutPlanId = workoutPlanId,
                 exerciseId = exerciseId,
                 reps = reps,
-                weight = weight
+                weight = weight,
             )
             updateWorkoutExerciseRepsAndWeightUseCase.invoke(
                 workoutPlanExerciseId = selectedWorkoutPlanExerciseId,
                 reps = reps,
-                weight = weight
+                weight = weight,
             )
             delay(1000)
             getExerciseSetList(workoutPlanId, exerciseId)
@@ -138,5 +163,4 @@ class LogWorkoutExerciseScreenViewModel(
             saveRunningTimerPreferencesUseCase.invoke(duration)
         }
     }
-
 }

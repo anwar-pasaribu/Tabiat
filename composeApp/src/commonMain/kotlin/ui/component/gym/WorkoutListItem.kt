@@ -1,3 +1,28 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2024 Anwar Pasaribu
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Project Name: Tabiat
+ */
 package ui.component.gym
 
 import androidx.compose.foundation.background
@@ -60,32 +85,31 @@ fun WorkoutPlanItemView(
         modifier = modifier.then(
             Modifier.clickable {
                 onClick()
-            }
+            },
         ),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary
-        )
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+        ),
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(min = 132.dp)
+                .heightIn(min = 132.dp),
         ) {
-
             Column(
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(16.dp),
             ) {
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleLarge,
-                    maxLines = 1
+                    maxLines = 1,
                 )
                 if (description.isNotEmpty()) {
                     Text(
                         text = description,
                         style = MaterialTheme.typography.bodyLarge,
-                        maxLines = 1
+                        maxLines = 1,
                     )
                 }
             }
@@ -94,12 +118,12 @@ fun WorkoutPlanItemView(
                 modifier = Modifier.align(Alignment.BottomEnd)
                     .padding(end = 8.dp, bottom = 8.dp).size(size = 40.dp),
                 total = total,
-                progress = progress
+                progress = progress,
             )
 
             if (lastActivityInfo != null) {
                 Row(
-                    modifier = Modifier.align(Alignment.BottomStart)
+                    modifier = Modifier.align(Alignment.BottomStart),
                 ) {
                     lastActivityInfo()
                 }
@@ -111,13 +135,13 @@ fun WorkoutPlanItemView(
                         alpha = if (menuVisible) 0f else 1f
                     }
                     .align(Alignment.TopEnd),
-                onClick = { menuVisible = true }
+                onClick = { menuVisible = true },
             ) {
                 Icon(
                     painter = rememberVectorPainter(
-                        image = Icons.Default.MoreVert
+                        image = Icons.Default.MoreVert,
                     ),
-                    contentDescription = "More menu"
+                    contentDescription = "More menu",
                 )
             }
         }
@@ -126,29 +150,29 @@ fun WorkoutPlanItemView(
     if (menuVisible) {
         BottomSheet(
             onDismiss = { menuVisible = false },
-            showFullScreen = false
+            showFullScreen = false,
         ) {
             Column(
-                modifier = Modifier.fillMaxWidth().height(300.dp)
+                modifier = Modifier.fillMaxWidth().height(300.dp),
             ) {
                 Row(
                     modifier = Modifier.clickable {
                         onEditRequest()
                         menuVisible = false
                     }.fillMaxWidth().height(56.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Spacer(Modifier.width(16.dp))
                     Icon(
                         painter = rememberVectorPainter(
-                            image = Icons.Default.Edit
+                            image = Icons.Default.Edit,
                         ),
-                        contentDescription = "Edit"
+                        contentDescription = "Edit",
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
                         modifier = Modifier.padding(start = 8.dp),
-                        text = "Edit"
+                        text = "Edit",
                     )
                 }
                 Row(
@@ -156,21 +180,21 @@ fun WorkoutPlanItemView(
                         onDeleteRequest()
                         menuVisible = false
                     }.fillMaxWidth().height(56.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Spacer(Modifier.width(16.dp))
                     Icon(
                         painter = rememberVectorPainter(
-                            image = Icons.Default.Delete
+                            image = Icons.Default.Delete,
                         ),
                         tint = MaterialTheme.colorScheme.error,
-                        contentDescription = "delete"
+                        contentDescription = "delete",
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
                         modifier = Modifier.padding(start = 8.dp),
                         text = "Hapus",
-                        color = MaterialTheme.colorScheme.error
+                        color = MaterialTheme.colorScheme.error,
                     )
                 }
                 InsetNavigationHeight()
@@ -184,11 +208,11 @@ fun WorkoutPlanItemView(
 private fun WorkoutPlanProgressIndicator(
     modifier: Modifier,
     total: Int,
-    progress: Int
+    progress: Int,
 ) {
     Box(
         modifier = modifier,
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         if (total > progress) {
             CircularProgressIndicator(
@@ -204,7 +228,7 @@ private fun WorkoutPlanProgressIndicator(
                 modifier = Modifier.size(40.dp),
                 imageVector = Icons.Outlined.CheckCircle,
                 contentDescription = "Finished",
-                tint = MaterialTheme.colorScheme.onPrimary
+                tint = MaterialTheme.colorScheme.onPrimary,
             )
         }
     }
@@ -230,12 +254,12 @@ fun LatestExercise(
             Modifier
                 .background(
                     color = MaterialTheme.colorScheme.onPrimary.copy(alpha = .15F),
-                    shape = outerShape
+                    shape = outerShape,
                 )
                 .heightIn(min = 40.dp)
-                .padding(end = 8.dp)
+                .padding(end = 8.dp),
         ),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Spacer(modifier = Modifier.width(2.dp))
         Card(Modifier.size(exerciseImageCLipSize), shape = innerShape) {
@@ -251,11 +275,11 @@ fun LatestExercise(
         Column {
             Text(
                 text = upperLabel,
-                style = MaterialTheme.typography.labelMedium
+                style = MaterialTheme.typography.labelMedium,
             )
             Text(
                 text = lowerLabel,
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
             )
         }
     }

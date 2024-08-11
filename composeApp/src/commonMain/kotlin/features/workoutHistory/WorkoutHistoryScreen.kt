@@ -1,3 +1,28 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2024 Anwar Pasaribu
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Project Name: Tabiat
+ */
 package features.workoutHistory
 
 import PlayHapticAndSound
@@ -57,13 +82,13 @@ import org.koin.compose.koinInject
 import ui.component.BackButton
 
 @OptIn(
-    ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class
+    ExperimentalMaterial3Api::class,
+    ExperimentalHazeMaterialsApi::class,
 )
 @Composable
 fun WorkoutHistoryScreen(
     onBack: () -> Unit = {},
 ) {
-
     val hazeState = remember { HazeState() }
     val selectedEmojiUnicode by remember { mutableStateOf("") }
     var showSheet by remember { mutableStateOf(false) }
@@ -84,7 +109,7 @@ fun WorkoutHistoryScreen(
             targetDateTimeStamp = viewModel.selectedTimeStamp.collectAsState().value,
             onDismiss = {
                 showSheet = false
-            }
+            },
         )
     }
 
@@ -93,8 +118,8 @@ fun WorkoutHistoryScreen(
             Column(
                 modifier = Modifier.fillMaxWidth().hazeChild(
                     state = hazeState,
-                    style = HazeMaterials.regular(MaterialTheme.colorScheme.background)
-                ).background(Color.Transparent)
+                    style = HazeMaterials.regular(MaterialTheme.colorScheme.background),
+                ).background(Color.Transparent),
             ) {
                 CenterAlignedTopAppBar(
                     modifier = Modifier.fillMaxWidth(),
@@ -107,9 +132,9 @@ fun WorkoutHistoryScreen(
                     title = {
                         Text(
                             "Riwayat Latihan",
-                            style = MaterialTheme.typography.titleLarge
+                            style = MaterialTheme.typography.titleLarge,
                         )
-                    }
+                    },
                 )
                 Spacer(Modifier.height(8.dp))
             }
@@ -121,21 +146,21 @@ fun WorkoutHistoryScreen(
             top = contentPadding.calculateTopPadding() + 16.dp,
             end = contentPadding.calculateEndPadding(LayoutDirection.Ltr),
             bottom = contentPadding.calculateBottomPadding() + WindowInsets.systemBars.asPaddingValues()
-                .calculateBottomPadding()
+                .calculateBottomPadding(),
         )
 
         AnimatedContent(
             targetState = historyUiState,
             transitionSpec = {
                 (fadeIn(animationSpec = tween(300, delayMillis = 90))).togetherWith(fadeOut(animationSpec = tween(150)))
-            }
+            },
         ) { uiState ->
             when (uiState) {
                 WorkoutHistoryUiState.Loading -> {
                     Column(
                         modifier = Modifier.fillMaxSize().padding(contentPadding),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
+                        verticalArrangement = Arrangement.Center,
                     ) {
                         CircularProgressIndicator(Modifier.size(40.dp))
                     }
@@ -149,7 +174,7 @@ fun WorkoutHistoryScreen(
                         onCalendarDayClick = {
                             showSheet = true
                             viewModel.setSelectedDate(it)
-                        }
+                        },
                     )
                 }
             }
@@ -162,7 +187,7 @@ fun CalendarContent(
     modifier: Modifier = Modifier,
     calendarList: List<MonthCalendarData>,
     onCalendarDayClick: (LocalDate) -> Unit,
-    contentPadding: PaddingValues
+    contentPadding: PaddingValues,
 ) {
     val lazyColumnListState = rememberLazyListState()
 
@@ -177,10 +202,9 @@ fun CalendarContent(
         state = lazyColumnListState,
         contentPadding = contentPadding,
     ) {
-
         items(
             items = calendarList,
-            key = { it.month.monthNumber }
+            key = { it.month.monthNumber },
         ) { calendarItem ->
             WorkoutHistoryCalendarView(
                 monthCalendarData = calendarItem,

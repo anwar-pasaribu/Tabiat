@@ -1,3 +1,28 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2024 Anwar Pasaribu
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Project Name: Tabiat
+ */
 package ui.component.gym
 
 import PlayHapticAndSound
@@ -52,7 +77,7 @@ fun AddWorkoutLog(modifier: Modifier = Modifier) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp)
+                .height(56.dp),
         ) {
             Text(modifier = Modifier.align(Alignment.Center), text = "Add Log")
         }
@@ -65,19 +90,16 @@ fun AddWorkoutLog(modifier: Modifier = Modifier) {
             }
             Box(modifier = Modifier.weight(.5F)) {
                 HorizontalScrollSelector(selectedItemIndex = 0, pagerItemList = (1..10).toList()) {
-
                 }
             }
 
             Box(modifier = Modifier.weight(.5F)) {
                 HorizontalScrollSelector(
                     selectedItemIndex = 2,
-                    pagerItemList = (2000..2024).toList()
+                    pagerItemList = (2000..2024).toList(),
                 ) {
-
                 }
             }
-
         }
     }
 }
@@ -90,7 +112,7 @@ fun AddExerciseSet(
     initialWeight: Int = 0,
     onRepsChange: (Int) -> Unit = {},
     onWeightChange: (Int) -> Unit = {},
-    addExerciseSetDone: (reps: Int, weight: Int) -> Unit = { _: Int, _: Int -> }
+    addExerciseSetDone: (reps: Int, weight: Int) -> Unit = { _: Int, _: Int -> },
 ) {
     val repsOptionList = (1..60).toList()
     var selectedReps by remember {
@@ -123,26 +145,27 @@ fun AddExerciseSet(
 
     Card(
         modifier = modifier,
-        elevation = CardDefaults.cardElevation(0.dp), colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer
-        )
+        elevation = CardDefaults.cardElevation(0.dp),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        ),
     ) {
         Row(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.weight(.4F)) {
                 Box(
                     modifier = Modifier.fillMaxWidth().height(32.dp),
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.Center,
                 ) {
                     Text(
                         text = "Repetisi",
                         style = MaterialTheme.typography.bodyMedium.copy(
-                            textAlign = TextAlign.Center
-                        )
+                            textAlign = TextAlign.Center,
+                        ),
                     )
                 }
                 HorizontalScrollSelector(
                     selectedItemIndex = initialRepsIndex,
-                    pagerItemList = repsOptionList
+                    pagerItemList = repsOptionList,
                 ) {
                     selectedReps = repsOptionList[it]
                     onRepsChange(selectedReps)
@@ -159,18 +182,18 @@ fun AddExerciseSet(
                 Column(Modifier.fillMaxWidth()) {
                     Box(
                         modifier = Modifier.fillMaxWidth().height(32.dp),
-                        contentAlignment = Alignment.Center
+                        contentAlignment = Alignment.Center,
                     ) {
                         Text(
                             text = "Berat (kg)",
                             style = MaterialTheme.typography.bodyMedium.copy(
-                                textAlign = TextAlign.Center
-                            )
+                                textAlign = TextAlign.Center,
+                            ),
                         )
                     }
                     HorizontalScrollSelector(
                         selectedItemIndex = initialWeightIndex,
-                        pagerItemList = weightOptionList
+                        pagerItemList = weightOptionList,
                     ) {
                         selectedWeight = weightOptionList[it]
                         onWeightChange(selectedWeight)
@@ -180,7 +203,7 @@ fun AddExerciseSet(
             }
         }
         Box(
-            modifier = Modifier.fillMaxWidth().height(56.dp)
+            modifier = Modifier.fillMaxWidth().height(56.dp),
         ) {
             TextButton(
                 modifier = Modifier.align(Alignment.CenterEnd).padding(end = 8.dp),
@@ -188,7 +211,7 @@ fun AddExerciseSet(
                     addExerciseSetDone(selectedReps, selectedWeight)
                 },
                 shape = MaterialTheme.shapes.small,
-                border = ButtonDefaults.outlinedButtonBorder.copy(width = 1.dp)
+                border = ButtonDefaults.outlinedButtonBorder.copy(width = 1.dp),
             ) {
                 Text(text = actionText)
             }
@@ -202,14 +225,14 @@ fun <T> HorizontalScrollSelector(
     modifier: Modifier = Modifier,
     selectedItemIndex: Int = 0,
     pagerItemList: List<T>,
-    onItemIndexSelected: (index: Int) -> Unit = {}
+    onItemIndexSelected: (index: Int) -> Unit = {},
 ) {
     val pagerState = rememberPagerState(initialPage = selectedItemIndex) {
         pagerItemList.size
     }
     val fling = PagerDefaults.flingBehavior(
         state = pagerState,
-        pagerSnapDistance = PagerSnapDistance.atMost(7)
+        pagerSnapDistance = PagerSnapDistance.atMost(7),
     )
 
     LaunchedEffect(pagerState) {
@@ -229,15 +252,15 @@ fun <T> HorizontalScrollSelector(
                     .align(Alignment.TopCenter)
                     .height(112.dp)
                     .background(
-                        Color.Black.copy(alpha = .25F)
-                    )
+                        Color.Black.copy(alpha = .25F),
+                    ),
             )
 
             VerticalPager(
                 modifier = Modifier.height(280.dp),
                 contentPadding = PaddingValues(vertical = 112.dp),
                 state = pagerState,
-                flingBehavior = fling
+                flingBehavior = fling,
             ) { page ->
 
                 Box(
@@ -257,27 +280,27 @@ fun <T> HorizontalScrollSelector(
                             alpha = lerp(
                                 start = 0.25f,
                                 stop = 1f,
-                                fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                                fraction = 1f - pageOffset.coerceIn(0f, 1f),
                             )
                         }
                         .fillMaxWidth()
                         .height(56.dp),
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.Center,
                 ) {
                     val textStyleByPage = if (pagerState.currentPage == page) {
                         MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
                         )
                     } else {
                         MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = FontWeight.Normal
+                            fontWeight = FontWeight.Normal,
                         )
                     }
                     Text(
                         modifier = Modifier,
                         style = textStyleByPage,
                         text = pagerItemList[page].toString(),
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
                     )
                 }
             }
@@ -288,8 +311,8 @@ fun <T> HorizontalScrollSelector(
                     .align(Alignment.BottomCenter)
                     .height(112.dp)
                     .background(
-                        Color.Black.copy(alpha = .25F)
-                    )
+                        Color.Black.copy(alpha = .25F),
+                    ),
             )
         }
     }

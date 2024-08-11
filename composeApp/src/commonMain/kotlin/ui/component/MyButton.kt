@@ -1,3 +1,28 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2024 Anwar Pasaribu
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Project Name: Tabiat
+ */
 package ui.component
 
 import androidx.compose.foundation.layout.size
@@ -26,13 +51,13 @@ fun DeleteIconButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
             onClick()
         },
         colors = IconButtonDefaults.filledIconButtonColors(
-            containerColor = MaterialTheme.colorScheme.error
-        )
+            containerColor = MaterialTheme.colorScheme.error,
+        ),
     ) {
         Icon(
             imageVector = Icons.Default.Delete,
             tint = Color.White,
-            contentDescription = "Delete"
+            contentDescription = "Delete",
         )
     }
 }
@@ -42,25 +67,27 @@ fun BackButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     showBackground: Boolean = false,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     IconButton(
         modifier = modifier,
         enabled = enabled,
         onClick = { onClick() },
         colors = IconButtonDefaults.filledIconButtonColors(
-            containerColor = if (showBackground) MaterialTheme.colorScheme.background else Color.Transparent
+            containerColor = if (showBackground) MaterialTheme.colorScheme.background else Color.Transparent,
         ),
         content = {
             Icon(
                 painter = rememberVectorPainter(
                     image = if (getPlatform().type == PlatformType.ANDROID) {
                         Icons.AutoMirrored.Filled.ArrowBack
-                    } else Icons.AutoMirrored.Filled.KeyboardArrowLeft
+                    } else {
+                        Icons.AutoMirrored.Filled.KeyboardArrowLeft
+                    },
                 ),
-                contentDescription = "Back"
+                contentDescription = "Back",
             )
-        }
+        },
     )
 }
 
@@ -69,7 +96,7 @@ fun MyPrimaryButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     textContent: @Composable () -> Unit,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Button(
         modifier = modifier,
@@ -77,7 +104,7 @@ fun MyPrimaryButton(
         shape = MaterialTheme.shapes.small,
         onClick = {
             onClick()
-        }
+        },
     ) {
         textContent()
     }

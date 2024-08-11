@@ -1,3 +1,28 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2024 Anwar Pasaribu
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Project Name: Tabiat
+ */
 package features.home
 
 import androidx.lifecycle.ViewModel
@@ -72,8 +97,8 @@ class HomeScreenViewModel(
                     isFuture = false,
                     isToday = false,
                     date = today,
-                    hasActivity = false
-                )
+                    hasActivity = false,
+                ),
             )
             withContext(Dispatchers.IO) {
                 listOfDaysThisWeek.forEachIndexed { index, date ->
@@ -86,7 +111,7 @@ class HomeScreenViewModel(
                     val lowerLabel = dayOfMonth.toString()
 
                     val exerciseLogList = getExerciseLogListByDateTimeStampUseCase.invoke(
-                        date.toEpochTimeStamp()
+                        date.toEpochTimeStamp(),
                     )
                     weeklyUiDataList.add(
                         HomeWeeklyUiData(
@@ -95,8 +120,8 @@ class HomeScreenViewModel(
                             isFuture = isFuture,
                             isToday = isToday,
                             date = date,
-                            hasActivity = exerciseLogList.isNotEmpty()
-                        )
+                            hasActivity = exerciseLogList.isNotEmpty(),
+                        ),
                     )
                 }
                 _weeklyDataListStateFlow.value = weeklyUiDataList
@@ -133,7 +158,7 @@ class HomeScreenViewModel(
             progress = this.progress,
             lastActivityDate = lastActivityDateFormatted.orEmpty(),
             lastActivityDetail = formattedLastActivityDetail.orEmpty(),
-            exerciseImageUrl = this.lastExercise?.image.orEmpty()
+            exerciseImageUrl = this.lastExercise?.image.orEmpty(),
         )
     }
 
@@ -168,7 +193,7 @@ private fun Long?.epochTimestampToShortDateTimeFormat(): String {
 
     // Convert epoch timestamp to LocalDateTime object
     val dateTime = Instant.fromEpochMilliseconds(
-        this
+        this,
     ).toLocalDateTime(TimeZone.currentSystemDefault())
 
     // Format the date using the desired pattern

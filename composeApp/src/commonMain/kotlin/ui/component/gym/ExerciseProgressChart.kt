@@ -1,3 +1,28 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2024 Anwar Pasaribu
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Project Name: Tabiat
+ */
 package ui.component.gym
 
 import androidx.compose.foundation.layout.Box
@@ -22,23 +47,23 @@ import com.aay.compose.lineChart.model.LineType
 data class ExerciseAxisData(
     val title: String,
     val xAxis: List<Double>,
-    val yAxis: List<Long>
+    val yAxis: List<Long>,
 )
 
 @Composable
 fun ExerciseProgressLineChart(
     modifier: Modifier = Modifier,
-    axisData: ExerciseAxisData
+    axisData: ExerciseAxisData,
 ) {
     if (axisData.xAxis.isEmpty() || axisData.yAxis.isEmpty()) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(156.dp)
+                .height(156.dp),
         ) {
             Box(
                 modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 Text(text = "Belum pernah latihan ini ya?")
             }
@@ -48,7 +73,6 @@ fun ExerciseProgressLineChart(
 
     Card(modifier = modifier.then(Modifier.height(156.dp))) {
         Column(modifier = Modifier.padding(start = 10.dp, top = 10.dp, bottom = 10.dp)) {
-
             val lineColor = MaterialTheme.colorScheme.primary.copy(alpha = .85f)
             val gridColor = MaterialTheme.colorScheme.primary.copy(alpha = .5f)
 
@@ -61,7 +85,7 @@ fun ExerciseProgressLineChart(
                     lineColor = lineColor,
                     lineType = LineType.CURVED_LINE,
                     lineShadow = true,
-                )
+                ),
             )
 
             com.aay.compose.lineChart.LineChart(
@@ -75,7 +99,7 @@ fun ExerciseProgressLineChart(
                 showXAxis = false,
                 yAxisRange = listData.size,
                 oneLineChart = false,
-                gridOrientation = GridOrientation.HORIZONTAL
+                gridOrientation = GridOrientation.HORIZONTAL,
             )
         }
     }

@@ -1,3 +1,28 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2024 Anwar Pasaribu
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Project Name: Tabiat
+ */
 package features.home
 
 import androidx.compose.animation.core.tween
@@ -63,7 +88,8 @@ import ui.component.gym.LatestExercise
 import ui.component.gym.WorkoutPlanItemView
 
 @OptIn(
-    ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class
+    ExperimentalMaterial3Api::class,
+    ExperimentalHazeMaterialsApi::class,
 )
 @Composable
 fun HomeScreen(
@@ -72,7 +98,6 @@ fun HomeScreen(
     openHistoryScreen: () -> Unit = {},
     onCreateNewWorkoutPlan: () -> Unit = {},
 ) {
-
     val hazeState = remember { HazeState() }
     val lazyListState = rememberLazyListState()
 
@@ -93,13 +118,13 @@ fun HomeScreen(
             targetDateTimeStamp = selectedDateTimeStamp,
             onDismiss = {
                 dailyExerciseLogVisible = false
-            }
+            },
         )
     }
 
     if (settingScreenVisible) {
         SettingBottomSheetDialog(
-            onDismiss = { settingScreenVisible = false }
+            onDismiss = { settingScreenVisible = false },
         )
     }
 
@@ -108,8 +133,8 @@ fun HomeScreen(
             Column(
                 modifier = Modifier.fillMaxWidth().hazeChild(
                     state = hazeState,
-                    style = HazeMaterials.regular(MaterialTheme.colorScheme.background)
-                ).background(Color.Transparent)
+                    style = HazeMaterials.regular(MaterialTheme.colorScheme.background),
+                ).background(Color.Transparent),
             ) {
                 CenterAlignedTopAppBar(
                     modifier = Modifier.fillMaxWidth(),
@@ -117,14 +142,14 @@ fun HomeScreen(
                     title = {
                         ImageWrapper(
                             resource = Res.drawable.tabiat_icon_32dp,
-                            contentDescription = ""
+                            contentDescription = "",
                         )
                     },
                     navigationIcon = {
                         IconButton(onClick = { settingScreenVisible = true }) {
                             Icon(
                                 imageVector = Icons.Outlined.Settings,
-                                contentDescription = "Setting Menu"
+                                contentDescription = "Setting Menu",
                             )
                         }
                     },
@@ -133,13 +158,14 @@ fun HomeScreen(
                             modifier = Modifier.size(30.dp),
                             colors = IconButtonDefaults.filledIconButtonColors(
                                 containerColor = MaterialTheme.colorScheme.primary,
-                                contentColor = MaterialTheme.colorScheme.onPrimary
+                                contentColor = MaterialTheme.colorScheme.onPrimary,
                             ),
-                            onClick = { onCreateNewWorkoutPlan() }) {
+                            onClick = { onCreateNewWorkoutPlan() },
+                        ) {
                             Icon(imageVector = Icons.Default.Add, contentDescription = "")
                         }
                         Spacer(Modifier.width(8.dp))
-                    }
+                    },
                 )
 
                 WeekView(
@@ -151,7 +177,7 @@ fun HomeScreen(
                     onWeekDayClick = {
                         selectedDateTimeStamp = viewModel.getAllDayTimeStamp(it)
                         dailyExerciseLogVisible = true
-                    }
+                    },
                 )
                 Spacer(Modifier.height(8.dp))
             }
@@ -162,7 +188,7 @@ fun HomeScreen(
             start = contentPadding.calculateStartPadding(LayoutDirection.Ltr) + 8.dp,
             top = contentPadding.calculateTopPadding() + 16.dp,
             end = contentPadding.calculateEndPadding(LayoutDirection.Ltr) + 8.dp,
-            bottom = contentPadding.calculateBottomPadding()
+            bottom = contentPadding.calculateBottomPadding(),
         )
 
         when (val uiState = homeScreenUiState) {
@@ -173,7 +199,7 @@ fun HomeScreen(
             is HomeScreenUiState.Error -> {
                 HomeErrorIndicator(
                     modifier = Modifier.fillMaxSize().padding(paddingValues),
-                    onCta = { onCreateNewWorkoutPlan() }
+                    onCta = { onCreateNewWorkoutPlan() },
                 )
             }
 
@@ -187,18 +213,17 @@ fun HomeScreen(
                     onEditWorkout = onEditWorkout,
                     onDeleteWorkout = {
                         viewModel.deleteWorkout(it)
-                    }
+                    },
                 )
             }
 
             HomeScreenUiState.Empty -> {
                 HomeEmptyState(
                     modifier = Modifier.fillMaxSize().padding(paddingValues),
-                    onCta = { onCreateNewWorkoutPlan() }
+                    onCta = { onCreateNewWorkoutPlan() },
                 )
             }
         }
-
     }
 }
 
@@ -209,12 +234,12 @@ private fun HomeLoadingIndicator(modifier: Modifier = Modifier) {
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.primary.copy(alpha = .1F),
-            )
+            ),
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(132.dp)
+                    .height(132.dp),
             )
         }
     }
@@ -229,7 +254,7 @@ private fun HomeErrorIndicator(modifier: Modifier = Modifier, onCta: () -> Unit)
             btnText = "Coba Tambah Workout",
             onClick = {
                 onCta()
-            }
+            },
         )
     }
 }
@@ -243,7 +268,7 @@ private fun HomeEmptyState(modifier: Modifier = Modifier, onCta: () -> Unit) {
             btnText = "Tambah Workout",
             onClick = {
                 onCta()
-            }
+            },
         )
     }
 }
@@ -269,7 +294,7 @@ fun HomeScreenList(
         items(items = listItem, key = { it.workoutPlanId }) { item ->
             WorkoutPlanItemView(
                 modifier = Modifier.fillMaxWidth().animateItemPlacement(
-                    animationSpec = tween(150, delayMillis = 600)
+                    animationSpec = tween(150, delayMillis = 600),
                 ),
                 title = item.title,
                 description = item.description,
@@ -284,10 +309,10 @@ fun HomeScreenList(
                             modifier = Modifier.padding(start = 10.dp, bottom = 10.dp),
                             exerciseImageUrl = item.exerciseImageUrl,
                             upperLabel = item.lastActivityDate,
-                            lowerLabel = item.lastActivityDetail
+                            lowerLabel = item.lastActivityDetail,
                         )
                     }
-                }
+                },
             )
         }
 

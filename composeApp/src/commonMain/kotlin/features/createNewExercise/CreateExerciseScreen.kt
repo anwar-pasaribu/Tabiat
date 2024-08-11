@@ -1,3 +1,28 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2024 Anwar Pasaribu
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Project Name: Tabiat
+ */
 package features.createNewExercise
 
 import androidx.compose.animation.AnimatedVisibility
@@ -54,14 +79,14 @@ import ui.component.BackButton
 import ui.component.InsetNavigationHeight
 
 @OptIn(
-    ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class
+    ExperimentalMaterial3Api::class,
+    ExperimentalHazeMaterialsApi::class,
 )
 @Composable
 fun CreateExerciseScreen(
     onBack: () -> Unit = {},
-    onNewExerciseCreated: () -> Unit = {}
+    onNewExerciseCreated: () -> Unit = {},
 ) {
-
     val hazeState = remember { HazeState() }
 
     val viewModel = koinInject<CreateExerciseScreenViewModel>()
@@ -77,8 +102,8 @@ fun CreateExerciseScreen(
             Column(
                 modifier = Modifier.fillMaxWidth().hazeChild(
                     state = hazeState,
-                    style = HazeMaterials.regular(MaterialTheme.colorScheme.background)
-                ).background(Color.Transparent)
+                    style = HazeMaterials.regular(MaterialTheme.colorScheme.background),
+                ).background(Color.Transparent),
             ) {
                 CenterAlignedTopAppBar(
                     modifier = Modifier.fillMaxWidth(),
@@ -91,9 +116,9 @@ fun CreateExerciseScreen(
                     title = {
                         Text(
                             "Buat Latihan Baru",
-                            style = MaterialTheme.typography.titleLarge
+                            style = MaterialTheme.typography.titleLarge,
                         )
-                    }
+                    },
                 )
                 Spacer(Modifier.height(8.dp))
             }
@@ -105,7 +130,7 @@ fun CreateExerciseScreen(
                 start = contentPadding.calculateStartPadding(LayoutDirection.Ltr) + 8.dp,
                 top = contentPadding.calculateTopPadding() + 16.dp,
                 end = contentPadding.calculateEndPadding(LayoutDirection.Ltr) + 8.dp,
-                bottom = contentPadding.calculateBottomPadding()
+                bottom = contentPadding.calculateBottomPadding(),
             ),
         ) {
             CreateExerciseForm(
@@ -114,7 +139,7 @@ fun CreateExerciseScreen(
                 onSave = {
                     viewModel.saveExercise(it)
                     onNewExerciseCreated()
-                }
+                },
             )
         }
     }
@@ -124,14 +149,12 @@ fun CreateExerciseScreen(
 fun CreateExerciseForm(
     modifier: Modifier = Modifier,
     onSave: (Exercise) -> Unit,
-    muscleGroups: List<String> = emptyList()
+    muscleGroups: List<String> = emptyList(),
 ) {
-
     var shouldShowTargetMuscleList by remember { mutableStateOf(false) }
     var exerciseMuscleTarget by remember { mutableStateOf("") }
 
     Surface {
-
         Column(modifier = modifier.then(Modifier)) {
             var exerciseName by remember { mutableStateOf("") }
             var exerciseNotes by remember { mutableStateOf("") }
@@ -149,9 +172,9 @@ fun CreateExerciseForm(
                 placeholder = { Text("Ex. Dumbell Curl") },
                 keyboardOptions = KeyboardOptions.Default.copy(
                     capitalization = KeyboardCapitalization.Words,
-                    imeAction = ImeAction.Next
+                    imeAction = ImeAction.Next,
                 ),
-                maxLines = 1
+                maxLines = 1,
             )
             Spacer(Modifier.height(8.dp))
             ButtonRowWithAnimatedContent(
@@ -159,7 +182,7 @@ fun CreateExerciseForm(
                 animatedText = exerciseMuscleTarget,
                 onClick = {
                     shouldShowTargetMuscleList = true
-                }
+                },
             )
             OutlinedTextField(
                 modifier = Modifier
@@ -173,9 +196,9 @@ fun CreateExerciseForm(
                 placeholder = { Text("Ex. Angkat Dumbell") },
                 keyboardOptions = KeyboardOptions.Default.copy(
                     capitalization = KeyboardCapitalization.Sentences,
-                    imeAction = ImeAction.Done
+                    imeAction = ImeAction.Done,
                 ),
-                maxLines = 1
+                maxLines = 1,
             )
 
             Spacer(Modifier.height(32.dp))
@@ -196,10 +219,10 @@ fun CreateExerciseForm(
                             equipment = "",
                             instructions = "",
                             video = "",
-                            image = ""
-                        )
+                            image = "",
+                        ),
                     )
-                }
+                },
             ) {
                 Text(text = "Tambah Latihan")
             }
@@ -213,13 +236,13 @@ fun CreateExerciseForm(
             onDismiss = {
                 shouldShowTargetMuscleList = false
             },
-            showFullScreen = false
+            showFullScreen = false,
         ) {
             val muscleTarget = muscleGroups
             Text(
                 modifier = Modifier.padding(16.dp),
                 text = "Pilih Target Otot",
-                style = MaterialTheme.typography.headlineSmall
+                style = MaterialTheme.typography.headlineSmall,
             )
             LazyColumn {
                 items(items = muscleTarget) { item ->
@@ -230,11 +253,12 @@ fun CreateExerciseForm(
                         onClick = {
                             exerciseMuscleTarget = item
                             shouldShowTargetMuscleList = false
-                        }
+                        },
                     ) {
                         Text(
                             modifier = Modifier.padding(16.dp),
-                            text = item, style = MaterialTheme.typography.titleLarge
+                            text = item,
+                            style = MaterialTheme.typography.titleLarge,
                         )
                     }
                 }
@@ -251,30 +275,32 @@ fun ButtonRowWithAnimatedContent(
     modifier: Modifier = Modifier,
     title: String,
     animatedText: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
-    Box(modifier = Modifier
-        .clickable {
-            onClick()
-        }
-        .fillMaxWidth()
-        .height(64.dp)) {
+    Box(
+        modifier = Modifier
+            .clickable {
+                onClick()
+            }
+            .fillMaxWidth()
+            .height(64.dp),
+    ) {
         Column(
             modifier = Modifier
                 .align(Alignment.CenterStart)
                 .padding(start = 16.dp),
         ) {
             Text(
-                text = title
+                text = title,
             )
             AnimatedVisibility(
-                visible = animatedText.isNotEmpty()
+                visible = animatedText.isNotEmpty(),
             ) {
                 Text(
                     text = animatedText,
                     style = MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.Bold
-                    )
+                        fontWeight = FontWeight.Bold,
+                    ),
                 )
             }
         }
@@ -284,7 +310,7 @@ fun ButtonRowWithAnimatedContent(
                 .align(Alignment.CenterEnd)
                 .padding(end = 8.dp),
             imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
-            contentDescription = title
+            contentDescription = title,
         )
     }
 }

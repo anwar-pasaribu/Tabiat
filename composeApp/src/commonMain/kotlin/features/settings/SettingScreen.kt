@@ -1,3 +1,28 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2024 Anwar Pasaribu
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Project Name: Tabiat
+ */
 package features.settings
 
 import androidx.compose.animation.animateColorAsState
@@ -42,7 +67,7 @@ import ui.component.InsetNavigationHeight
 @Composable
 fun SettingBottomSheetDialog(
     modifier: Modifier = Modifier,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     val viewModel = koinInject<SettingScreenViewModel>()
     val gymTimerOptions by viewModel.exerciseTimerOptions.collectAsState()
@@ -54,7 +79,7 @@ fun SettingBottomSheetDialog(
 
     BottomSheet(
         onDismiss = { onDismiss() },
-        showFullScreen = false
+        showFullScreen = false,
     ) {
         SettingPage(
             modifier = modifier,
@@ -71,7 +96,7 @@ fun SettingBottomSheetDialog(
             },
             onCreateDummyData = {
                 viewModel.createDummyData()
-            }
+            },
         )
     }
 }
@@ -98,7 +123,7 @@ fun SettingPage(
     }
 
     Column(
-        modifier = modifier
+        modifier = modifier,
     ) {
         Text(
             modifier = Modifier
@@ -109,12 +134,12 @@ fun SettingPage(
                     onClick = {},
                     onDoubleClick = {
                         onCreateDummyData()
-                    }
+                    },
                 )
                 .fillMaxWidth()
                 .padding(horizontal = 8.dp),
             text = "Settings",
-            style = MaterialTheme.typography.headlineLarge
+            style = MaterialTheme.typography.headlineLarge,
         )
         SettingSectionLabel(title = "Durasi timer per set")
         Row(
@@ -129,7 +154,7 @@ fun SettingPage(
                         .weight(1F),
                     duration = exerciseTimerOptions[it].setTimerDuration,
                     label = "detik",
-                    selected = selectedSetTimer.value == exerciseTimerOptions[it].setTimerDuration
+                    selected = selectedSetTimer.value == exerciseTimerOptions[it].setTimerDuration,
                 ) {
                     onPerSetTimerClick(exerciseTimerOptions[it].setTimerDuration)
                     selectedSetTimer.value = exerciseTimerOptions[it].setTimerDuration
@@ -149,7 +174,7 @@ fun SettingPage(
                         .weight(1F),
                     duration = exerciseTimerOptions[it].breakTimeDuration,
                     label = "menit",
-                    selected = selectedBreakTime.value == exerciseTimerOptions[it].breakTimeDuration
+                    selected = selectedBreakTime.value == exerciseTimerOptions[it].breakTimeDuration,
                 ) {
                     onPerBreakTimeClick(exerciseTimerOptions[it].breakTimeDuration)
                     selectedBreakTime.value = exerciseTimerOptions[it].breakTimeDuration
@@ -163,7 +188,7 @@ fun SettingPage(
             onSoundEffectSelected = {
                 selectedTimerSound = it
                 onTimerSoundChangeClick(it)
-            }
+            },
         )
         AboutAppSection()
         Spacer(modifier = Modifier.height(48.dp))
@@ -179,7 +204,7 @@ private fun ColumnScope.SettingSectionLabel(modifier: Modifier = Modifier, title
             .fillMaxWidth()
             .padding(horizontal = 8.dp),
         text = title,
-        style = MaterialTheme.typography.titleMedium
+        style = MaterialTheme.typography.titleMedium,
     )
     Spacer(modifier = Modifier.height(8.dp))
 }
@@ -189,16 +214,15 @@ private fun ColumnScope.SettingListMenu(
     modifier: Modifier = Modifier,
     menuIcon: ImageVector,
     textContent: @Composable RowScope.() -> Unit,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
-
     Row(
         modifier = Modifier.clickable { onClick() }
-            .then(modifier)
+            .then(modifier),
     ) {
         Icon(
             imageVector = menuIcon,
-            contentDescription = null
+            contentDescription = null,
         )
         textContent()
     }
@@ -210,11 +234,14 @@ fun TimerChoice(
     duration: Int,
     label: String,
     selected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     val animatedColor = animateColorAsState(
-        targetValue = if (selected) MaterialTheme.colorScheme.primary
-        else MaterialTheme.colorScheme.primary.copy(alpha = .25F)
+        targetValue = if (selected) {
+            MaterialTheme.colorScheme.primary
+        } else {
+            MaterialTheme.colorScheme.primary.copy(alpha = .25F)
+        },
     )
     val border = if (selected) {
         BorderStroke(2.dp, animatedColor.value)
@@ -237,7 +264,7 @@ fun TimerChoice(
 fun TimerSoundSection(
     modifier: Modifier = Modifier,
     selectedTimerSound: SoundEffectType,
-    onSoundEffectSelected: (SoundEffectType) -> Unit
+    onSoundEffectSelected: (SoundEffectType) -> Unit,
 ) {
     var selectedSoundEffectType by remember {
         mutableStateOf(selectedTimerSound)
@@ -253,7 +280,7 @@ fun TimerSoundSection(
     if (playSoundEffectByType != SoundEffectType.NONE) {
         PlaySoundEffect(
             playSoundEffectByType,
-            playSoundEffectByType
+            playSoundEffectByType,
         )
     }
     val soundTypes = SoundEffectType.entries.toTypedArray()
@@ -261,14 +288,14 @@ fun TimerSoundSection(
         modifier = modifier.then(
             Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp)
+                .padding(horizontal = 8.dp),
         ),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         soundTypes.forEach {
             SoundChoice(
                 soundEffectType = it,
-                selected = it == selectedSoundEffectType
+                selected = it == selectedSoundEffectType,
             ) {
                 playSoundEffectByType = it
                 selectedSoundEffectType = it
@@ -283,11 +310,14 @@ fun SoundChoice(
     modifier: Modifier = Modifier,
     soundEffectType: SoundEffectType,
     selected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     val animatedColor = animateColorAsState(
-        targetValue = if (selected) MaterialTheme.colorScheme.primary
-        else MaterialTheme.colorScheme.primary.copy(alpha = .25F)
+        targetValue = if (selected) {
+            MaterialTheme.colorScheme.primary
+        } else {
+            MaterialTheme.colorScheme.primary.copy(alpha = .25F)
+        },
     )
     val border = if (selected) {
         BorderStroke(2.dp, animatedColor.value)
@@ -312,16 +342,14 @@ fun AboutAppSection() {
         modifier = Modifier
             .fillMaxWidth()
             .height(128.dp),
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
-
         Text(
             text = "© Copyright 2024 Tabiat (by Anwar Pasaribu)\n" +
-                    "All rights reserved.",
+                "All rights reserved.",
             style = MaterialTheme.typography.labelMedium,
             modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
-
     }
 }

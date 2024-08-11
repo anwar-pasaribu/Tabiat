@@ -1,3 +1,28 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2024 Anwar Pasaribu
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Project Name: Tabiat
+ */
 package features.workoutHistory
 
 import androidx.compose.foundation.background
@@ -45,46 +70,49 @@ private fun EmojiCalendarCell(
     isFuture: Boolean = false,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    cellExtraContent: @Composable() (BoxScope.() -> Unit) = {},
+    cellExtraContent:
+    @Composable()
+    (BoxScope.() -> Unit) = {},
 ) {
     val circleShape = remember { CircleShape }
     Box(
         modifier = modifier
             .aspectRatio(1f)
-            .fillMaxSize()
+            .fillMaxSize(),
     ) {
         Box(
             modifier = modifier
                 .padding(2.dp)
                 .aspectRatio(1f)
                 .clip(circleShape)
-                .background(MaterialTheme.colorScheme.surfaceContainerHighest.copy(
-                    alpha = if (isFuture || !enabled) 0.25f else 1f
-                ))
+                .background(
+                    MaterialTheme.colorScheme.surfaceContainerHighest.copy(
+                        alpha = if (isFuture || !enabled) 0.25f else 1f,
+                    ),
+                )
                 .clickable(enabled = enabled) { onClick() }
-                .fillMaxSize()
+                .fillMaxSize(),
         ) {
             if (isToday) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(color = MaterialTheme.colorScheme.errorContainer)
+                        .background(color = MaterialTheme.colorScheme.errorContainer),
                 )
             }
             Text(
                 text = cellText,
                 style = MaterialTheme.typography.bodyLarge.copy(
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                 ),
                 color = MaterialTheme.colorScheme.onSecondaryContainer.copy(
-                    alpha = if (isFuture) 0.25f else 1f
+                    alpha = if (isFuture) 0.25f else 1f,
                 ),
-                modifier = Modifier.align(Alignment.Center)
+                modifier = Modifier.align(Alignment.Center),
             )
         }
 
         cellExtraContent()
-
     }
 }
 
@@ -95,13 +123,13 @@ private fun WeekdayCell(weekday: Int, modifier: Modifier = Modifier) {
     }
     Box(
         modifier = modifier.fillMaxSize().padding(vertical = 4.dp),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Text(
             text = text,
             color = MaterialTheme.colorScheme.onPrimaryContainer,
             style = MaterialTheme.typography.labelMedium,
-            modifier = Modifier.align(Alignment.BottomCenter)
+            modifier = Modifier.align(Alignment.BottomCenter),
         )
     }
 }
@@ -146,10 +174,10 @@ private fun EmojiCalendarGrid(
                                 .padding(bottom = 6.dp)
                                 .background(dotColor, CircleShape)
                                 .size(6.dp)
-                                .align(Alignment.BottomCenter)
+                                .align(Alignment.BottomCenter),
                         )
                     }
-                }
+                },
             )
         }
     }
@@ -200,14 +228,17 @@ private fun EmojiCalendarCustomLayout(
             measurable.measure(
                 constraints.copy(
                     maxHeight = if (index <= 6) singleWidth / 2 else singleWidth,
-                    maxWidth = singleWidth
-                )
+                    maxWidth = singleWidth,
+                ),
             )
         }
 
         val calendarLayoutHeight =
-            if (placeables.size != 42) currentY + singleWidth + verticalGap
-            else currentY + verticalGap
+            if (placeables.size != 42) {
+                currentY + singleWidth + verticalGap
+            } else {
+                currentY + verticalGap
+            }
         layout(
             width = constraints.maxWidth,
             height = calendarLayoutHeight,
@@ -222,7 +253,6 @@ private fun EmojiCalendarCustomLayout(
     }
 }
 
-
 @Composable
 fun WorkoutHistoryCalendarView(
     modifier: Modifier = Modifier,
@@ -232,7 +262,7 @@ fun WorkoutHistoryCalendarView(
     val month = monthCalendarData.month
     val monthYearLabel = remember {
         month.month.name.lowercase().replaceFirstChar { it.uppercaseChar() } +
-                " " + month.year
+            " " + month.year
     }
     Column(modifier = modifier) {
         Spacer(modifier = Modifier.height(16.dp))

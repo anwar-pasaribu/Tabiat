@@ -1,3 +1,28 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2024 Anwar Pasaribu
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Project Name: Tabiat
+ */
 package features.workoutPlanDetail
 
 import androidx.compose.animation.AnimatedVisibility
@@ -69,8 +94,9 @@ import ui.component.gym.ExerciseFinishingStatusView
 import ui.component.gym.WorkoutExerciseItemView
 
 @OptIn(
-    ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class,
-    ExperimentalFoundationApi::class
+    ExperimentalMaterial3Api::class,
+    ExperimentalHazeMaterialsApi::class,
+    ExperimentalFoundationApi::class,
 )
 @Composable
 fun WorkoutDetailScreen(
@@ -79,7 +105,6 @@ fun WorkoutDetailScreen(
     onNewExerciseToWorkoutPlan: () -> Unit = {},
     onSelectExercise: (exerciseId: Long) -> Unit = {},
 ) {
-
     var editMode by remember { mutableStateOf(false) }
     val hazeState = remember { HazeState() }
     val lazyListState = rememberLazyListState()
@@ -90,7 +115,7 @@ fun WorkoutDetailScreen(
 
     val animateAlphaValue by animateFloatAsState(
         targetValue = if (editMode) 0f else 1f,
-        label = "animateAlphaValue"
+        label = "animateAlphaValue",
     )
 
     LaunchedEffect(workoutPlanId) {
@@ -111,8 +136,8 @@ fun WorkoutDetailScreen(
             Column(
                 modifier = Modifier.fillMaxWidth().hazeChild(
                     state = hazeState,
-                    style = HazeMaterials.regular(MaterialTheme.colorScheme.background)
-                ).background(Color.Transparent)
+                    style = HazeMaterials.regular(MaterialTheme.colorScheme.background),
+                ).background(Color.Transparent),
             ) {
                 CenterAlignedTopAppBar(
                     modifier = Modifier.fillMaxWidth(),
@@ -129,16 +154,17 @@ fun WorkoutDetailScreen(
                         IconButton(
                             modifier = Modifier.alpha(animateAlphaValue).scale(animateAlphaValue),
                             enabled = !editMode,
-                            onClick = { onNewExerciseToWorkoutPlan() }) {
+                            onClick = { onNewExerciseToWorkoutPlan() },
+                        ) {
                             Icon(imageVector = Icons.Default.Add, contentDescription = "")
                         }
                         IconButton(onClick = { editMode = !editMode }) {
                             Icon(
                                 imageVector = if (editMode) Icons.Default.Close else Icons.Outlined.Edit,
-                                contentDescription = ""
+                                contentDescription = "",
                             )
                         }
-                    }
+                    },
                 )
                 Spacer(Modifier.height(8.dp))
             }
@@ -152,17 +178,17 @@ fun WorkoutDetailScreen(
                 start = contentPadding.calculateStartPadding(LayoutDirection.Ltr) + 8.dp,
                 top = contentPadding.calculateTopPadding() + 16.dp,
                 end = contentPadding.calculateEndPadding(LayoutDirection.Ltr) + 8.dp,
-                bottom = contentPadding.calculateBottomPadding()
+                bottom = contentPadding.calculateBottomPadding(),
             ),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             stickyHeader(contentType = "exercises") {
                 Box(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
                 ) {
                     Text(
                         text = workoutPlanItem?.name.orEmpty(),
-                        style = MaterialTheme.typography.headlineMedium
+                        style = MaterialTheme.typography.headlineMedium,
                     )
                 }
             }
@@ -175,7 +201,7 @@ fun WorkoutDetailScreen(
                             btnText = "Tambah Latihan",
                             onClick = {
                                 onNewExerciseToWorkoutPlan()
-                            }
+                            },
                         )
                     }
                 }
@@ -183,12 +209,11 @@ fun WorkoutDetailScreen(
             items(
                 items = listItem,
                 key = { item -> item.exercise.id },
-                contentType = { "exercises" }
+                contentType = { "exercises" },
             ) { item: ExerciseProgress ->
                 Box(
                     modifier = Modifier.fillMaxWidth().animateItemPlacement(),
                 ) {
-
                     WorkoutExerciseItemView(
                         modifier = Modifier.fillMaxWidth(),
                         title = item.exercise.name,
@@ -201,9 +226,9 @@ fun WorkoutDetailScreen(
                         progressContentView = {
                             ExerciseFinishingStatusView(
                                 total = item.sessionTotal,
-                                progress = item.sessionDoneCount
+                                progress = item.sessionDoneCount,
                             )
-                        }
+                        },
                     )
 
                     AnimatedVisibility(
@@ -212,16 +237,16 @@ fun WorkoutDetailScreen(
                         enter = scaleIn(
                             animationSpec = spring(
                                 dampingRatio = Spring.DampingRatioMediumBouncy,
-                                stiffness = Spring.StiffnessMediumLow
-                            )
+                                stiffness = Spring.StiffnessMediumLow,
+                            ),
                         ),
-                        exit = scaleOut(animationSpec = tween(150))
+                        exit = scaleOut(animationSpec = tween(150)),
                     ) {
                         Row {
                             DeleteIconButton(
                                 onClick = {
                                     viewModel.deleteExercise(workoutPlanId, item.exercise.id)
-                                }
+                                },
                             )
                             Spacer(Modifier.width(8.dp))
                         }

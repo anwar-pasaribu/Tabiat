@@ -1,3 +1,28 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2024 Anwar Pasaribu
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Project Name: Tabiat
+ */
 package ui.component.gym
 
 import androidx.compose.animation.AnimatedContent
@@ -91,7 +116,6 @@ fun TimerDisplay(
     onTimerFinished: () -> Unit,
     onCancelTimer: (Int) -> Unit,
 ) {
-
     var countDownInitial by remember {
         mutableIntStateOf(countDown)
     }
@@ -128,22 +152,20 @@ fun TimerDisplay(
 
     Box(
         modifier = modifier.then(Modifier.fillMaxSize().background(Color.Black.copy(alpha = .75F))),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
-
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-
             IconButton(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 colors = IconButtonDefaults.filledIconButtonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
                 ),
-                onClick = { onCancelTimer(timeLeft) }
+                onClick = { onCancelTimer(timeLeft) },
             ) {
                 Icon(imageVector = Icons.Default.Close, contentDescription = "")
             }
@@ -156,15 +178,14 @@ fun TimerDisplay(
                         .size(324.dp)
                         .clip(CircleShape)
                         .background(bigCircleBackground, CircleShape)
-                        .border(8.dp, bigCircleBackground, CircleShape)
+                        .border(8.dp, bigCircleBackground, CircleShape),
                 ) {
                     Row(modifier = Modifier.align(Alignment.Center)) {
-
                         val timerTextStyle = MaterialTheme.typography.headlineLarge.copy(
                             color = MaterialTheme.colorScheme.onPrimary,
                             fontSize = 128.sp,
                             fontWeight = FontWeight.ExtraBold,
-                            fontFamily = FontFamily.Monospace
+                            fontFamily = FontFamily.Monospace,
                         )
 
                         timeLeft.toString()
@@ -178,24 +199,26 @@ fun TimerDisplay(
                                             // If the target number is larger, it slides up and fades in
                                             // while the initial (smaller) number slides up and fades out.
                                             (slideInVertically { height -> height } + fadeIn()).togetherWith(
-                                                slideOutVertically { height -> -height } + fadeOut())
+                                                slideOutVertically { height -> -height } + fadeOut(),
+                                            )
                                         } else {
                                             // If the target number is smaller, it slides down and fades in
                                             // while the initial number slides down and fades out.
                                             (slideInVertically { height -> -height } + fadeIn()).togetherWith(
-                                                slideOutVertically { height -> height } + fadeOut())
+                                                slideOutVertically { height -> height } + fadeOut(),
+                                            )
                                         }.using(
                                             // Disable clipping since the faded slide-in/out should
                                             // be displayed out of bounds.
-                                            SizeTransform(clip = false)
+                                            SizeTransform(clip = false),
                                         )
                                     },
-                                    label = "timerAnimation"
+                                    label = "timerAnimation",
                                 ) { count ->
                                     Text(
                                         modifier = Modifier,
                                         text = "${count.digitChar}",
-                                        style = timerTextStyle
+                                        style = timerTextStyle,
                                     )
                                 }
                             }
@@ -204,7 +227,7 @@ fun TimerDisplay(
                 val animatedFloat = animateFloatAsState(
                     targetValue = timeLeft / countDownInitial.toFloat(),
                     animationSpec = tween(),
-                    label = "animateTimerProgress"
+                    label = "animateTimerProgress",
                 )
                 CircularProgressIndicator(
                     progress = {
@@ -221,14 +244,14 @@ fun TimerDisplay(
             if (!breakTime) {
                 Spacer(Modifier.height(24.dp))
                 Row(
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
                 ) {
                     ExtendTimerButton(
                         btnText = "5",
                         onClick = {
                             timeLeft += 5
                             countDownInitial += 5
-                        }
+                        },
                     )
                     Spacer(Modifier.width(16.dp))
                     ExtendTimerButton(
@@ -236,7 +259,7 @@ fun TimerDisplay(
                         onClick = {
                             timeLeft += 15
                             countDownInitial += 15
-                        }
+                        },
                     )
                 }
             }
@@ -250,7 +273,6 @@ fun TimerDisplayFloating(
     countDown: Int,
     countDownInitial: Int,
 ) {
-
     val bigCircleBackground = Color.Red
 
     Box(modifier = modifier.then(Modifier.size(100.dp)), Alignment.Center) {
@@ -258,26 +280,25 @@ fun TimerDisplayFloating(
             modifier = modifier.then(Modifier.size(72.dp)),
             elevation = CardDefaults.elevatedCardElevation(8.dp),
             shape = CircleShape,
-            colors = CardDefaults.cardColors(containerColor = Color.Black)
+            colors = CardDefaults.cardColors(containerColor = Color.Black),
         ) {
             Box(
                 modifier = Modifier.clip(CircleShape).size(72.dp),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 Box(
                     modifier = Modifier
                         .size(72.dp)
                         .clip(CircleShape)
                         .background(bigCircleBackground, CircleShape)
-                        .border(4.dp, bigCircleBackground, CircleShape)
+                        .border(4.dp, bigCircleBackground, CircleShape),
                 ) {
                     Row(modifier = Modifier.align(Alignment.Center)) {
-
                         val timerTextStyle = MaterialTheme.typography.headlineLarge.copy(
                             color = Color.White,
                             fontSize = 32.sp,
                             fontWeight = FontWeight.ExtraBold,
-                            fontFamily = FontFamily.Monospace
+                            fontFamily = FontFamily.Monospace,
                         )
 
                         countDown.toString()
@@ -288,20 +309,22 @@ fun TimerDisplayFloating(
                                     transitionSpec = {
                                         if (targetState > initialState) {
                                             (slideInVertically { height -> height } + fadeIn()).togetherWith(
-                                                slideOutVertically { height -> -height } + fadeOut())
+                                                slideOutVertically { height -> -height } + fadeOut(),
+                                            )
                                         } else {
                                             (slideInVertically { height -> -height } + fadeIn()).togetherWith(
-                                                slideOutVertically { height -> height } + fadeOut())
+                                                slideOutVertically { height -> height } + fadeOut(),
+                                            )
                                         }.using(
-                                            SizeTransform(clip = false)
+                                            SizeTransform(clip = false),
                                         )
                                     },
-                                    label = "timerAnimation"
+                                    label = "timerAnimation",
                                 ) { count ->
                                     Text(
                                         modifier = Modifier,
                                         text = "${count.digitChar}",
-                                        style = timerTextStyle
+                                        style = timerTextStyle,
                                     )
                                 }
                             }
@@ -310,7 +333,7 @@ fun TimerDisplayFloating(
                 val animatedFloat = animateFloatAsState(
                     targetValue = countDown / countDownInitial.toFloat(),
                     animationSpec = tween(),
-                    label = "animateTimerProgress"
+                    label = "animateTimerProgress",
                 )
                 CircularProgressIndicator(
                     progress = {
@@ -332,9 +355,8 @@ fun FloatingTimerView(
     timerLeft: Int,
     initialDuration: Int,
     initialBreakTimeDuration: Int,
-    timerSoundEffect: SoundEffectType
+    timerSoundEffect: SoundEffectType,
 ) {
-
     if (initialDuration == 0 || initialBreakTimeDuration == 0) return
 
     var timerDuration by remember { mutableIntStateOf(timerLeft) }
@@ -364,9 +386,9 @@ fun FloatingTimerView(
     Box(
         modifier = Modifier
             .padding(
-                vertical = WindowInsets.safeGestures.asPaddingValues().calculateTopPadding()
+                vertical = WindowInsets.safeGestures.asPaddingValues().calculateTopPadding(),
             )
-            .fillMaxSize()
+            .fillMaxSize(),
     ) {
         Box(
             Modifier
@@ -374,7 +396,7 @@ fun FloatingTimerView(
                 .offset {
                     IntOffset(
                         boxOffsetX.value.roundToInt(),
-                        boxOffsetY.value.roundToInt()
+                        boxOffsetY.value.roundToInt(),
                     )
                 }
                 .pointerInput(Unit) {
@@ -382,8 +404,11 @@ fun FloatingTimerView(
                         onDragEnd = {
                             // Snap to the nearest side horizontally
                             val targetOffsetX =
-                                if (boxOffsetX.value < (screenWidthPx / 2) - (boxSizePx / 2)) 0f
-                                else (screenWidth - boxSize).toPx()
+                                if (boxOffsetX.value < (screenWidthPx / 2) - (boxSizePx / 2)) {
+                                    0f
+                                } else {
+                                    (screenWidth - boxSize).toPx()
+                                }
                             coroutineScope.launch {
                                 boxOffsetX.animateTo(targetOffsetX)
                             }
@@ -394,7 +419,7 @@ fun FloatingTimerView(
                             coroutineScope.launch {
                                 boxOffsetY.animateTo(targetOffsetY)
                             }
-                        }
+                        },
                     ) { change, dragAmount ->
 
                         change.consume()
@@ -407,26 +432,29 @@ fun FloatingTimerView(
                             boxOffsetX.snapTo(
                                 newOffsetX.coerceIn(
                                     0f,
-                                    (screenWidth - boxSize).toPx()
-                                )
+                                    (screenWidth - boxSize).toPx(),
+                                ),
                             )
                             boxOffsetY.snapTo(
                                 newOffsetY.coerceIn(
                                     0f,
-                                    (screenHeight - boxSize).toPx()
-                                )
+                                    (screenHeight - boxSize).toPx(),
+                                ),
                             )
                         }
                     }
-                }
+                },
         ) {
             val countDownInitial =
-                if (initialDuration < timerDuration) initialBreakTimeDuration
-                else initialDuration
+                if (initialDuration < timerDuration) {
+                    initialBreakTimeDuration
+                } else {
+                    initialDuration
+                }
             TimerDisplayFloating(
                 modifier = Modifier,
                 countDown = timerDuration,
-                countDownInitial = countDownInitial
+                countDownInitial = countDownInitial,
             )
         }
     }
@@ -436,28 +464,29 @@ fun FloatingTimerView(
 fun ExtendTimerButton(
     modifier: Modifier = Modifier,
     btnText: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     ElevatedButton(
         modifier = modifier,
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary
+            contentColor = MaterialTheme.colorScheme.onPrimary,
         ),
         elevation = ButtonDefaults.elevatedButtonElevation(defaultElevation = 0.dp),
         contentPadding = PaddingValues(start = 16.dp, top = 8.dp, end = 24.dp, bottom = 8.dp),
-        onClick = { onClick() }
+        onClick = { onClick() },
     ) {
         Icon(
             modifier = Modifier,
             imageVector = Icons.Default.Add,
-            contentDescription = ""
+            contentDescription = "",
         )
         Spacer(Modifier.width(2.dp))
         Text(
-            btnText, style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.Bold
-            )
+            btnText,
+            style = MaterialTheme.typography.titleLarge.copy(
+                fontWeight = FontWeight.Bold,
+            ),
         )
     }
 }

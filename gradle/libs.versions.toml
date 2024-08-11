@@ -29,6 +29,9 @@ sqlDelight = "2.0.2"
 ktor = "2.3.11"
 spotless = "6.25.0"
 
+google-services="4.4.2"
+firebase-crashlytics="3.0.2"
+
 [libraries]
 androidx-datastore-preferences-core = { module = "androidx.datastore:datastore-preferences-core", version.ref = "datastorePreferencesCore" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
@@ -88,3 +91,6 @@ kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", versio
 sqlDelight = { id = "app.cash.sqldelight", version.ref = "sqlDelight" }
 
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+
+googleServices = { id = "com.google.gms.google-services", version.ref = "google-services" }
+firebaseCrashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebase-crashlytics" }

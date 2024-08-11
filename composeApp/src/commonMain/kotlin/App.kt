@@ -1,3 +1,28 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2024 Anwar Pasaribu
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Project Name: Tabiat
+ */
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -40,7 +65,6 @@ import tabiat.composeapp.generated.resources.title_workout_history
 import ui.component.gym.FloatingTimerView
 import ui.theme.MyAppTheme
 
-
 enum class MyAppScreen(val title: StringResource) {
     Start(title = Res.string.title_home),
     InputWorkout(title = Res.string.title_input_workout),
@@ -69,27 +93,27 @@ fun App(
                     enterTransition = {
                         fadeIn() + slideIntoContainer(
                             AnimatedContentTransitionScope.SlideDirection.Left,
-                            animationSpec
+                            animationSpec,
                         )
                     },
                     exitTransition = {
                         slideOutOfContainer(
                             AnimatedContentTransitionScope.SlideDirection.Left,
-                            animationSpec
+                            animationSpec,
                         ) + fadeOut()
                     },
                     popEnterTransition = {
                         slideIntoContainer(
                             AnimatedContentTransitionScope.SlideDirection.Right,
-                            animationSpec
+                            animationSpec,
                         ) + fadeIn()
                     },
                     popExitTransition = {
                         fadeOut() + slideOutOfContainer(
                             AnimatedContentTransitionScope.SlideDirection.Right,
-                            animationSpec
+                            animationSpec,
                         )
-                    }
+                    },
                 ) {
                     composable(route = MyAppScreen.Start.name) {
                         HomeScreen(
@@ -109,7 +133,7 @@ fun App(
                             onCreateNewWorkoutPlan = {
                                 navViewModel.currentWorkoutPlanId.value = 0L
                                 navController.navigate(MyAppScreen.InputWorkout.name)
-                            }
+                            },
                         )
                     }
                     composable(route = MyAppScreen.InputWorkout.name) {
@@ -120,7 +144,7 @@ fun App(
                             },
                             onWorkoutSaved = {
                                 navController.navigateUp()
-                            }
+                            },
                         )
                     }
                     composable(route = MyAppScreen.InputExercise.name) {
@@ -131,7 +155,7 @@ fun App(
                             },
                             onCreateNewExerciseRequested = {
                                 navController.navigate(MyAppScreen.CreateNewExercise.name)
-                            }
+                            },
                         )
                     }
                     composable(
@@ -148,7 +172,7 @@ fun App(
                             onSelectExercise = {
                                 navViewModel.currentExerciseId.value = it
                                 navController.navigate(MyAppScreen.LogWorkoutExercise.name)
-                            }
+                            },
                         )
                     }
                     composable(route = MyAppScreen.LogWorkoutExercise.name) {
@@ -157,7 +181,7 @@ fun App(
                             exerciseId = navViewModel.currentExerciseId.value,
                             onBack = {
                                 navController.navigateUp()
-                            }
+                            },
                         )
                     }
                     composable(route = MyAppScreen.WorkoutHistory.name) {
@@ -172,7 +196,7 @@ fun App(
                             },
                             onNewExerciseCreated = {
                                 navController.navigateUp()
-                            }
+                            },
                         )
                     }
                 }
@@ -185,13 +209,13 @@ fun App(
                     visible = currentTimer != 0,
                     enter = scaleIn(),
                     exit = scaleOut(tween(4000)) + fadeOut(),
-                    label = "animate_floating_timer"
+                    label = "animate_floating_timer",
                 ) {
                     FloatingTimerView(
                         timerLeft = currentTimer,
                         initialDuration = initialTimerDuration,
                         initialBreakTimeDuration = initialBreakTimeDuration,
-                        timerSoundEffect = timerSoundEffect
+                        timerSoundEffect = timerSoundEffect,
                     )
                 }
             }

@@ -1,3 +1,28 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2024 Anwar Pasaribu
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Project Name: Tabiat
+ */
 package ui.component.calendar
 
 import androidx.compose.animation.AnimatedContent
@@ -62,7 +87,6 @@ fun WeekView(
                 .fillMaxWidth()
                 .padding(2.dp),
         ) {
-
             val dateAtFirstOfWeek = today.minus(today.dayOfWeek.isoDayNumber - 1, DateTimeUnit.DAY)
             val listOfDaysThisWeek = List(7) { index ->
                 dateAtFirstOfWeek.plus(index, DateTimeUnit.DAY)
@@ -73,7 +97,7 @@ fun WeekView(
                 lowerLabel = today.month.name.take(3),
                 onClick = {
                     onMonthNameClick()
-                }
+                },
             )
 
             Spacer(modifier = Modifier.width(10.dp))
@@ -81,9 +105,9 @@ fun WeekView(
                 modifier = Modifier.width(1.dp).height(32.dp)
                     .background(
                         MaterialTheme.colorScheme.surfaceContainerHighest,
-                        RoundedCornerShape(.5.dp)
+                        RoundedCornerShape(.5.dp),
                     )
-                    .align(Alignment.CenterVertically)
+                    .align(Alignment.CenterVertically),
             )
             Spacer(modifier = Modifier.width(10.dp))
 
@@ -106,7 +130,7 @@ fun WeekView(
                         val nowTimeStamp = Clock.System.now().toLocalDateTime(tz).time
                         val dateTime = LocalDateTime(date = date, time = nowTimeStamp)
                         onWeekDayClick(dateTime.toInstant(tz).toEpochMilliseconds())
-                    }
+                    },
                 )
                 if (index != 6) {
                     Spacer(modifier = Modifier.width(8.dp))
@@ -136,7 +160,7 @@ fun WeekView(
                 targetState = listWeeklyUiData.isNotEmpty(),
                 transitionSpec = {
                     fadeIn().togetherWith(fadeOut())
-                }
+                },
             ) { weeklyDataAvailable ->
                 if (weeklyDataAvailable) {
                     Row {
@@ -146,7 +170,7 @@ fun WeekView(
                             lowerLabel = firstData.lowerLabel,
                             onClick = {
                                 onMonthNameClick()
-                            }
+                            },
                         )
 
                         Spacer(modifier = Modifier.width(10.dp))
@@ -154,9 +178,9 @@ fun WeekView(
                             modifier = Modifier.width(1.dp).height(32.dp)
                                 .background(
                                     MaterialTheme.colorScheme.surfaceContainerHighest,
-                                    RoundedCornerShape(.5.dp)
+                                    RoundedCornerShape(.5.dp),
                                 )
-                                .align(Alignment.CenterVertically)
+                                .align(Alignment.CenterVertically),
                         )
                         Spacer(modifier = Modifier.width(10.dp))
 
@@ -170,7 +194,7 @@ fun WeekView(
                                 clickEnabled = !item.isFuture,
                                 onClick = {
                                     onWeekDayClick(item.date)
-                                }
+                                },
                             )
                             if (index != 6) {
                                 Spacer(modifier = Modifier.width(8.dp))
@@ -181,12 +205,11 @@ fun WeekView(
                     Box(
                         modifier = Modifier.fillMaxWidth().height(64.dp).background(
                             MaterialTheme.colorScheme.surfaceContainerHigh,
-                            RoundedCornerShape(MaterialTheme.shapes.medium.topEnd)
-                        )
+                            RoundedCornerShape(MaterialTheme.shapes.medium.topEnd),
+                        ),
                     )
                 }
             }
-
         }
     }
 }
@@ -199,7 +222,7 @@ private fun RowScope.WeeklyViewGrid(
     isToday: Boolean = false,
     hasDot: Boolean = false,
     clickEnabled: Boolean = true,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Column(
         modifier = modifier.then(
@@ -208,8 +231,9 @@ private fun RowScope.WeeklyViewGrid(
                 .clip(RoundedCornerShape(8.dp))
                 .clickable(enabled = clickEnabled) {
                     onClick()
-                }),
-        horizontalAlignment = Alignment.CenterHorizontally
+                },
+        ),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
             text = upperLabel,
@@ -222,23 +246,23 @@ private fun RowScope.WeeklyViewGrid(
                 fontWeight = FontWeight.Bold,
                 lineHeightStyle = LineHeightStyle(
                     alignment = LineHeightStyle.Alignment.Center,
-                    trim = LineHeightStyle.Trim.None
-                )
+                    trim = LineHeightStyle.Trim.None,
+                ),
             ),
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
         if (isToday) {
             Box(
                 modifier = Modifier.background(
                     Color.Red,
-                    CircleShape
+                    CircleShape,
                 ).size(6.dp),
             )
-        } else if(hasDot) {
+        } else if (hasDot) {
             Box(
                 modifier = Modifier.background(
                     MaterialTheme.colorScheme.primary,
-                    CircleShape
+                    CircleShape,
                 ).size(6.dp),
             )
         }

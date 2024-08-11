@@ -1,3 +1,28 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2024 Anwar Pasaribu
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Project Name: Tabiat
+ */
 package ui.component.gym
 
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -40,7 +65,6 @@ fun ExerciseSetItemView(
     onSetItemClick: () -> Unit,
     onSetItemLongClick: () -> Unit = {},
 ) {
-
     val rowBackgroundColor = if (finished) {
         MaterialTheme.colorScheme.primary
     } else {
@@ -51,31 +75,32 @@ fun ExerciseSetItemView(
     } else {
         MaterialTheme.colorScheme.onPrimary
     }
-    Row(modifier = modifier.then(
-        Modifier
-            .combinedClickable(
-                enabled = enabled,
-                onClick =  {
-                    onSetItemClick()
-                },
-                onLongClick = {
-                    onSetItemLongClick()
-                }
-            )
-            .background(rowBackgroundColor)
-            .padding(horizontal = 16.dp, vertical = 10.dp)
-            .fillMaxWidth()
-    )) {
-
+    Row(
+        modifier = modifier.then(
+            Modifier
+                .combinedClickable(
+                    enabled = enabled,
+                    onClick = {
+                        onSetItemClick()
+                    },
+                    onLongClick = {
+                        onSetItemLongClick()
+                    },
+                )
+                .background(rowBackgroundColor)
+                .padding(horizontal = 16.dp, vertical = 10.dp)
+                .fillMaxWidth(),
+        ),
+    ) {
         Box(
             modifier = Modifier
                 .background(
                     setNumberCircleBackground,
-                    CircleShape
+                    CircleShape,
                 )
                 .size(40.dp)
                 .border(1.dp, MaterialTheme.colorScheme.onPrimaryContainer, CircleShape),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             Text(text = "$setNumber", style = MaterialTheme.typography.titleMedium)
         }
@@ -85,17 +110,17 @@ fun ExerciseSetItemView(
             modifier = Modifier.align(Alignment.CenterVertically),
             text = "$setCount ✕ $setWeight kg",
             style = MaterialTheme.typography.titleLarge.copy(
-                color = if (finished) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary
-            )
+                color = if (finished) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary,
+            ),
         )
 
-        Box (
+        Box(
             modifier = Modifier
                 .alpha(if (enabled) 1F else 0F)
                 .align(Alignment.CenterVertically)
                 .fillMaxWidth(),
-            contentAlignment = Alignment.CenterEnd
-        ){
+            contentAlignment = Alignment.CenterEnd,
+        ) {
             if (stateIcon == null) {
                 val icon = if (finished) {
                     Icons.Default.Done
@@ -104,15 +129,14 @@ fun ExerciseSetItemView(
                 }
                 Icon(
                     painter = rememberVectorPainter(
-                        image = icon
+                        image = icon,
                     ),
                     contentDescription = "",
-                    tint = if (finished) MaterialTheme.colorScheme.onPrimary else IconButtonDefaults.iconButtonColors().contentColor
+                    tint = if (finished) MaterialTheme.colorScheme.onPrimary else IconButtonDefaults.iconButtonColors().contentColor,
                 )
             } else {
                 stateIcon()
             }
         }
-
     }
 }

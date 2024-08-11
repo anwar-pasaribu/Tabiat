@@ -1,3 +1,28 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2024 Anwar Pasaribu
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Project Name: Tabiat
+ */
 package ui.component.gym
 
 import androidx.compose.animation.AnimatedContent
@@ -50,7 +75,7 @@ import ui.component.MyPrimaryButton
 fun InputWorkoutPlanExerciseView(
     modifier: Modifier = Modifier,
     onSave: (exerciseId: Long, exerciseSetList: List<ExerciseSet>) -> Unit,
-    onCreateNewExerciseRequested: () -> Unit = {}
+    onCreateNewExerciseRequested: () -> Unit = {},
 ) {
     var shouldShowExerciseList by remember { mutableStateOf(false) }
     var selectedExerciseName by remember { mutableStateOf("") }
@@ -69,48 +94,50 @@ fun InputWorkoutPlanExerciseView(
             onCreateNewExerciseRequested = {
                 onCreateNewExerciseRequested()
             },
-            selectedExerciseId = selectedExerciseId
+            selectedExerciseId = selectedExerciseId,
         )
     }
 
     Card(
         modifier = modifier.then(
-            Modifier.fillMaxWidth()
-        )
+            Modifier.fillMaxWidth(),
+        ),
     ) {
         Column {
-
             Spacer(modifier = Modifier.height(16.dp))
-            Box(modifier = Modifier
-                .clickable {
-                    shouldShowExerciseList = true
-                }
-                .fillMaxWidth()
-                .height(64.dp)) {
+            Box(
+                modifier = Modifier
+                    .clickable {
+                        shouldShowExerciseList = true
+                    }
+                    .fillMaxWidth()
+                    .height(64.dp),
+            ) {
                 Column(
                     modifier = Modifier
                         .align(Alignment.CenterStart)
                         .padding(start = 16.dp),
                 ) {
                     Text(
-                        text = "Pilih latihan"
+                        text = "Pilih latihan",
                     )
                     AnimatedVisibility(
-                        visible = selectedExerciseName.isNotEmpty()
+                        visible = selectedExerciseName.isNotEmpty(),
                     ) {
                         AnimatedContent(
                             targetState = selectedExerciseName,
                             transitionSpec = {
                                 (slideInVertically { height -> height } + fadeIn()).togetherWith(
-                                    slideOutVertically { height -> -height } + fadeOut())
-                            }
+                                    slideOutVertically { height -> -height } + fadeOut(),
+                                )
+                            },
                         ) {
                             Text(
                                 modifier = Modifier.fillMaxWidth(),
                                 text = it,
                                 style = MaterialTheme.typography.bodyLarge.copy(
-                                    fontWeight = FontWeight.Bold
-                                )
+                                    fontWeight = FontWeight.Bold,
+                                ),
                             )
                         }
                     }
@@ -121,7 +148,7 @@ fun InputWorkoutPlanExerciseView(
                         .align(Alignment.CenterEnd)
                         .padding(end = 8.dp),
                     imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
-                    contentDescription = "Pilih latihan"
+                    contentDescription = "Pilih latihan",
                 )
             }
 
@@ -133,15 +160,16 @@ fun InputWorkoutPlanExerciseView(
                     initialScale = .85F,
                     animationSpec = spring(
                         dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessMediumLow
-                    )),
-                exit = scaleOut().plus(shrinkVertically())
+                        stiffness = Spring.StiffnessMediumLow,
+                    ),
+                ),
+                exit = scaleOut().plus(shrinkVertically()),
             ) {
                 Column {
                     Spacer(Modifier.height(16.dp))
                     ExerciseSetListView(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-                        exerciseSets = exerciseSetList
+                        exerciseSets = exerciseSetList,
                     )
                 }
             }
@@ -150,9 +178,8 @@ fun InputWorkoutPlanExerciseView(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .wrapContentHeight()
+                    .wrapContentHeight(),
             ) {
-
                 val lastSelectedRepetition = remember { mutableStateOf(0) }
                 val lastSelectedWeight = remember { mutableStateOf(0) }
                 AnimatedVisibility(visible = !addExerciseSetActionVisibility) {
@@ -169,26 +196,28 @@ fun InputWorkoutPlanExerciseView(
                                     ExerciseSet(
                                         setNumber = exerciseSetList.size + 1,
                                         reps = reps,
-                                        weight = weight
-                                    )
+                                        weight = weight,
+                                    ),
                                 )
                                 addExerciseSetActionVisibility = true
-                            }
+                            },
                         )
                     }
                 }
 
-                Box(modifier = Modifier
-                    .clickable {
-                        addExerciseSetActionVisibility = !addExerciseSetActionVisibility
-                    }
-                    .fillMaxWidth()
-                    .height(56.dp)) {
+                Box(
+                    modifier = Modifier
+                        .clickable {
+                            addExerciseSetActionVisibility = !addExerciseSetActionVisibility
+                        }
+                        .fillMaxWidth()
+                        .height(56.dp),
+                ) {
                     Text(
                         modifier = Modifier
                             .align(Alignment.CenterStart)
                             .padding(start = 16.dp),
-                        text = "Tambah Set"
+                        text = "Tambah Set",
                     )
 
                     Icon(
@@ -196,7 +225,7 @@ fun InputWorkoutPlanExerciseView(
                             .align(Alignment.CenterEnd)
                             .padding(end = 8.dp),
                         imageVector = if (addExerciseSetActionVisibility) Icons.Default.Add else Icons.Default.Clear,
-                        contentDescription = ""
+                        contentDescription = "",
                     )
                 }
             }
@@ -213,7 +242,7 @@ fun InputWorkoutPlanExerciseView(
                 },
                 onClick = {
                     onSave(selectedExerciseId, exerciseSetList)
-                }
+                },
             )
 
             Spacer(Modifier.height(16.dp))
@@ -224,14 +253,14 @@ fun InputWorkoutPlanExerciseView(
 @Composable
 private fun ExerciseSetListView(
     modifier: Modifier = Modifier,
-    exerciseSets: MutableList<ExerciseSet>
+    exerciseSets: MutableList<ExerciseSet>,
 ) {
     Card(
         modifier = modifier.then(Modifier.animateContentSize()),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer
-        )
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        ),
     ) {
         exerciseSets.forEachIndexed { index, item ->
             ExerciseSetItemView(
@@ -244,7 +273,7 @@ private fun ExerciseSetListView(
                 },
                 stateIcon = {
                     Icon(imageVector = Icons.Outlined.Delete, contentDescription = "")
-                }
+                },
             )
         }
     }

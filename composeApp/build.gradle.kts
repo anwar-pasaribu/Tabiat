@@ -6,18 +6,18 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
-    id("com.google.gms.google-services")
-    id("com.google.firebase.crashlytics")
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.sqlDelight)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.spotless)
+    alias(libs.plugins.googleServices)
+    alias(libs.plugins.firebaseCrashlytics)
 }
 
 @OptIn(ExperimentalKotlinGradlePluginApi::class)
 kotlin {
-    jvmToolchain(17)
+//    jvmToolchain(17)
     androidTarget {
         instrumentedTestVariant.sourceSetTree.set(KotlinSourceSetTree.test)
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
@@ -29,18 +29,19 @@ kotlin {
     listOf(
         iosX64(),
         iosArm64(),
-        iosSimulatorArm64()
+        iosSimulatorArm64(),
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
+            binaryOption("bundleId", "com.unwur.tabiatmu.composeApp")
         }
     }
 
     compilerOptions {
         freeCompilerArgs.add("-Xexpect-actual-classes")
     }
-    
+
     sourceSets {
 
         all {
@@ -50,7 +51,7 @@ kotlin {
             languageSettings.optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
             languageSettings.optIn("org.jetbrains.compose.resources.ExperimentalResourceApi")
         }
-        
+
         androidMain.dependencies {
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
@@ -60,7 +61,7 @@ kotlin {
             implementation(libs.sqldelight.androidDriver)
 
             implementation(libs.ktor.client.okhttp)
-            implementation("org.slf4j:slf4j-simple:2.0.7")
+            // implementation("org.slf4j:slf4j-simple:2.0.13")
 
             // Import the BoM for the Firebase platform
             implementation(project.dependencies.platform("com.google.firebase:firebase-bom:33.1.2"))
@@ -74,7 +75,6 @@ kotlin {
             implementation(libs.sqldelight.nativeDriver)
 
             implementation(libs.ktor.client.darwin)
-
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -123,7 +123,6 @@ kotlin {
             implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.7")
             implementation("co.touchlab:stately-concurrent-collections:2.0.6")
         }
-
     }
 }
 
@@ -162,6 +161,8 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "META-INF/versions/9/previous-compilation-data.bin"
+            excludes += "META-INF/versions/**"
         }
     }
     buildTypes {

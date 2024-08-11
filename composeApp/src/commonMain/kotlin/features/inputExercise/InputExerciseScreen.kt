@@ -1,3 +1,28 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2024 Anwar Pasaribu
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Project Name: Tabiat
+ */
 package features.inputExercise
 
 import androidx.compose.foundation.background
@@ -33,7 +58,8 @@ import ui.component.InsetNavigationHeight
 import ui.component.gym.InputWorkoutPlanExerciseView
 
 @OptIn(
-    ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class
+    ExperimentalMaterial3Api::class,
+    ExperimentalHazeMaterialsApi::class,
 )
 @Composable
 fun InputExerciseScreen(
@@ -41,7 +67,6 @@ fun InputExerciseScreen(
     onBack: () -> Unit = {},
     onCreateNewExerciseRequested: () -> Unit = {},
 ) {
-
     val hazeState = remember { HazeState() }
     val viewModel = koinInject<InputExerciseScreenViewModel>()
 
@@ -50,8 +75,8 @@ fun InputExerciseScreen(
             Column(
                 modifier = Modifier.fillMaxWidth().hazeChild(
                     state = hazeState,
-                    style = HazeMaterials.regular(MaterialTheme.colorScheme.background)
-                ).background(Color.Transparent)
+                    style = HazeMaterials.regular(MaterialTheme.colorScheme.background),
+                ).background(Color.Transparent),
             ) {
                 CenterAlignedTopAppBar(
                     modifier = Modifier.fillMaxWidth(),
@@ -62,9 +87,9 @@ fun InputExerciseScreen(
                     title = {
                         Text(
                             "Tambah Sesi Latihan",
-                            style = MaterialTheme.typography.titleLarge
+                            style = MaterialTheme.typography.titleLarge,
                         )
-                    }
+                    },
                 )
                 Spacer(Modifier.height(8.dp))
             }
@@ -77,11 +102,11 @@ fun InputExerciseScreen(
                 start = contentPadding.calculateStartPadding(LayoutDirection.Ltr) + 8.dp,
                 top = contentPadding.calculateTopPadding() + 16.dp,
                 end = contentPadding.calculateEndPadding(LayoutDirection.Ltr) + 8.dp,
-                bottom = contentPadding.calculateBottomPadding()
-            )
+                bottom = contentPadding.calculateBottomPadding(),
+            ),
         ) {
             item {
-                InputWorkoutPlanExerciseView (
+                InputWorkoutPlanExerciseView(
                     modifier = Modifier,
                     onSave = { exerciseId, exerciseSetList ->
                         viewModel.insertExerciseSetList(workoutPlanId, exerciseId, exerciseSetList)
@@ -89,13 +114,12 @@ fun InputExerciseScreen(
                     },
                     onCreateNewExerciseRequested = {
                         onCreateNewExerciseRequested()
-                    }
+                    },
                 )
             }
             item {
                 InsetNavigationHeight()
             }
         }
-
     }
 }
