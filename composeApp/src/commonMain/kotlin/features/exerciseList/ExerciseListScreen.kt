@@ -122,7 +122,7 @@ fun BottomSheet(
                 modifier = Modifier.alpha(alphaAnimatable.value),
             )
         },
-        windowInsets = noInset,
+        contentWindowInsets = { noInset },
     ) {
         content()
     }
