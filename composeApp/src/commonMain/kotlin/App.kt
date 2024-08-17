@@ -42,6 +42,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import features.createNewExercise.CreateExerciseScreen
 import features.home.HomeScreen
 import features.inputExercise.InputExerciseScreen
@@ -50,29 +51,21 @@ import features.logWorkoutExercise.LogWorkoutExerciseScreen
 import features.navigationHelper.NavigationViewModel
 import features.workoutHistory.WorkoutHistoryScreen
 import features.workoutPlanDetail.WorkoutDetailScreen
-import org.jetbrains.compose.resources.StringResource
+import kotlinx.serialization.Serializable
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinContext
 import org.koin.compose.koinInject
-import tabiat.composeapp.generated.resources.Res
-import tabiat.composeapp.generated.resources.title_create_new_exercise
-import tabiat.composeapp.generated.resources.title_detail
-import tabiat.composeapp.generated.resources.title_home
-import tabiat.composeapp.generated.resources.title_input_exercise
-import tabiat.composeapp.generated.resources.title_input_workout
-import tabiat.composeapp.generated.resources.title_log_exercise
-import tabiat.composeapp.generated.resources.title_workout_history
 import ui.component.gym.FloatingTimerView
 import ui.theme.MyAppTheme
 
-enum class MyAppScreen(val title: StringResource) {
-    Start(title = Res.string.title_home),
-    InputWorkout(title = Res.string.title_input_workout),
-    WorkoutDetail(title = Res.string.title_detail),
-    InputExercise(title = Res.string.title_input_exercise),
-    LogWorkoutExercise(title = Res.string.title_log_exercise),
-    WorkoutHistory(title = Res.string.title_workout_history),
-    CreateNewExercise(title = Res.string.title_create_new_exercise),
+sealed class MyAppRoute {
+    @Serializable object Home
+    @Serializable class InputWorkout(val workoutPlanId: Long = 0L)
+    @Serializable class WorkoutDetail(val workoutPlanId: Long)
+    @Serializable class InputExercise(val workoutPlanId: Long)
+    @Serializable class LogWorkoutExercise(val currentWorkoutPlanId: Long, val currentExerciseId: Long)
+    @Serializable object WorkoutHistory
+    @Serializable object CreateNewExercise
 }
 
 @Composable
@@ -89,7 +82,7 @@ fun App(
                 NavHost(
                     modifier = Modifier.fillMaxSize(),
                     navController = navController,
-                    startDestination = MyAppScreen.Start.name,
+                    startDestination = MyAppRoute.Home,
                     enterTransition = {
                         fadeIn() + slideIntoContainer(
                             AnimatedContentTransitionScope.SlideDirection.Left,
@@ -115,30 +108,26 @@ fun App(
                         )
                     },
                 ) {
-                    composable(route = MyAppScreen.Start.name) {
+                    composable<MyAppRoute.Home> {
                         HomeScreen(
                             onWorkoutDetail = {
-                                navViewModel.currentWorkoutPlanId.value = it
-                                navController.navigate(
-                                    route = MyAppScreen.WorkoutDetail.name,
-                                )
+                                navController.navigate(MyAppRoute.WorkoutDetail(it))
                             },
                             onEditWorkout = {
-                                navViewModel.currentWorkoutPlanId.value = it
-                                navController.navigate(MyAppScreen.InputWorkout.name)
+                                navController.navigate(MyAppRoute.InputWorkout(it))
                             },
                             openHistoryScreen = {
-                                navController.navigate(MyAppScreen.WorkoutHistory.name)
+                                navController.navigate(MyAppRoute.WorkoutHistory)
                             },
                             onCreateNewWorkoutPlan = {
-                                navViewModel.currentWorkoutPlanId.value = 0L
-                                navController.navigate(MyAppScreen.InputWorkout.name)
+                                navController.navigate(MyAppRoute.InputWorkout())
                             },
                         )
                     }
-                    composable(route = MyAppScreen.InputWorkout.name) {
+                    composable<MyAppRoute.InputWorkout> {
+                        val inputWorkout: MyAppRoute.InputWorkout = it.toRoute()
                         InputWorkoutScreen(
-                            workoutPlanId = navViewModel.currentWorkoutPlanId.value,
+                            workoutPlanId = inputWorkout.workoutPlanId,
                             onBack = {
                                 navController.navigateUp()
                             },
@@ -147,49 +136,51 @@ fun App(
                             },
                         )
                     }
-                    composable(route = MyAppScreen.InputExercise.name) {
+                    composable<MyAppRoute.InputExercise> {
+                        val inputExercise: MyAppRoute.InputExercise = it.toRoute()
                         InputExerciseScreen(
-                            workoutPlanId = navViewModel.currentWorkoutPlanId.value,
+                            workoutPlanId = inputExercise.workoutPlanId,
                             onBack = {
                                 navController.navigateUp()
                             },
                             onCreateNewExerciseRequested = {
-                                navController.navigate(MyAppScreen.CreateNewExercise.name)
+                                navController.navigate(MyAppRoute.CreateNewExercise)
                             },
                         )
                     }
-                    composable(
-                        route = MyAppScreen.WorkoutDetail.name,
-                    ) {
+                    composable<MyAppRoute.WorkoutDetail>{ backStackEntry ->
+                        val workoutDetail: MyAppRoute.WorkoutDetail = backStackEntry.toRoute()
                         WorkoutDetailScreen(
-                            workoutPlanId = navViewModel.currentWorkoutPlanId.value,
+                            workoutPlanId = workoutDetail.workoutPlanId,
                             onBack = {
                                 navController.navigateUp()
                             },
                             onNewExerciseToWorkoutPlan = {
-                                navController.navigate(MyAppScreen.InputExercise.name)
+                                navController.navigate(MyAppRoute.InputExercise(workoutDetail.workoutPlanId))
                             },
                             onSelectExercise = {
-                                navViewModel.currentExerciseId.value = it
-                                navController.navigate(MyAppScreen.LogWorkoutExercise.name)
+                                navController.navigate(
+                                    MyAppRoute.LogWorkoutExercise(workoutDetail.workoutPlanId, it)
+                                )
                             },
                         )
                     }
-                    composable(route = MyAppScreen.LogWorkoutExercise.name) {
+                    composable<MyAppRoute.LogWorkoutExercise> {
+                        val logWorkoutExercise: MyAppRoute.LogWorkoutExercise = it.toRoute()
                         LogWorkoutExerciseScreen(
-                            workoutPlanId = navViewModel.currentWorkoutPlanId.value,
-                            exerciseId = navViewModel.currentExerciseId.value,
+                            workoutPlanId = logWorkoutExercise.currentWorkoutPlanId,
+                            exerciseId = logWorkoutExercise.currentExerciseId,
                             onBack = {
                                 navController.navigateUp()
                             },
                         )
                     }
-                    composable(route = MyAppScreen.WorkoutHistory.name) {
+                    composable<MyAppRoute.WorkoutHistory> {
                         WorkoutHistoryScreen {
                             navController.navigateUp()
                         }
                     }
-                    composable(route = MyAppScreen.CreateNewExercise.name) {
+                    composable<MyAppRoute.CreateNewExercise> {
                         CreateExerciseScreen(
                             onBack = {
                                 navController.navigateUp()
