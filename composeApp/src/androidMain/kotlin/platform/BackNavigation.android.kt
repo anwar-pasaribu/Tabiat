@@ -33,7 +33,6 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.platform.LocalLifecycleOwner
 
 @Composable
 actual fun BackHandler(enabled: Boolean, onBack: () -> Unit) {
@@ -54,7 +53,7 @@ actual fun BackHandler(enabled: Boolean, onBack: () -> Unit) {
     val backDispatcher = checkNotNull(LocalOnBackPressedDispatcherOwner.current) {
         "No OnBackPressedDispatcherOwner was provided via LocalOnBackPressedDispatcherOwner"
     }.onBackPressedDispatcher
-    val lifecycleOwner = LocalLifecycleOwner.current
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner, backDispatcher) {
         // Add callback to the backDispatcher
         backDispatcher.addCallback(lifecycleOwner, backCallback)

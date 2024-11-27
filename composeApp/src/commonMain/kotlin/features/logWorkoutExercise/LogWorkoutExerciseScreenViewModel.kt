@@ -39,7 +39,6 @@ import domain.usecase.UpdateWorkoutExerciseRepsAndWeightUseCase
 import features.logWorkoutExercise.model.ExerciseLogHistory
 import features.logWorkoutExercise.model.ExerciseSetToday
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -140,7 +139,6 @@ class LogWorkoutExerciseScreenViewModel(
                 reps = reps,
                 weight = weight,
             )
-            delay(1000)
             getExerciseSetList(workoutPlanId, exerciseId)
         }
     }

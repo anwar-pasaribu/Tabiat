@@ -89,14 +89,20 @@ actual fun PlayHapticAndSound(trigger: Any) {
     // player.start()
     LaunchedEffect(trigger) {
         audioManager?.playSoundEffect(AudioManager.FX_KEYPRESS_STANDARD, -1f)
-        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            vibrator?.vibrate(
-                VibrationEffect.createOneShot(
-                    50,
-                    VibrationEffect.DEFAULT_AMPLITUDE,
-                ),
-            )
+
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                    && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q -> {
+                vibrator?.vibrate(
+                    VibrationEffect.createOneShot(
+                        50,
+                        VibrationEffect.DEFAULT_AMPLITUDE,
+                    ),
+                )
+            }
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            }
         }
     }
 }

@@ -56,7 +56,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -91,8 +90,12 @@ import domain.enums.SoundEffectType
 import getScreenSizeInfo
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.painterResource
 import platform.BackHandler
 import platform.PlaySoundEffect
+import tabiat.composeapp.generated.resources.Res
+import tabiat.composeapp.generated.resources.ic_timer_off_icon_32dp
+import tabiat.composeapp.generated.resources.ic_zoom_in_icon_24dp
 import kotlin.math.roundToInt
 
 data class Digit(val digitChar: Char, val fullNumber: Int, val place: Int) {
@@ -115,6 +118,7 @@ fun TimerDisplay(
     breakTime: Boolean = false,
     onTimerFinished: () -> Unit,
     onCancelTimer: (Int) -> Unit,
+    onMinimizeTimer: (Int) -> Unit = {},
 ) {
     var countDownInitial by remember {
         mutableIntStateOf(countDown)
@@ -159,15 +163,29 @@ fun TimerDisplay(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            IconButton(
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-                colors = IconButtonDefaults.filledIconButtonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                ),
-                onClick = { onCancelTimer(timeLeft) },
-            ) {
-                Icon(imageVector = Icons.Default.Close, contentDescription = "")
+            Row(modifier = Modifier.align(Alignment.CenterHorizontally), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                IconButton(
+                    modifier = Modifier.size(48.dp),
+                    colors = IconButtonDefaults.filledIconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                    ),
+                    onClick = { onCancelTimer(timeLeft) },
+                ) {
+                    Icon(
+                        modifier = Modifier.size(24.dp),
+                        painter = painterResource(Res.drawable.ic_timer_off_icon_32dp), contentDescription = "Close Timer")
+                }
+                IconButton(
+                    modifier = Modifier.size(48.dp),
+                    colors = IconButtonDefaults.filledIconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                    ),
+                    onClick = { onMinimizeTimer(timeLeft) },
+                ) {
+                    Icon(painter = painterResource(Res.drawable.ic_zoom_in_icon_24dp), contentDescription = "Minimize Timer")
+                }
             }
 
             Spacer(Modifier.height(24.dp))
@@ -238,6 +256,7 @@ fun TimerDisplay(
                     strokeWidth = 8.dp,
                     trackColor = Color.White,
                     strokeCap = StrokeCap.Round,
+                    gapSize = 0.dp
                 )
             }
 
@@ -357,7 +376,7 @@ fun FloatingTimerView(
     initialBreakTimeDuration: Int,
     timerSoundEffect: SoundEffectType,
 ) {
-    if (initialDuration == 0 || initialBreakTimeDuration == 0) return
+    if (initialDuration == 0 && initialBreakTimeDuration == 0) return
 
     var timerDuration by remember { mutableIntStateOf(timerLeft) }
 

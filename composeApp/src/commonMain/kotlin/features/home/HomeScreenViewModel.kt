@@ -60,7 +60,6 @@ sealed class HomeScreenUiState {
     data object Loading : HomeScreenUiState()
     data object Empty : HomeScreenUiState()
     data class Success(val data: List<HomeListItemUiData>) : HomeScreenUiState()
-    data class Error(val message: String) : HomeScreenUiState()
 }
 
 class HomeScreenViewModel(

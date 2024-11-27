@@ -25,35 +25,22 @@
  */
 package features.inputExercise
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.haze
-import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
-import dev.chrisbanes.haze.materials.HazeMaterials
 import org.koin.compose.koinInject
-import ui.component.BackButton
 import ui.component.InsetNavigationHeight
 import ui.component.gym.InputWorkoutPlanExerciseView
 
@@ -63,6 +50,7 @@ import ui.component.gym.InputWorkoutPlanExerciseView
 )
 @Composable
 fun InputExerciseScreen(
+    contentPadding: PaddingValues,
     workoutPlanId: Long,
     onBack: () -> Unit = {},
     onCreateNewExerciseRequested: () -> Unit = {},
@@ -70,32 +58,7 @@ fun InputExerciseScreen(
     val hazeState = remember { HazeState() }
     val viewModel = koinInject<InputExerciseScreenViewModel>()
 
-    Scaffold(
-        topBar = {
-            Column(
-                modifier = Modifier.fillMaxWidth().hazeChild(
-                    state = hazeState,
-                    style = HazeMaterials.regular(MaterialTheme.colorScheme.background),
-                ).background(Color.Transparent),
-            ) {
-                CenterAlignedTopAppBar(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = TopAppBarDefaults.topAppBarColors(Color.Transparent),
-                    navigationIcon = {
-                        BackButton(onClick = { onBack() })
-                    },
-                    title = {
-                        Text(
-                            "Tambah Sesi Latihan",
-                            style = MaterialTheme.typography.titleLarge,
-                        )
-                    },
-                )
-                Spacer(Modifier.height(8.dp))
-            }
-        },
-    ) { contentPadding ->
-
+    Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier.fillMaxSize().haze(hazeState),
             contentPadding = PaddingValues(

@@ -26,9 +26,12 @@
 package com.unwur.tabiatmu.playground
 
 import android.content.res.Configuration
+import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import ui.component.gym.TimerDisplay
 import ui.component.gym.TimerDisplayFloating
@@ -66,9 +69,10 @@ private fun TimerDisplayPrev() {
 private fun TimerDisplayBreakTime() {
     MyAppTheme {
         val countDown = remember {
-            mutableIntStateOf(45)
+            mutableIntStateOf(300)
         }
         TimerDisplay(
+            modifier = Modifier.background(Color.Red),
             countDown = countDown.intValue,
             breakTime = true,
             onTimerFinished = {

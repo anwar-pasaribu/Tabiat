@@ -25,23 +25,42 @@
  */
 package ui.component
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.dp
 import domain.enums.PlatformType
 import getPlatform
+import org.jetbrains.compose.resources.painterResource
+import tabiat.composeapp.generated.resources.Res
+import tabiat.composeapp.generated.resources.ic_edit_pencil_icon_32dp
+import tabiat.composeapp.generated.resources.ic_xmark_icon_32dp
 
 @Composable
 fun DeleteIconButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
@@ -56,11 +75,82 @@ fun DeleteIconButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
     ) {
         Icon(
             imageVector = Icons.Default.Delete,
-            tint = Color.White,
+            tint = MaterialTheme.colorScheme.onError,
             contentDescription = "Delete",
         )
     }
 }
+
+@Composable
+fun AddIconButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier.size(30.dp),
+        onClick = {
+            onClick()
+        },
+        colors = CardDefaults.cardColors().copy(
+            containerColor = MaterialTheme.colorScheme.primary
+        ),
+        shape = CircleShape
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Icon(
+                modifier = Modifier.align(Alignment.Center),
+                imageVector = Icons.Default.Add,
+                tint = Color.White,
+                contentDescription = ""
+            )
+        }
+    }
+}
+
+@Composable
+fun EditIconButton(
+    modifier: Modifier = Modifier,
+    editMode: Boolean,
+    enabled: Boolean = true,
+    colors: IconButtonColors = IconButtonDefaults.iconButtonColors(),
+    onEditClick: () -> Unit,
+    onCancelClick: () -> Unit
+) {
+    IconButton(
+        modifier = modifier,
+        enabled = enabled,
+        onClick = {
+            if (editMode) {
+                onEditClick()
+            } else {
+                onCancelClick()
+            }
+        },
+        colors = colors,
+    ) {
+        AnimatedContent(
+            targetState = editMode,
+            label = "animated-tabiat-edit-transition",
+            transitionSpec = { imageButtonTransitionSpec }
+        ) { iconEditMode ->
+            Icon(
+                modifier = Modifier.size(24.dp),
+                painter = if (iconEditMode)
+                    painterResource(Res.drawable.ic_edit_pencil_icon_32dp)
+                else painterResource(Res.drawable.ic_xmark_icon_32dp),
+                contentDescription = if (iconEditMode) "Edit" else "Cancel"
+            )
+        }
+    }
+}
+
+private val imageButtonTransitionSpec =
+    (scaleIn(
+        initialScale = 0.95f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMediumLow,
+        )
+    )).togetherWith(
+        scaleOut(animationSpec = tween(90))
+    )
 
 @Composable
 fun BackButton(

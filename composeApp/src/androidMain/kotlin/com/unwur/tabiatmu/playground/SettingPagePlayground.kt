@@ -29,6 +29,7 @@ import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import domain.enums.SoundEffectType
 import domain.model.gym.GymPreferences
 import features.settings.AboutAppSection
@@ -37,6 +38,11 @@ import features.settings.TimerSoundSection
 import ui.theme.MyAppTheme
 
 private val gymOptionList = listOf(
+    GymPreferences(
+        setTimerDuration = 0,
+        breakTimeDuration = 0,
+        timerSoundEffect = SoundEffectType.BOXING_BELL,
+    ),
     GymPreferences(
         setTimerDuration = 15,
         breakTimeDuration = 5,
@@ -59,6 +65,7 @@ private val gymOptionList = listOf(
     ),
 )
 
+@PreviewScreenSizes()
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_NO, showBackground = true)
 @Composable
 private fun WorkoutListItemViewPreview() {

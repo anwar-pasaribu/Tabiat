@@ -70,23 +70,21 @@ import ui.component.InsetNavigationHeight
 @Composable
 fun WorkoutPlanItemView(
     modifier: Modifier = Modifier,
+    workoutPlanId: Long = 0L,
     title: String,
     description: String,
-    lastActivityInfo: @Composable (RowScope.() -> Unit)? = null,
+    lastActivityInfo: @Composable() (RowScope.() -> Unit)? = null,
     total: Int = 0,
     progress: Int = 0,
     onClick: () -> Unit = {},
     onEditRequest: () -> Unit = {},
     onDeleteRequest: () -> Unit = {},
 ) {
+
     var menuVisible by remember { mutableStateOf(false) }
 
     Card(
-        modifier = modifier.then(
-            Modifier.clickable {
-                onClick()
-            },
-        ),
+        modifier = modifier,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary,
@@ -94,6 +92,7 @@ fun WorkoutPlanItemView(
     ) {
         Box(
             modifier = Modifier
+                .clickable { onClick() }
                 .fillMaxWidth()
                 .heightIn(min = 132.dp),
         ) {
@@ -145,6 +144,7 @@ fun WorkoutPlanItemView(
                 )
             }
         }
+
     }
 
     if (menuVisible) {

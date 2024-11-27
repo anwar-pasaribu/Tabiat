@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
@@ -52,6 +53,8 @@ import org.jetbrains.compose.resources.painterResource
 @Composable
 fun ImageWrapper(
     modifier: Modifier = Modifier,
+    imageTargetWidth: Dp = 0.dp,
+    imageTargetHeight: Dp = 0.dp,
     resource: DrawableResource? = null,
     imageUrl: String = "",
     colorFilter: ColorFilter? = null,
@@ -79,9 +82,15 @@ fun ImageWrapper(
             colorFilter = colorFilter,
         )
     } else if (imageUrl.isNotEmpty()) {
+        val targetSizeAvailable = imageTargetWidth != 0.dp && imageTargetHeight != 0.dp
         val model = ImageRequest.Builder(LocalPlatformContext.current)
             .data(imageUrl)
-            .size(Size.ORIGINAL)
+            .size(
+                if (targetSizeAvailable) Size(
+                    imageTargetWidth.value.toInt(),
+                    imageTargetHeight.value.toInt()
+                ) else Size.ORIGINAL
+            )
             .crossfade(true)
             .build()
 

@@ -47,9 +47,13 @@ class SettingScreenViewModel(
     val exerciseTimerOptions: StateFlow<List<GymPreferences>> = MutableStateFlow(
         listOf(
             GymPreferences(
+                setTimerDuration = 0,
+                breakTimeDuration = 0,
+                timerSoundEffect = SoundEffectType.NONE,
+            ), GymPreferences(
                 setTimerDuration = 15,
                 breakTimeDuration = 5,
-                timerSoundEffect = SoundEffectType.BOXING_BELL,
+                timerSoundEffect = SoundEffectType.NONE,
             ),
             GymPreferences(
                 setTimerDuration = 30,
@@ -59,12 +63,12 @@ class SettingScreenViewModel(
             GymPreferences(
                 setTimerDuration = 45,
                 breakTimeDuration = 9,
-                timerSoundEffect = SoundEffectType.BOXING_BELL,
+                timerSoundEffect = SoundEffectType.UPLIFTING_BELL,
             ),
             GymPreferences(
                 setTimerDuration = 60,
                 breakTimeDuration = 10,
-                timerSoundEffect = SoundEffectType.BOXING_BELL,
+                timerSoundEffect = SoundEffectType.FAIRY_MESSAGE,
             ),
         ),
     ).asStateFlow()

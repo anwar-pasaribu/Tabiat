@@ -250,6 +250,7 @@ private fun RowScope.WeeklyViewGrid(
                 ),
             ),
             textAlign = TextAlign.Center,
+            maxLines = 1,
         )
         if (isToday) {
             Box(
