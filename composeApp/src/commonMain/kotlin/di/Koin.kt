@@ -26,16 +26,20 @@
 package di
 
 import data.repository.GymRepositoryImpl
+import data.repository.PersonalizationRepository
 import data.source.local.createDatabase
 import data.source.local.dao.ExerciseDao
 import data.source.local.dao.ExerciseLogDao
 import data.source.local.dao.IExerciseDao
 import data.source.local.dao.IExerciseLogDao
+import data.source.local.dao.IWorkoutPersonalizationDao
 import data.source.local.dao.IWorkoutPlanDao
 import data.source.local.dao.IWorkoutPlanExerciseDao
+import data.source.local.dao.WorkoutPersonalizationDao
 import data.source.local.dao.WorkoutPlanDao
 import data.source.local.dao.WorkoutPlanExerciseDao
 import domain.repository.IGymRepository
+import domain.repository.IPersonalizationRepository
 import domain.usecase.CreateNewExerciseUseCase
 import domain.usecase.DeleteWorkoutPlanExerciseSetUseCase
 import domain.usecase.FilterExerciseByTargetMuscleCategoryUseCase
@@ -56,6 +60,8 @@ import domain.usecase.ResetAllYesterdayActivitiesUseCase
 import domain.usecase.SaveRunningTimerPreferencesUseCase
 import domain.usecase.SearchExerciseUseCase
 import domain.usecase.UpdateWorkoutExerciseRepsAndWeightUseCase
+import domain.usecase.personalization.GetWorkoutPlanPersonalizationUseCase
+import domain.usecase.personalization.SetWorkoutPlanPersonalizationUseCase
 import features.createNewExercise.CreateExerciseScreenViewModel
 import features.exerciseList.ExerciseListScreenViewModel
 import features.home.HomeScreenViewModel
@@ -100,11 +106,19 @@ fun letsKoinStart(initialModule: List<Module> = emptyList()) {
 fun appModule() = module {
     single<IGymRepository> {
         GymRepositoryImpl(
+            personalizationRepository = get(),
             gymApi = get(),
             exerciseDao = get(),
             workoutPlanDao = get(),
             workoutPlanExerciseDao = get(),
             exerciseLogDao = get(),
+            preferencesDataSource = get(),
+        )
+    }
+
+    single<IPersonalizationRepository> {
+        PersonalizationRepository(
+            workoutPersonalizationDao = get(),
             preferencesDataSource = get(),
         )
     }
@@ -171,6 +185,9 @@ fun appModule() = module {
     singleOf(::GetRunningTimerPreferencesUseCase)
     singleOf(::SaveRunningTimerPreferencesUseCase)
     singleOf(::UpdateWorkoutExerciseRepsAndWeightUseCase)
+
+    singleOf(::SetWorkoutPlanPersonalizationUseCase)
+    singleOf(::GetWorkoutPlanPersonalizationUseCase)
 }
 
 fun viewModels() = module {
@@ -214,5 +231,9 @@ fun databaseModule() = module {
 
     single<IExerciseLogDao> {
         ExerciseLogDao(database = get())
+    }
+
+    single<IWorkoutPersonalizationDao> {
+        WorkoutPersonalizationDao(database = get())
     }
 }

@@ -1,0 +1,5 @@
+CREATE TABLE WorkoutPersonalizationEntity (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    workoutPlanId INTEGER NOT NULL,
+    colorTheme TEXT NOT NULL
+);

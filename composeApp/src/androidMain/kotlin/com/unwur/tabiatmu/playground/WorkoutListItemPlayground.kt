@@ -46,16 +46,16 @@ private fun WorkoutListItemViewPreview() {
                 modifier = Modifier,
                 title = "Workout",
                 description = "Workout description",
-                progress = 7,
                 total = 10,
+                progress = 7,
             )
             Spacer(modifier = Modifier.height(16.dp))
             WorkoutPlanItemView(
                 modifier = Modifier,
                 title = "Workout 2",
                 description = "Workout description panjang",
-                progress = 10,
                 total = 10,
+                progress = 10,
             )
             Spacer(modifier = Modifier.height(16.dp))
             WorkoutPlanItemView(
@@ -68,8 +68,6 @@ private fun WorkoutListItemViewPreview() {
                 modifier = Modifier,
                 title = "Workout with last activity",
                 description = "Description",
-                progress = 9,
-                total = 10,
                 lastActivityInfo = {
                     LatestExercise(
                         modifier = Modifier.padding(start = 10.dp, bottom = 10.dp),
@@ -78,6 +76,8 @@ private fun WorkoutListItemViewPreview() {
                         lowerLabel = "Barbell Bench Press (10 x 12kg)",
                     )
                 },
+                total = 10,
+                progress = 9,
             )
         }
     }

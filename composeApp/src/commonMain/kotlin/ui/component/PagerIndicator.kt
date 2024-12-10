@@ -25,12 +25,10 @@
  */
 package ui.component
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -38,13 +36,21 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun PagerIndicator(modifier: Modifier = Modifier, pageCount: Int, activePage: Int) {
+
+    val indicatorSize = 8.dp
+    val activeColor = MaterialTheme.colorScheme.primary
+    val inactiveColor = MaterialTheme.colorScheme.surfaceContainerHigh
+
     Row(
         modifier = modifier.then(
             Modifier
@@ -53,24 +59,21 @@ fun PagerIndicator(modifier: Modifier = Modifier, pageCount: Int, activePage: In
                 .padding(horizontal = 6.dp),
         ),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         repeat(pageCount) { index ->
-            val isActive = index == activePage
-            val backgroundColor by animateColorAsState(
-                if (isActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHigh,
-                label = "colorAnim",
-            )
-            val sizeAnim by animateDpAsState(
-                targetValue = if (isActive) 10.dp else 8.dp,
-                label = "sizeAnim",
-            )
-            Box(modifier = Modifier.size(10.dp), contentAlignment = Alignment.Center) {
-                Box(
+            key(index) {
+                val isActive = remember(index, activePage) { index == activePage }
+                val indicatorColor by remember(isActive) {
+                    derivedStateOf {
+                        if (isActive) activeColor else inactiveColor
+                    }
+                }
+
+                Spacer(
                     modifier = Modifier
-                        .align(Alignment.Center)
-                        .size(sizeAnim)
-                        .background(backgroundColor, CircleShape),
+                        .size(indicatorSize)
+                        .background(indicatorColor, CircleShape), // Simplified structure
                 )
             }
         }

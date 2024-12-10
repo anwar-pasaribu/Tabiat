@@ -31,4 +31,5 @@ data class WorkoutPlanProgress(
     val progress: Int,
     val lastExerciseLog: ExerciseLog?,
     val lastExercise: Exercise?,
+    val workoutPersonalization: WorkoutPersonalization? = null,
 )

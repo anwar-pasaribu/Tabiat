@@ -42,7 +42,7 @@ interface IGymRepository {
     suspend fun deleteWorkoutPlan(workoutPlanId: Long): Boolean
     suspend fun getWorkoutPlans(): List<WorkoutPlan>
     suspend fun getWorkoutPlansObservable(): Flow<List<WorkoutPlan>>
-    suspend fun getWorkoutPlanProgressListObservable(): Flow<List<WorkoutPlanProgress>>
+    fun getWorkoutPlanProgressListObservable(): Flow<List<WorkoutPlanProgress>>
 
     suspend fun createNewExercise(newExercise: Exercise): Boolean
     suspend fun getAllExercisesObservable(): Flow<List<Exercise>>

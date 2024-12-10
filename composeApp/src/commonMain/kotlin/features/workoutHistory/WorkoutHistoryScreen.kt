@@ -25,21 +25,23 @@
  */
 package features.workoutHistory
 
-import PlayHapticAndSound
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
@@ -47,7 +49,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -57,11 +59,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.haze
+import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
+import dev.chrisbanes.haze.materials.HazeMaterials
 import features.workoutHistory.model.MonthCalendarData
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
@@ -69,25 +74,17 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 import org.koin.compose.koinInject
 
-@OptIn(
-    ExperimentalMaterial3Api::class,
-    ExperimentalHazeMaterialsApi::class,
-)
+
+@OptIn(ExperimentalHazeMaterialsApi::class)
 @Composable
 fun WorkoutHistoryScreen(
     contentPadding: PaddingValues,
     hazeState: HazeState,
-    onBack: () -> Unit = {},
 ) {
-    val selectedEmojiUnicode by remember { mutableStateOf("") }
     var showSheet by remember { mutableStateOf(false) }
 
     val viewModel = koinInject<WorkoutHistoryScreenViewModel>()
     val historyUiState by viewModel.uiStateMutableStateFlow.collectAsState()
-
-    if (selectedEmojiUnicode.isNotEmpty()) {
-        PlayHapticAndSound(selectedEmojiUnicode)
-    }
 
     LaunchedEffect(Unit) {
         viewModel.loadCalenderData()
@@ -114,9 +111,7 @@ fun WorkoutHistoryScreen(
 
         AnimatedContent(
             targetState = historyUiState,
-            transitionSpec = {
-                (fadeIn(animationSpec = tween(300, delayMillis = 90))).togetherWith(fadeOut(animationSpec = tween(150)))
-            },
+            transitionSpec = { (fadeIn()).togetherWith(fadeOut()) },
         ) { uiState ->
             when (uiState) {
                 WorkoutHistoryUiState.Loading -> {
@@ -125,15 +120,15 @@ fun WorkoutHistoryScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
                     ) {
-                        CircularProgressIndicator(Modifier.size(40.dp))
+                        CircularProgressIndicator(Modifier.size(32.dp))
                     }
                 }
 
                 is WorkoutHistoryUiState.Success -> {
                     CalendarContent(
-                        modifier = Modifier.fillMaxSize().haze(state = hazeState),
                         calendarList = uiState.calendarItems,
                         contentPadding = paddingValues,
+                        hazeState = hazeState,
                         onCalendarDayClick = {
                             showSheet = true
                             viewModel.setSelectedDate(it)
@@ -142,6 +137,13 @@ fun WorkoutHistoryScreen(
                 }
             }
         }
+
+        Spacer(
+            Modifier.fillMaxWidth().height(contentPadding.calculateTopPadding()).hazeChild(
+                state = hazeState,
+                style = HazeMaterials.thick(MaterialTheme.colorScheme.background),
+            ).align(Alignment.TopCenter).background(Color.Transparent)
+        )
     }
 }
 
@@ -151,17 +153,18 @@ fun CalendarContent(
     calendarList: List<MonthCalendarData>,
     onCalendarDayClick: (LocalDate) -> Unit,
     contentPadding: PaddingValues,
+    hazeState: HazeState,
 ) {
     val lazyColumnListState = rememberLazyListState()
 
-    LaunchedEffect(calendarList) {
+    LaunchedEffect(Unit) {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault()).month
         val itemPos = calendarList.indexOfFirst { it.month.month == today }
         lazyColumnListState.scrollToItem(itemPos)
     }
 
     LazyColumn(
-        modifier = modifier,
+        modifier = Modifier.fillMaxSize().haze(state = hazeState).then(modifier),
         state = lazyColumnListState,
         contentPadding = contentPadding,
     ) {

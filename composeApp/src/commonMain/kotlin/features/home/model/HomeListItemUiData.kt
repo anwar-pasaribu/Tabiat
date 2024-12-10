@@ -25,6 +25,8 @@
  */
 package features.home.model
 
+import androidx.compose.ui.graphics.Color
+
 data class HomeListItemUiData(
     val workoutPlanId: Long,
     val title: String,
@@ -34,4 +36,5 @@ data class HomeListItemUiData(
     val lastActivityDetail: String,
     val total: Int,
     val progress: Int,
+    val backgroundColor: Color,
 )

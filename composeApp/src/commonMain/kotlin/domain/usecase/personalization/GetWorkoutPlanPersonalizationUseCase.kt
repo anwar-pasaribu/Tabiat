@@ -23,29 +23,22 @@
  *
  * Project Name: Tabiat
  */
-package data.source.local.dao
+package domain.usecase.personalization
 
-import domain.model.gym.WorkoutPlan
-import kotlinx.coroutines.flow.Flow
+import domain.model.gym.WorkoutPersonalization
+import domain.repository.IPersonalizationRepository
 
-interface IWorkoutPlanDao {
-    fun getAllWorkoutPlanObservable(): Flow<List<WorkoutPlan>>
-    suspend fun getAllWorkoutPlan(): List<WorkoutPlan>
-    suspend fun getLatestWorkoutPlan(): WorkoutPlan
-    suspend fun getWorkoutPlan(workoutPlanId: Long): WorkoutPlan
-    suspend fun insertWorkoutPlan(
-        name: String,
-        description: String,
-        datetimeStamp: Long,
-        orderingNumber: Int,
-    )
-    suspend fun updateWorkoutPlan(
-        workoutPlanId: Long,
-        name: String,
-        description: String,
-    )
+class GetWorkoutPlanPersonalizationUseCase(
+    private val repository: IPersonalizationRepository,
+) {
+    private val DEFAULT_COLOR_THEME = "#36693E"
 
-    suspend fun deleteWorkoutPlan(
-        workoutPlanId: Long,
-    )
+    suspend operator fun invoke(
+        workoutPlanId: Long
+    ): WorkoutPersonalization {
+        val personalization = repository.getWorkoutPlanPersonalization(workoutPlanId)
+        return personalization.copy(
+            colorTheme = personalization.colorTheme.ifEmpty { DEFAULT_COLOR_THEME }
+        )
+    }
 }

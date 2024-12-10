@@ -130,8 +130,7 @@ fun App(
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             navBackStackEntry?.destination?.let { currentDestination ->
                 homeScreenVisible.value = currentDestination.hasRoute(MyAppRoute.Home::class)
-                logExerciseScreenVisible.value =
-                    currentDestination.hasRoute(MyAppRoute.LogWorkoutExercise::class)
+                logExerciseScreenVisible.value = currentDestination.hasRoute(MyAppRoute.LogWorkoutExercise::class)
             }
 
             val hazeState = remember { HazeState() }
@@ -147,13 +146,15 @@ fun App(
                                     modifier = Modifier.fillMaxWidth().hazeChild(
                                         state = hazeState,
                                         style = HazeMaterials.regular(MaterialTheme.colorScheme.background),
-                                    ),
+                                    ) {
+                                        alpha = 0F
+                                    },
                                     colors = TopAppBarDefaults.topAppBarColors(Color.Transparent),
                                     title = {
                                         if (homeScreenVisible.value) {
                                             ImageWrapper(
                                                 resource = Res.drawable.tabiat_icon_32dp,
-                                                contentDescription = "",
+                                                contentDescription = "Tabiat App Icon",
                                             )
                                         }
                                     },
@@ -171,7 +172,7 @@ fun App(
                                             }
                                         } else {
                                             BackButton(
-                                                showBackground = logExerciseScreenVisible.value
+                                                showBackground = true
                                             ) {
                                                 navController.navigateUp()
                                             }
@@ -280,9 +281,7 @@ fun App(
                                     WorkoutHistoryScreen(
                                         contentPadding = contentPadding,
                                         hazeState = hazeState,
-                                    ) {
-                                        navController.navigateUp()
-                                    }
+                                    )
                                 }
                                 composableWithCompositionLocal<MyAppRoute.CreateNewExercise> {
                                     CreateExerciseScreen(

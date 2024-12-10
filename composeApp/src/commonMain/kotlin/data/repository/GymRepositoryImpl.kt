@@ -41,6 +41,7 @@ import domain.model.gym.WorkoutPlan
 import domain.model.gym.WorkoutPlanExercise
 import domain.model.gym.WorkoutPlanProgress
 import domain.repository.IGymRepository
+import domain.repository.IPersonalizationRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.coroutineScope
@@ -65,6 +66,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class GymRepositoryImpl(
+    private val personalizationRepository: IPersonalizationRepository,
     private val gymApi: IGymApi,
     private val exerciseDao: IExerciseDao,
     private val workoutPlanDao: IWorkoutPlanDao,
@@ -159,7 +161,7 @@ class GymRepositoryImpl(
         )
     }
 
-    override suspend fun getWorkoutPlanProgressListObservable(): Flow<List<WorkoutPlanProgress>> {
+    override fun getWorkoutPlanProgressListObservable(): Flow<List<WorkoutPlanProgress>> {
         return workoutPlanDao
             .getAllWorkoutPlanObservable().map { workoutPlanList ->
                 workoutPlanList.map { workoutPlan ->
@@ -180,12 +182,17 @@ class GymRepositoryImpl(
                     val lastExercise = latestExerciseLog?.let {
                         exerciseDao.getExerciseById(it.exerciseId)
                     }
+                    val workoutPersonalization =
+                        personalizationRepository.getWorkoutPlanPersonalization(
+                            workoutPlanId = workoutPlan.id
+                        )
                     WorkoutPlanProgress(
                         workoutPlan = workoutPlan,
                         total = total,
                         progress = progress,
                         lastExerciseLog = latestExerciseLog,
                         lastExercise = lastExercise,
+                        workoutPersonalization = workoutPersonalization
                     )
                 }
             }

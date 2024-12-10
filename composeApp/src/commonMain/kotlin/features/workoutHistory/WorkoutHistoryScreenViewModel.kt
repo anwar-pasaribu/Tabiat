@@ -34,7 +34,6 @@ import features.workoutHistory.model.ExerciseHistoryUiItem
 import features.workoutHistory.model.MonthCalendarData
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -142,11 +141,10 @@ class WorkoutHistoryScreenViewModel(
 
     fun loadCalenderData() {
         viewModelScope.launch {
-            delay(600)
             withContext(Dispatchers.Default) {
                 val tz = TimeZone.currentSystemDefault()
                 val today: LocalDate = Clock.System.todayIn(tz)
-                val calendarEmojis = mutableListOf<MonthCalendarData>()
+                val calendarDataList = mutableListOf<MonthCalendarData>()
 
                 for (monthNum in 1..12) {
                     val start = LocalDate(year = today.year, monthNumber = monthNum, dayOfMonth = 1)
@@ -176,7 +174,7 @@ class WorkoutHistoryScreenViewModel(
                             ),
                         )
                     }
-                    calendarEmojis.add(
+                    calendarDataList.add(
                         MonthCalendarData(
                             month = start,
                             dailyDataList = dailyEmojiList.toImmutableList(),
@@ -185,7 +183,7 @@ class WorkoutHistoryScreenViewModel(
                 }
 
                 uiStateMutableStateFlow.update {
-                    WorkoutHistoryUiState.Success(calendarEmojis)
+                    WorkoutHistoryUiState.Success(calendarDataList)
                 }
             }
         }

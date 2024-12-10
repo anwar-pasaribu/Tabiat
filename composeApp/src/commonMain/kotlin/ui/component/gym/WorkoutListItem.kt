@@ -25,6 +25,7 @@
  */
 package ui.component.gym
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -33,15 +34,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material3.Card
@@ -52,25 +50,32 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.dp
 import features.exerciseList.BottomSheet
 import ui.component.ImageWrapper
 import ui.component.InsetNavigationHeight
+import ui.component.colorPalette.parseHexToComposeColor
+
+fun Color.bestContrastColor(): Color {
+    val luminance = (0.2126 * red + 0.7152 * green + 0.0722 * blue)
+    return if (luminance > 0.5) Color.Black else Color.White
+}
 
 @Composable
 fun WorkoutPlanItemView(
     modifier: Modifier = Modifier,
-    workoutPlanId: Long = 0L,
     title: String,
     description: String,
     lastActivityInfo: @Composable() (RowScope.() -> Unit)? = null,
@@ -79,14 +84,35 @@ fun WorkoutPlanItemView(
     onClick: () -> Unit = {},
     onEditRequest: () -> Unit = {},
     onDeleteRequest: () -> Unit = {},
+    onChangeColorRequest: (colorHex: String) -> Unit = {},
+    backgroundColor: Color = MaterialTheme.colorScheme.primary,
 ) {
 
     var menuVisible by remember { mutableStateOf(false) }
+    var temporarySelectedColorHex by rememberSaveable { mutableStateOf("") }
+    val workoutSelectedColor by remember {
+        derivedStateOf {
+            if (temporarySelectedColorHex.isNotEmpty()) {
+                temporarySelectedColorHex.parseHexToComposeColor()
+            } else {
+                backgroundColor
+            }
+        }
+    }
+    val animatedBackgroundColor by animateColorAsState(
+        targetValue = workoutSelectedColor,
+        label = "workout-plan-card-color"
+    )
+    val textColorBasedOnBackgroundColor by remember {
+        derivedStateOf {
+            animatedBackgroundColor.bestContrastColor()
+        }
+    }
 
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primary,
+            containerColor = animatedBackgroundColor,
             contentColor = MaterialTheme.colorScheme.onPrimary,
         ),
     ) {
@@ -101,12 +127,14 @@ fun WorkoutPlanItemView(
             ) {
                 Text(
                     text = title,
+                    color = textColorBasedOnBackgroundColor,
                     style = MaterialTheme.typography.titleLarge,
                     maxLines = 1,
                 )
                 if (description.isNotEmpty()) {
                     Text(
                         text = description,
+                        color = textColorBasedOnBackgroundColor,
                         style = MaterialTheme.typography.bodyLarge,
                         maxLines = 1,
                     )
@@ -129,11 +157,7 @@ fun WorkoutPlanItemView(
             }
 
             IconButton(
-                modifier = Modifier
-                    .graphicsLayer {
-                        alpha = if (menuVisible) 0f else 1f
-                    }
-                    .align(Alignment.TopEnd),
+                modifier = Modifier.align(Alignment.TopEnd),
                 onClick = { menuVisible = true },
             ) {
                 Icon(
@@ -153,50 +177,22 @@ fun WorkoutPlanItemView(
             showFullScreen = false,
         ) {
             Column(
-                modifier = Modifier.fillMaxWidth().height(300.dp),
+                modifier = Modifier.fillMaxWidth(),
             ) {
-                Row(
-                    modifier = Modifier.clickable {
-                        onEditRequest()
+                WorkoutPlanPersonalization(
+                    onEditRequest = {
                         menuVisible = false
-                    }.fillMaxWidth().height(56.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Spacer(Modifier.width(16.dp))
-                    Icon(
-                        painter = rememberVectorPainter(
-                            image = Icons.Default.Edit,
-                        ),
-                        contentDescription = "Edit",
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    Text(
-                        modifier = Modifier.padding(start = 8.dp),
-                        text = "Edit",
-                    )
-                }
-                Row(
-                    modifier = Modifier.clickable {
-                        onDeleteRequest()
+                        onEditRequest.invoke()
+                    },
+                    onDeleteRequest = {
                         menuVisible = false
-                    }.fillMaxWidth().height(56.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Spacer(Modifier.width(16.dp))
-                    Icon(
-                        painter = rememberVectorPainter(
-                            image = Icons.Default.Delete,
-                        ),
-                        tint = MaterialTheme.colorScheme.error,
-                        contentDescription = "delete",
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    Text(
-                        modifier = Modifier.padding(start = 8.dp),
-                        text = "Hapus",
-                        color = MaterialTheme.colorScheme.error,
-                    )
-                }
+                        onDeleteRequest.invoke()
+                    },
+                    onColorChangeRequest = { selectedColorHex, selectedColor ->
+                        temporarySelectedColorHex = selectedColorHex
+                        onChangeColorRequest.invoke(selectedColorHex)
+                    }
+                )
                 InsetNavigationHeight()
                 InsetNavigationHeight()
             }
@@ -237,6 +233,7 @@ private fun WorkoutPlanProgressIndicator(
 @Composable
 fun LatestExercise(
     modifier: Modifier = Modifier,
+    backgroundColor: Color = MaterialTheme.colorScheme.onPrimary,
     exerciseImageUrl: String,
     upperLabel: String,
     lowerLabel: String,
@@ -248,12 +245,17 @@ fun LatestExercise(
     val innerShape = remember {
         RoundedCornerShape(8.dp)
     }
+    val textColorBasedOnBackgroundColor by remember {
+        derivedStateOf {
+            backgroundColor.bestContrastColor()
+        }
+    }
 
     Row(
         modifier = modifier.then(
             Modifier
                 .background(
-                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = .15F),
+                    color = backgroundColor.copy(alpha = .15F),
                     shape = outerShape,
                 )
                 .heightIn(min = 40.dp)
@@ -275,10 +277,12 @@ fun LatestExercise(
         Column {
             Text(
                 text = upperLabel,
+                color = textColorBasedOnBackgroundColor,
                 style = MaterialTheme.typography.labelMedium,
             )
             Text(
                 text = lowerLabel,
+                color = textColorBasedOnBackgroundColor,
                 style = MaterialTheme.typography.bodyMedium,
             )
         }

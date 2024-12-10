@@ -30,7 +30,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -47,6 +46,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerDefaults
+import androidx.compose.foundation.pager.PagerSnapDistance
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -359,43 +361,47 @@ fun FullScreenImageViewer(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ImagePager(
     modifier: Modifier = Modifier,
     imageUrlList: List<String>,
+    pagerStateAdapter: PagerState = rememberPagerState(initialPage = 0) { imageUrlList.size },
     pageSpacing: Dp = 4.dp,
     fillWidth: Boolean = false,
     contentScale: ContentScale = ContentScale.FillWidth,
     shape: Shape = RoundedCornerShape(6.dp),
     onPageChange: (Int) -> Unit = {},
+    onItemClicked: (Int) -> Unit = {},
 ) {
-    val pagerState = rememberPagerState(initialPage = 0) {
-        imageUrlList.size
-    }
+
     val contentPaddingValues = if (imageUrlList.size == 1 || fillWidth) {
         PaddingValues(0.dp)
     } else {
         PaddingValues(horizontal = 8.dp, vertical = 0.dp)
     }
 
-    LaunchedEffect(pagerState) {
-        snapshotFlow { pagerState.currentPage }.collect {
+    LaunchedEffect(pagerStateAdapter) {
+        snapshotFlow { pagerStateAdapter.currentPage }.collect {
             onPageChange(it)
         }
     }
 
     HorizontalPager(
         modifier = modifier,
-        state = pagerState,
+        state = pagerStateAdapter,
         contentPadding = contentPaddingValues,
         pageSpacing = pageSpacing,
+        flingBehavior = PagerDefaults.flingBehavior(
+            state = pagerStateAdapter, pagerSnapDistance = PagerSnapDistance.atMost(0)
+        )
     ) {
         ImageWrapper(
             modifier = Modifier.clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
-                onClick = { },
+                onClick = {
+                    onItemClicked.invoke(it)
+                },
             ).clip(shape).fillMaxWidth(),
             imageUrl = imageUrlList[it],
             contentDescription = "Picture $it",

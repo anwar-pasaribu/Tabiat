@@ -31,6 +31,9 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope.PlaceHolderSize.Companion.animatedSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -40,7 +43,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -60,10 +62,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -72,15 +75,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.haze
+import dev.chrisbanes.haze.hazeChild
+import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
+import dev.chrisbanes.haze.materials.HazeMaterials
 import domain.model.gym.ExerciseSet
 import org.koin.compose.koinInject
 import platform.BackHandler
@@ -109,10 +121,6 @@ sealed class TimerState {
     data object BreakTimer : TimerState()
 }
 
-@OptIn(
-    ExperimentalMaterial3Api::class,
-    ExperimentalFoundationApi::class,
-)
 @Composable
 fun LogWorkoutExerciseScreen(
     contentPadding: PaddingValues,
@@ -120,6 +128,9 @@ fun LogWorkoutExerciseScreen(
     exerciseId: Long,
     onBack: () -> Unit = {},
 ) {
+
+    val hazeState = remember { HazeState() }
+
     var uiState by remember { mutableStateOf<LogWorkoutExerciseUiState>(LogWorkoutExerciseUiState.Default) }
     var timerState by remember { mutableStateOf<TimerState>(TimerState.NoTimer) }
 
@@ -198,31 +209,6 @@ fun LogWorkoutExerciseScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
         val imagePagerHeight = 240.dp
-        if (exerciseImages.isNotEmpty()) {
-            Box(modifier = Modifier.fillMaxWidth()) {
-                var activePage by remember {
-                    mutableStateOf(0)
-                }
-
-                ImagePager(
-                    modifier = Modifier.fillMaxWidth().height(imagePagerHeight),
-                    imageUrlList = exerciseImages,
-                    pageSpacing = 0.dp,
-                    fillWidth = true,
-                    contentScale = ContentScale.Crop,
-                    shape = RectangleShape,
-                    onPageChange = { currentPage ->
-                        activePage = currentPage
-                    },
-                )
-
-                PagerIndicator(
-                    modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 6.dp),
-                    pageCount = exerciseImages.size,
-                    activePage = activePage,
-                )
-            }
-        }
 
         val contentTopPadding = if (exerciseImages.isEmpty()) {
             contentPadding.calculateTopPadding()
@@ -333,6 +319,7 @@ fun LogWorkoutExerciseScreen(
             yAxis = chartYAxisData.value,
         )
 
+        // Chart
         Box(
             modifier = Modifier.align(Alignment.BottomCenter)
                 .padding(bottom = contentPadding.calculateBottomPadding()),
@@ -340,6 +327,15 @@ fun LogWorkoutExerciseScreen(
             ExerciseProgressLineChart(
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
                 axisData,
+            )
+        }
+
+        // Image Pager Below Log Exercise UI
+        if (exerciseImages.isNotEmpty()) {
+            ExerciseImagePager(
+                modifier = Modifier.fillMaxWidth().height(imagePagerHeight),
+                imageUrlList = exerciseImages,
+                paddingValues = contentPadding
             )
         }
 
@@ -404,7 +400,8 @@ fun LogWorkoutExerciseScreen(
                 modifier = Modifier
                     .dummyClickable()
                     .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.inverseSurface.copy(alpha = .85F)),
+                    .background(MaterialTheme.colorScheme.inverseSurface.copy(alpha = .85F))
+                    .zIndex(99F),
                 contentAlignment = Alignment.Center,
             ) {
                 Column {
@@ -440,12 +437,15 @@ fun LogWorkoutExerciseScreen(
                                 exerciseSetTimerDuration == 0 && breakTimeDuration == 0 -> {
                                     timerState = TimerState.NoTimer
                                 }
+
                                 allExerciseFinished && breakTimeDuration != 0 -> {
                                     timerState = TimerState.BreakTimer
                                 }
+
                                 !allExerciseFinished && exerciseSetTimerDuration != 0 -> {
                                     timerState = TimerState.SetTimer
                                 }
+
                                 else -> {
                                     timerState = TimerState.NoTimer
                                 }
@@ -457,3 +457,202 @@ fun LogWorkoutExerciseScreen(
         }
     }
 }
+
+// Material 3 Emphasized Easing
+// https://m3.material.io/styles/motion/easing-and-duration/tokens-specs
+
+private const val DURATION = 600
+private const val DURATION_ENTER = 400
+private const val DURATION_EXIT = 200
+
+sealed class ImagePagerState {
+    data object Normal: ImagePagerState()
+    data object Expanded: ImagePagerState()
+}
+
+@OptIn(ExperimentalHazeMaterialsApi::class, ExperimentalSharedTransitionApi::class)
+@Composable
+fun ExerciseImagePager(
+    modifier: Modifier = Modifier,
+    imageUrlList: List<String>,
+    paddingValues: PaddingValues
+) {
+    var imagePagerExpandState: ImagePagerState by remember {
+        mutableStateOf(ImagePagerState.Normal)
+    }
+    val hazeState = remember { HazeState() }
+
+    var selectedItem by remember { mutableIntStateOf(0) }
+
+    val pagerState1 = rememberPagerState(initialPage = selectedItem) { imageUrlList.size }
+    val pagerState2 = rememberPagerState(initialPage = selectedItem) { imageUrlList.size }
+
+    BackHandler(enabled = (imagePagerExpandState is ImagePagerState.Expanded)) {
+        if (imagePagerExpandState is ImagePagerState.Expanded) {
+            imagePagerExpandState = ImagePagerState.Normal
+        }
+    }
+
+    Box(modifier = Modifier.background(Color.Black)) {
+        SharedTransitionLayout {
+            AnimatedContent(
+                targetState = imagePagerExpandState,
+                label = "animated-pager-expand",
+            ) { pagerUiState ->
+
+                when (pagerUiState) {
+                    ImagePagerState.Normal -> {
+                        Box(modifier = Modifier
+                            .sharedBounds(
+                                sharedContentState = rememberSharedContentState(key = "image-container-bounds"),
+                                animatedVisibilityScope = this,
+                            )
+                            .fillMaxWidth()
+                            .background(Color.Black)
+                        ) {
+                            ImagePager(
+                                pagerStateAdapter = pagerState1,
+                                modifier = Modifier
+                                    .sharedElement(
+                                        boundsTransform = { _, _ ->
+                                            spring(
+                                                dampingRatio = Spring.DampingRatioLowBouncy,
+                                                stiffness = Spring.StiffnessMediumLow // with medium speed
+                                            )
+                                        },
+                                        state = rememberSharedContentState(key = "imagePager"),
+                                        animatedVisibilityScope = this@AnimatedContent,
+                                        placeHolderSize = animatedSize,
+                                    )
+                                    .haze(hazeState).then(modifier),
+                                imageUrlList = imageUrlList,
+                                pageSpacing = 0.dp,
+                                fillWidth = true,
+                                contentScale = ContentScale.Crop,
+                                shape = RectangleShape,
+                                onPageChange = { currentPage ->
+                                    selectedItem = currentPage
+                                },
+                                onItemClicked = {
+                                    selectedItem = it
+                                    imagePagerExpandState = ImagePagerState.Expanded
+                                }
+                            )
+
+                            Box(
+                                modifier = Modifier
+                                    .sharedBounds(
+                                        sharedContentState = rememberSharedContentState(key = "pager-indicator-bounds"),
+                                        animatedVisibilityScope = this@AnimatedContent,
+                                    )
+                                    .padding(bottom = 6.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .hazeChild(
+                                        state = hazeState,
+                                        style = HazeMaterials.thin(),
+                                    )
+                                    .height(16.dp)
+                                    .padding(horizontal = 2.dp)
+                                    .align(Alignment.BottomCenter)
+                            ) {
+                                PagerIndicator(
+                                    modifier = Modifier.align(Alignment.Center),
+                                    pageCount = imageUrlList.size,
+                                    activePage = selectedItem,
+                                )
+                            }
+                        }
+                    }
+
+                    ImagePagerState.Expanded -> {
+                        Box(
+                            modifier = Modifier
+                                .sharedBounds(
+                                    sharedContentState = rememberSharedContentState(key = "image-container-bounds"),
+                                    animatedVisibilityScope = this,
+                                )
+                                .fillMaxSize()
+                                .background(Color.Black)
+                            ,
+                            contentAlignment = Alignment.Center
+                        ) {
+                            ImagePager(
+                                pagerStateAdapter = pagerState2,
+                                modifier = Modifier
+                                    .sharedElement(
+                                        boundsTransform = { _, _ ->
+                                            spring(
+                                                dampingRatio = Spring.DampingRatioLowBouncy,
+                                                stiffness = Spring.StiffnessMediumLow // with medium speed
+                                            )
+                                        },
+                                        state = rememberSharedContentState(key = "imagePager"),
+                                        animatedVisibilityScope = this@AnimatedContent,
+                                        placeHolderSize = animatedSize,
+                                    )
+                                    .haze(hazeState)
+                                ,
+                                imageUrlList = imageUrlList,
+                                pageSpacing = 0.dp,
+                                fillWidth = true,
+                                contentScale = ContentScale.FillWidth,
+                                shape = RectangleShape,
+                                onPageChange = { currentPage ->
+                                    selectedItem = currentPage
+                                },
+                                onItemClicked = {
+                                    imagePagerExpandState = ImagePagerState.Normal
+                                }
+                            )
+
+                            Box(
+                                modifier = Modifier
+                                    .sharedBounds(
+                                        sharedContentState = rememberSharedContentState(key = "pager-indicator-bounds"),
+                                        animatedVisibilityScope = this@AnimatedContent,
+                                    )
+                                    .padding(bottom = paddingValues.calculateBottomPadding() + 16.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .hazeChild(
+                                        state = hazeState,
+                                        style = HazeMaterials.thin(),
+                                    )
+                                    .height(16.dp)
+                                    .padding(horizontal = 2.dp)
+                                    .align(Alignment.BottomCenter)
+                            ) {
+                                PagerIndicator(
+                                    modifier = Modifier.align(Alignment.Center),
+                                    pageCount = imageUrlList.size,
+                                    activePage = selectedItem,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+//        Spacer(Modifier
+//            .hazeChild(state = hazeState, style = HazeMaterials.regular(MaterialTheme.colorScheme.background)) {
+//                progressive = HazeProgressive.verticalGradient(startIntensity = 1f, endIntensity = 0f)
+//            }
+//            .background(Color.Transparent)
+//            .fillMaxWidth()
+//            .height(height = paddingValues.calculateTopPadding() - 16.dp)
+//            .align(Alignment.TopCenter)
+//        )
+    }
+}
+
+//const val DURATION_EXTRA_LONG = 1000
+//
+//private val emphasizedPathContainer = Path().apply {
+//    moveTo(0f, 0f)
+//    cubicTo(0.05f, 0f, 0.133333f, 0.06f, 0.166666f, 0.04f)
+//    cubicTo(0.208333f, 0.82f, 0.25f, 1f, 1f, 1f)
+//}
+//
+//val emphasizedContainer = PathInterpolator(emphasizedPathContainer)
+//
+//val EmphasizedEasingContainer = Easing { emphasizedContainer.getInterpolation(it) }

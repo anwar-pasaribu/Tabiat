@@ -28,28 +28,40 @@ package features.workoutPlanDetail
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import domain.model.gym.ExerciseProgress
-import domain.model.gym.WorkoutPlan
 import domain.repository.IGymRepository
 import domain.usecase.GetExerciseListByWorkoutPlanUseCase
 import domain.usecase.GetWorkoutPlanByIdUseCase
+import domain.usecase.personalization.GetWorkoutPlanPersonalizationUseCase
+import features.workoutPlanDetail.model.WorkoutPlanDetailUiData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+
+sealed class WorkoutDetailUiState {
+    data object Loading : WorkoutDetailUiState()
+    data class Success(val data: WorkoutPlanDetailUiData) : WorkoutDetailUiState()
+    data class Error(val message: String) : WorkoutDetailUiState()
+    data object NoExercise : WorkoutDetailUiState()
+}
 
 class WorkoutDetailScreenViewModel(
     private val repository: IGymRepository,
     private val getExerciseListByWorkoutPlanUseCase: GetExerciseListByWorkoutPlanUseCase,
     private val getWorkoutPlanByIdUseCase: GetWorkoutPlanByIdUseCase,
+    private val getWoPersonalizationUseCase: GetWorkoutPlanPersonalizationUseCase,
 ) : ViewModel() {
 
     private val _exerciseListStateFlow = MutableStateFlow(emptyList<ExerciseProgress>())
-    val exerciseListStateFlow: StateFlow<List<ExerciseProgress>> = _exerciseListStateFlow.asStateFlow()
+    val exerciseListStateFlow: StateFlow<List<ExerciseProgress>> =
+        _exerciseListStateFlow.asStateFlow()
 
-    private val _workoutPlanStateFlow = MutableStateFlow<WorkoutPlan?>(null)
-    val workoutPlanStateFlow: StateFlow<WorkoutPlan?> = _workoutPlanStateFlow.asStateFlow()
+    private val _workoutPlanStateFlow =
+        MutableStateFlow<WorkoutDetailUiState>(WorkoutDetailUiState.Loading)
+    val workoutPlanStateFlow: StateFlow<WorkoutDetailUiState> = _workoutPlanStateFlow.asStateFlow()
 
-    fun loadWorkoutPlan(workoutPlanId: Long) {
+    private fun loadWorkoutPlanExercises(workoutPlanId: Long) {
         viewModelScope.launch {
             getExerciseListByWorkoutPlanUseCase(workoutPlanId).collect { exerciseList ->
                 _exerciseListStateFlow.emit(
@@ -64,9 +76,18 @@ class WorkoutDetailScreenViewModel(
         }
     }
 
-    fun loadWorkoutPlanById(workoutPlanId: Long) {
+    private fun loadWorkoutPlanById(workoutPlanId: Long) {
         viewModelScope.launch {
-            _workoutPlanStateFlow.value = getWorkoutPlanByIdUseCase(workoutPlanId)
+            val workoutPersonalization = getWoPersonalizationUseCase(workoutPlanId)
+            val workoutPlan = getWorkoutPlanByIdUseCase(workoutPlanId)
+            _workoutPlanStateFlow.update {
+                WorkoutDetailUiState.Success(
+                    data = WorkoutPlanDetailUiData(
+                        workoutPlan = workoutPlan,
+                        colorTheme = workoutPersonalization.colorTheme,
+                    )
+                )
+            }
         }
     }
 
@@ -77,5 +98,10 @@ class WorkoutDetailScreenViewModel(
                 exerciseId = workoutPlanExerciseId,
             )
         }
+    }
+
+    fun loadWorkoutPlanDetails(workoutPlanId: Long) {
+        loadWorkoutPlanExercises(workoutPlanId = workoutPlanId)
+        loadWorkoutPlanById(workoutPlanId = workoutPlanId)
     }
 }

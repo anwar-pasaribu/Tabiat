@@ -36,7 +36,7 @@ import kotlinx.coroutines.flow.map
 class WorkoutPlanDao(
     private val database: TabiatDatabase,
 ) : IWorkoutPlanDao {
-    override suspend fun getAllWorkoutPlanObservable(): Flow<List<WorkoutPlan>> {
+    override fun getAllWorkoutPlanObservable(): Flow<List<WorkoutPlan>> {
         return database.workoutPlanQueries.selectAllWorkoutPlan()
             .asFlow()
             .mapToList(Dispatchers.Default)

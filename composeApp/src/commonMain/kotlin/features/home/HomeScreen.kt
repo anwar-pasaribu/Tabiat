@@ -25,7 +25,6 @@
  */
 package features.home
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -53,6 +52,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -120,6 +120,9 @@ fun HomeScreen(
         },
         onCreateNewWorkoutPlan = {
             onCreateNewWorkoutPlan.invoke()
+        },
+        onChangeWorkoutPlanColor = { workoutPlanId, colorHex ->
+            viewModel.changeWorkoutPlanColor(workoutPlanId, colorHex)
         }
     )
 }
@@ -156,7 +159,7 @@ private fun HomeEmptyState(modifier: Modifier = Modifier, onCta: () -> Unit) {
     }
 }
 
-@OptIn(ExperimentalHazeMaterialsApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalHazeMaterialsApi::class)
 @Composable
 fun HomeScreenList(
     modifier: Modifier = Modifier,
@@ -168,6 +171,7 @@ fun HomeScreenList(
     onWorkoutDetail: (Long) -> Unit,
     onEditWorkout: (Long) -> Unit,
     onDeleteWorkout: (Long) -> Unit,
+    onChangeWorkoutPlanColor: (Long, String) -> Unit,
     openHistoryScreen: () -> Unit,
     openDailyExercise: (LocalDate) -> Unit,
     onCreateNewWorkoutPlan: () -> Unit,
@@ -178,7 +182,6 @@ fun HomeScreenList(
             Modifier
                 .padding(
                     start = contentPadding.calculateStartPadding(LayoutDirection.Ltr),
-                    top = contentPadding.calculateTopPadding() - 1.dp,
                     end = contentPadding.calculateEndPadding(LayoutDirection.Ltr)
                 )
                 .hazeChild(
@@ -188,8 +191,9 @@ fun HomeScreenList(
                 .align(Alignment.TopCenter)
                 .zIndex(1F)
         ) {
+            Spacer(Modifier.height(contentPadding.calculateTopPadding()))
             WeekView(
-                modifier = Modifier.padding(start = 8.dp, top = 6.dp, end = 8.dp),
+                modifier = Modifier.padding(start = 8.dp, end = 8.dp),
                 listWeeklyUiData = homeWeeklyData,
                 onMonthNameClick = {
                     openHistoryScreen.invoke()
@@ -206,7 +210,7 @@ fun HomeScreenList(
             state = lazyListState,
             contentPadding = PaddingValues(
                 start = contentPadding.calculateLeftPadding(LayoutDirection.Ltr) + 8.dp,
-                top = contentPadding.calculateTopPadding() + 64.dp,
+                top = contentPadding.calculateTopPadding() + 72.dp,
                 end = contentPadding.calculateRightPadding(LayoutDirection.Ltr) + 8.dp,
                 bottom = 0.dp
             ),
@@ -230,16 +234,13 @@ fun HomeScreenList(
                         items = homeScreenUiState.data,
                         key = { it.workoutPlanId }
                     ) { item ->
+                        val colorTheme = item.backgroundColor.takeOrElse {
+                            MaterialTheme.colorScheme.primary
+                        }
                         WorkoutPlanItemView(
                             modifier = Modifier.fillMaxWidth().animateItem(),
-                            workoutPlanId = item.workoutPlanId,
                             title = item.title,
                             description = item.description,
-                            total = item.total,
-                            progress = item.progress,
-                            onClick = { onWorkoutDetail(item.workoutPlanId) },
-                            onEditRequest = { onEditWorkout(item.workoutPlanId) },
-                            onDeleteRequest = { onDeleteWorkout(item.workoutPlanId) },
                             lastActivityInfo = {
                                 if (item.lastActivityDetail.isNotEmpty()) {
                                     LatestExercise(
@@ -247,12 +248,20 @@ fun HomeScreenList(
                                             start = 10.dp,
                                             bottom = 10.dp
                                         ),
+                                        backgroundColor = colorTheme,
                                         exerciseImageUrl = item.exerciseImageUrl,
                                         upperLabel = item.lastActivityDate,
                                         lowerLabel = item.lastActivityDetail,
                                     )
                                 }
                             },
+                            total = item.total,
+                            progress = item.progress,
+                            backgroundColor = colorTheme,
+                            onClick = { onWorkoutDetail(item.workoutPlanId) },
+                            onEditRequest = { onEditWorkout(item.workoutPlanId) },
+                            onDeleteRequest = { onDeleteWorkout(item.workoutPlanId) },
+                            onChangeColorRequest = { onChangeWorkoutPlanColor.invoke(item.workoutPlanId, it)},
                         )
                     }
                 }
