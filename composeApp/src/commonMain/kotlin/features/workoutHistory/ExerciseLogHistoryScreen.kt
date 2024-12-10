@@ -1,3 +1,28 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2024 Anwar Pasaribu
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Project Name: Tabiat
+ */
 package features.workoutHistory
 
 import androidx.compose.foundation.background
@@ -51,9 +76,8 @@ import ui.component.gym.ExerciseSetBadge
 fun ExerciseLogListBottomSheet(
     modifier: Modifier = Modifier,
     onDismiss: () -> Unit,
-    targetDateTimeStamp: Long
+    targetDateTimeStamp: Long,
 ) {
-
     val viewModel = koinInject<WorkoutHistoryScreenViewModel>()
     val itemList by viewModel.exerciseLogList.collectAsState()
 
@@ -65,23 +89,22 @@ fun ExerciseLogListBottomSheet(
         onDismiss = {
             onDismiss()
         },
-        showFullScreen = false
+        showFullScreen = false,
     ) {
-
         Text(
             text = "Riwayat Latihan",
             style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.align(Alignment.Start).padding(start = 8.dp)
+            modifier = Modifier.align(Alignment.Start).padding(start = 8.dp),
         )
 
         LogHistoryDetailView(
             itemList.size,
-            targetDateTimeStamp
+            targetDateTimeStamp,
         )
 
         val darkMode = isSystemInDarkTheme()
         DisposableEffect(darkMode) {
-            onDispose {  }
+            onDispose { }
         }
         if (itemList.isNotEmpty()) {
             Spacer(Modifier.height(8.dp))
@@ -90,29 +113,27 @@ fun ExerciseLogListBottomSheet(
 
         LazyColumn(
             modifier = modifier.then(Modifier.fillMaxWidth().defaultMinSize(minHeight = 300.dp)),
-            contentPadding = PaddingValues(start = 8.dp, end = 8.dp, bottom = 32.dp)
+            contentPadding = PaddingValues(start = 8.dp, end = 8.dp, bottom = 32.dp),
         ) {
-
             itemsIndexed(items = itemList, key = { _, item -> item.exerciseLogId }) { index, item ->
                 Card(
                     modifier = Modifier.fillMaxWidth().padding(bottom = 2.dp),
-                    shape = MaterialTheme.shapes.extraSmall
+                    shape = MaterialTheme.shapes.extraSmall,
                 ) {
                     Box(
                         modifier = Modifier.fillMaxWidth()
                             .padding(horizontal = 8.dp, vertical = 4.dp),
                     ) {
-
                         Row(
                             modifier = Modifier.align(Alignment.CenterStart),
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(
                                 text = (index + 1).toString().padEnd(4, ' '),
                                 style = MaterialTheme.typography.labelMedium,
                             )
                             Spacer(Modifier.width(4.dp))
-                            Column() {
+                            Column {
                                 Text(
                                     text = item.exerciseName,
                                     style = MaterialTheme.typography.labelMedium,
@@ -120,7 +141,7 @@ fun ExerciseLogListBottomSheet(
                                 Text(
                                     text = item.exerciseTargetMuscle.firstOrNull().orEmpty(),
                                     style = MaterialTheme.typography.labelMedium.copy(
-                                        fontWeight = FontWeight.Bold
+                                        fontWeight = FontWeight.Bold,
                                     ),
                                 )
                             }
@@ -136,7 +157,7 @@ fun ExerciseLogListBottomSheet(
                         Text(
                             text = item.finishedDateTime.epochTimestampToShortDateTimeFormat(),
                             style = MaterialTheme.typography.labelMedium,
-                            modifier = Modifier.align(Alignment.CenterEnd)
+                            modifier = Modifier.align(Alignment.CenterEnd),
                         )
                     }
                 }
@@ -154,7 +175,7 @@ private fun ColumnScope.LogHistoryDetailView(size: Int, targetDateTimeStamp: Lon
     Row(
         modifier = Modifier.align(Alignment.Start).padding(start = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         if (size != 0) {
             Text(
@@ -163,11 +184,11 @@ private fun ColumnScope.LogHistoryDetailView(size: Int, targetDateTimeStamp: Lon
         } else {
             Text(
                 text = "Tidak ada latihan",
-                style = MaterialTheme.typography.labelMedium
+                style = MaterialTheme.typography.labelMedium,
             )
         }
         Box(
-            Modifier.size(4.dp).background(MaterialTheme.colorScheme.onBackground, CircleShape)
+            Modifier.size(4.dp).background(MaterialTheme.colorScheme.onBackground, CircleShape),
         )
         Text(
             text = targetDateTimeStamp.epochTimestampToLongDateFormat(),
@@ -176,28 +197,27 @@ private fun ColumnScope.LogHistoryDetailView(size: Int, targetDateTimeStamp: Lon
 }
 
 private val darkRainbowColors = listOf(
-    Color(0xFFB22222), // Dark Red
-    Color(0xFFD2691E), // Dark Orange
-    Color(0xFFB8860B), // Dark Goldenrod
-    Color(0xFF006400), // Dark Green
-    Color(0xFF008B8B), // Dark Cyan
-    Color(0xFF00008B), // Dark Blue
-    Color(0xFF8B008B)  // Dark Magenta
+    Color(0xFFB22222),
+    Color(0xFFD2691E),
+    Color(0xFFB8860B),
+    Color(0xFF006400),
+    Color(0xFF008B8B),
+    Color(0xFF00008B),
+    Color(0xFF8B008B),
 )
 
 private val lightRainbowColors = listOf(
-    Color(0xFFB71C1C), // Deep Red
-    Color(0xFFF57C00), // Deep Orange
-    Color(0xFFFBC02D), // Mustard Yellow
-    Color(0xFF388E3C), // Forest Green
-    Color(0xFF1976D2), // Cobalt Blue
-    Color(0xFF303F9F), // Indigo
-    Color(0xFF8E24AA)  // Deep Violet
+    Color(0xFFB71C1C),
+    Color(0xFFF57C00),
+    Color(0xFFFBC02D),
+    Color(0xFF388E3C),
+    Color(0xFF1976D2),
+    Color(0xFF303F9F),
+    Color(0xFF8E24AA),
 )
 
 @Composable
 fun ExerciseHistoryDailyPieChart(itemList: List<ExerciseHistoryUiItem>, darkMode: Boolean) {
-
     val combinedTargetMuscle = itemList.flatMap { it.exerciseTargetMuscle }
     val muscleGroupCount = combinedTargetMuscle.groupingBy { it }.eachCount()
     val pieChartListData = mutableListOf<PieChartData>()
@@ -229,8 +249,8 @@ fun ExerciseHistoryDailyPieChart(itemList: List<ExerciseHistoryUiItem>, darkMode
             PieChartData(
                 partName = entry.key,
                 data = entry.value.toDouble(),
-                color = colors.value[index]
-            )
+                color = colors.value[index],
+            ),
         )
     }
 
@@ -240,8 +260,8 @@ fun ExerciseHistoryDailyPieChart(itemList: List<ExerciseHistoryUiItem>, darkMode
             PieChartData(
                 partName = "Lainnya",
                 data = otherMuscleGroupCount.toDouble(),
-                color = colors.value.last()
-            )
+                color = colors.value.last(),
+            ),
         )
     }
 
@@ -253,16 +273,15 @@ fun ExerciseHistoryDailyPieChart(itemList: List<ExerciseHistoryUiItem>, darkMode
             outerCircularColor = MaterialTheme.colorScheme.primary,
             textRatioStyle = MaterialTheme.typography.labelMedium,
             descriptionStyle = MaterialTheme.typography.labelLarge,
-            legendPosition = LegendPosition.BOTTOM
+            legendPosition = LegendPosition.BOTTOM,
         )
     }
-
 }
 
 private fun Long.epochTimestampToShortDateTimeFormat(): String {
     // Convert epoch timestamp to LocalDateTime object
     val dateTime = Instant.fromEpochMilliseconds(
-        this
+        this,
     ).toLocalDateTime(TimeZone.currentSystemDefault())
 
     // Format the date using the desired pattern
@@ -277,7 +296,7 @@ private fun Long.epochTimestampToShortDateTimeFormat(): String {
 private fun Long.epochTimestampToLongDateFormat(): String {
     // Convert epoch timestamp to LocalDateTime object
     val dateTime = Instant.fromEpochMilliseconds(
-        this
+        this,
     ).toLocalDateTime(TimeZone.currentSystemDefault())
 
     // Format the date using the desired pattern

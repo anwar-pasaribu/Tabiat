@@ -1,3 +1,28 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2024 Anwar Pasaribu
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Project Name: Tabiat
+ */
 package data.source.local.dao
 
 import app.cash.sqldelight.coroutines.asFlow
@@ -10,7 +35,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class WorkoutPlanExerciseDao(
-    private val database: TabiatDatabase
+    private val database: TabiatDatabase,
 ) : IWorkoutPlanExerciseDao {
     override suspend fun getAllWorkoutPlanExerciseObservable(workoutPlanId: Long): Flow<List<WorkoutPlanExercise>> {
         return database
@@ -37,12 +62,13 @@ class WorkoutPlanExerciseDao(
 
     override suspend fun selectWorkoutPlanExerciseByWorkoutPlanIdAndExerciseId(
         workoutPlanId: Long,
-        exerciseId: Long
+        exerciseId: Long,
     ): List<WorkoutPlanExercise> {
         return database
             .workoutPlanExerciseQueries
             .selectWorkoutPlanExerciseByWorkoutPlanIdAndExerciseId(
-                workoutPlanId, exerciseId
+                workoutPlanId,
+                exerciseId,
             )
             .executeAsList()
             .map { it.toDomain() }
@@ -56,7 +82,7 @@ class WorkoutPlanExerciseDao(
             this.reps.toInt(),
             this.weight.toInt(),
             this.setNumberOrder.toInt(),
-            this.finishedDateTime
+            this.finishedDateTime,
         )
     }
 
@@ -71,7 +97,7 @@ class WorkoutPlanExerciseDao(
                     reps.toInt(),
                     weight.toInt(),
                     setNumberOrder.toInt(),
-                    finishedDateTime
+                    finishedDateTime,
                 )
             }.executeAsOne()
     }
@@ -82,7 +108,7 @@ class WorkoutPlanExerciseDao(
         reps: Long,
         weight: Long,
         setNumberOrder: Long,
-        finishedDateTime: Long
+        finishedDateTime: Long,
     ) {
         database
             .workoutPlanExerciseQueries.insertWorkoutPlanExercise(
@@ -91,19 +117,19 @@ class WorkoutPlanExerciseDao(
                 reps,
                 weight,
                 setNumberOrder,
-                finishedDateTime
+                finishedDateTime,
             )
     }
 
     override suspend fun deleteWorkoutPlanExerciseByWorkoutPlanIdAndExerciseId(
         workoutPlanId: Long,
-        exerciseId: Long
+        exerciseId: Long,
     ) {
         database
             .workoutPlanExerciseQueries
             .deleteWorkoutPlanExerciseByWorkoutPlanIdAndExerciseId(
                 workoutPlanId = workoutPlanId,
-                exerciseId = exerciseId
+                exerciseId = exerciseId,
             )
     }
 
@@ -111,7 +137,7 @@ class WorkoutPlanExerciseDao(
         database
             .workoutPlanExerciseQueries
             .deleteWorkoutPlanExerciseById(
-                workoutPlanExerciseId
+                workoutPlanExerciseId,
             )
     }
 
@@ -119,7 +145,7 @@ class WorkoutPlanExerciseDao(
         workoutPlanExerciseId: Long,
         finishedDateTime: Long,
         reps: Long,
-        weight: Long
+        weight: Long,
     ) {
         database
             .workoutPlanExerciseQueries
@@ -134,14 +160,14 @@ class WorkoutPlanExerciseDao(
     override suspend fun updateWorkoutPlanExerciseRepsAndWeight(
         workoutPlanExerciseId: Long,
         reps: Long,
-        weight: Long
+        weight: Long,
     ) {
         database
             .workoutPlanExerciseQueries
             .updateWorkoutPlanExerciseDetail(
                 id = workoutPlanExerciseId,
                 reps = reps,
-                weight = weight
+                weight = weight,
             )
     }
 }

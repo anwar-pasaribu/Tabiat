@@ -3,16 +3,13 @@ plugins {
     // in each subproject's classloader
     alias(libs.plugins.androidApplication) apply false
     alias(libs.plugins.androidLibrary) apply false
-
-    id("com.google.gms.google-services") version "4.4.2" apply false
-
-    // Add the dependency for the Crashlytics Gradle plugin
-    id("com.google.firebase.crashlytics") version "3.0.2" apply false
-
     alias(libs.plugins.kotlinMultiplatform) apply false
     alias(libs.plugins.jetbrainsCompose) apply false
     alias(libs.plugins.compose.compiler) apply false
 
     alias(libs.plugins.sqlDelight) apply false
     alias(libs.plugins.kotlinSerialization) apply false
+
+    alias(libs.plugins.googleServices) apply false
+    alias(libs.plugins.firebaseCrashlytics) apply false
 }

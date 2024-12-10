@@ -1,5 +1,5 @@
 [versions]
-agp = "8.4.1"
+agp = "8.5.2"
 android-compileSdk = "34"
 android-minSdk = "24"
 android-targetSdk = "34"
@@ -10,24 +10,28 @@ androidx-espresso-core = "3.5.1"
 androidx-material = "1.11.0"
 androidx-test-junit = "1.1.5"
 androidx-lifecycle = "2.8.0"
-androidx-navigation = "2.7.0-alpha07"
+androidx-navigation = "2.8.0-alpha08"
 androidxCoreSplashscreen = "1.0.1"
-coilCompose = "3.0.0-alpha06"
+coilCompose = "3.0.0-alpha08"
 compose = "1.6.8"
-compose-multiplatform = "1.6.11"
+compose-multiplatform = "1.7.0-alpha02"
 composeCompiler = "1.5.8"
 datastorePreferencesCore = "1.1.1"
 junit = "4.13.2"
-kotlin = "2.0.0"
+kotlin = "2.0.10"
 kotlinSerialization = "2.0.0"
 kotlinxDatetime = "0.6.0"
 coroutines = "1.8.1"
 koin = "3.6.0-wasm-alpha2"
 koinCompose = "1.2.0-alpha3"
-haze = "0.7.1"
+haze = "1.1.1"
 sqlDelight = "2.0.2"
 ktor = "2.3.11"
 spotless = "6.25.0"
+
+google-services="4.4.2"
+firebase-crashlytics="3.0.2"
+coreAnimation = "1.0.0"
 
 [libraries]
 androidx-datastore-preferences-core = { module = "androidx.datastore:datastore-preferences-core", version.ref = "datastorePreferencesCore" }
@@ -73,7 +77,8 @@ ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "k
 ktor-client-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-client-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 
-kotlinx-atomicfu = "org.jetbrains.kotlinx:atomicfu:0.24.0"
+kotlinx-atomicfu = "org.jetbrains.kotlinx:atomicfu:0.25.0"
+androidx-core-animation = { group = "androidx.core", name = "core-animation", version.ref = "coreAnimation" }
 
 
 [plugins]
@@ -88,3 +93,6 @@ kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", versio
 sqlDelight = { id = "app.cash.sqldelight", version.ref = "sqlDelight" }
 
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+
+googleServices = { id = "com.google.gms.google-services", version.ref = "google-services" }
+firebaseCrashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebase-crashlytics" }

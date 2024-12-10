@@ -1,3 +1,28 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2024 Anwar Pasaribu
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Project Name: Tabiat
+ */
 package features.settings
 
 import androidx.compose.animation.animateColorAsState
@@ -9,12 +34,19 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material3.Icon
@@ -28,21 +60,30 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import domain.enums.SoundEffectType
 import domain.model.gym.GymPreferences
 import features.exerciseList.BottomSheet
+import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
 import platform.PlaySoundEffect
+import tabiat.composeapp.generated.resources.Res
+import tabiat.composeapp.generated.resources.ic_pause_icon_32dp
+import tabiat.composeapp.generated.resources.ic_timer_off_icon_32dp
+import ui.component.ImageWrapper
 import ui.component.InsetNavigationHeight
+import ui.component.MainHeaderText
 
 @Composable
 fun SettingBottomSheetDialog(
     modifier: Modifier = Modifier,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     val viewModel = koinInject<SettingScreenViewModel>()
     val gymTimerOptions by viewModel.exerciseTimerOptions.collectAsState()
@@ -54,7 +95,7 @@ fun SettingBottomSheetDialog(
 
     BottomSheet(
         onDismiss = { onDismiss() },
-        showFullScreen = false
+        showFullScreen = false,
     ) {
         SettingPage(
             modifier = modifier,
@@ -71,7 +112,54 @@ fun SettingBottomSheetDialog(
             },
             onCreateDummyData = {
                 viewModel.createDummyData()
-            }
+            },
+        )
+    }
+}
+
+@Composable
+fun SettingsScreen(
+    contentPadding: PaddingValues,
+    modifier: Modifier = Modifier,
+) {
+    val viewModel = koinInject<SettingScreenViewModel>()
+    val gymTimerOptions by viewModel.exerciseTimerOptions.collectAsState()
+    val gymPreference by viewModel.gymPreferences.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.loadGymPreferences()
+    }
+
+    val settingContentPadding = PaddingValues(
+        start = contentPadding.calculateStartPadding(LayoutDirection.Ltr),
+        top = contentPadding.calculateTopPadding(),
+        end = contentPadding.calculateEndPadding(LayoutDirection.Ltr)
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(settingContentPadding)
+            .verticalScroll(
+                state = rememberScrollState()
+            )
+    ) {
+        SettingPage(
+            modifier = modifier,
+            gymPreferences = gymPreference,
+            exerciseTimerOptions = gymTimerOptions,
+            onPerSetTimerClick = {
+                viewModel.saveExerciseTimerDuration(it)
+            },
+            onPerBreakTimeClick = {
+                viewModel.saveBreakTimeDuration(it)
+            },
+            onTimerSoundChangeClick = {
+                viewModel.saveSoundEffectSelection(it)
+            },
+            onCreateDummyData = {
+                viewModel.createDummyData()
+            },
         )
     }
 }
@@ -97,10 +185,8 @@ fun SettingPage(
         selectedTimerSound = gymPreferences.timerSoundEffect
     }
 
-    Column(
-        modifier = modifier
-    ) {
-        Text(
+    Column(modifier = modifier) {
+        MainHeaderText(
             modifier = Modifier
                 .combinedClickable(
                     enabled = true,
@@ -109,14 +195,13 @@ fun SettingPage(
                     onClick = {},
                     onDoubleClick = {
                         onCreateDummyData()
-                    }
+                    },
                 )
                 .fillMaxWidth()
                 .padding(horizontal = 8.dp),
-            text = "Settings",
-            style = MaterialTheme.typography.headlineLarge
+            textTitle = "Settings"
         )
-        SettingSectionLabel(title = "Durasi timer per set")
+        SettingSectionLabel(title = "Durasi Timer Per Set")
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -129,14 +214,14 @@ fun SettingPage(
                         .weight(1F),
                     duration = exerciseTimerOptions[it].setTimerDuration,
                     label = "detik",
-                    selected = selectedSetTimer.value == exerciseTimerOptions[it].setTimerDuration
+                    selected = selectedSetTimer.value == exerciseTimerOptions[it].setTimerDuration,
                 ) {
                     onPerSetTimerClick(exerciseTimerOptions[it].setTimerDuration)
                     selectedSetTimer.value = exerciseTimerOptions[it].setTimerDuration
                 }
             }
         }
-        SettingSectionLabel(title = "Durasi istirahat")
+        SettingSectionLabel(title = "Durasi Istirahat")
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -149,7 +234,7 @@ fun SettingPage(
                         .weight(1F),
                     duration = exerciseTimerOptions[it].breakTimeDuration,
                     label = "menit",
-                    selected = selectedBreakTime.value == exerciseTimerOptions[it].breakTimeDuration
+                    selected = selectedBreakTime.value == exerciseTimerOptions[it].breakTimeDuration,
                 ) {
                     onPerBreakTimeClick(exerciseTimerOptions[it].breakTimeDuration)
                     selectedBreakTime.value = exerciseTimerOptions[it].breakTimeDuration
@@ -163,7 +248,7 @@ fun SettingPage(
             onSoundEffectSelected = {
                 selectedTimerSound = it
                 onTimerSoundChangeClick(it)
-            }
+            },
         )
         AboutAppSection()
         Spacer(modifier = Modifier.height(48.dp))
@@ -179,7 +264,7 @@ private fun ColumnScope.SettingSectionLabel(modifier: Modifier = Modifier, title
             .fillMaxWidth()
             .padding(horizontal = 8.dp),
         text = title,
-        style = MaterialTheme.typography.titleMedium
+        style = MaterialTheme.typography.titleMedium,
     )
     Spacer(modifier = Modifier.height(8.dp))
 }
@@ -189,16 +274,15 @@ private fun ColumnScope.SettingListMenu(
     modifier: Modifier = Modifier,
     menuIcon: ImageVector,
     textContent: @Composable RowScope.() -> Unit,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
-
     Row(
         modifier = Modifier.clickable { onClick() }
-            .then(modifier)
+            .then(modifier),
     ) {
         Icon(
             imageVector = menuIcon,
-            contentDescription = null
+            contentDescription = null,
         )
         textContent()
     }
@@ -210,11 +294,14 @@ fun TimerChoice(
     duration: Int,
     label: String,
     selected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     val animatedColor = animateColorAsState(
-        targetValue = if (selected) MaterialTheme.colorScheme.primary
-        else MaterialTheme.colorScheme.primary.copy(alpha = .25F)
+        targetValue = if (selected) {
+            MaterialTheme.colorScheme.primary
+        } else {
+            MaterialTheme.colorScheme.primary.copy(alpha = .25F)
+        },
     )
     val border = if (selected) {
         BorderStroke(2.dp, animatedColor.value)
@@ -226,9 +313,25 @@ fun TimerChoice(
         onClick = { onClick() },
         border = border,
     ) {
-        Column(Modifier.padding(8.dp)) {
-            Text(text = duration.toString(), style = MaterialTheme.typography.headlineLarge)
-            Text(text = label, style = MaterialTheme.typography.bodyLarge)
+        Column(Modifier.fillMaxWidth().padding(8.dp)) {
+            if (duration == 0) {
+                ImageWrapper(
+                    modifier = Modifier.padding(top = 6.dp, bottom = 2.dp).size(32.dp),
+                    resource = Res.drawable.ic_timer_off_icon_32dp,
+                    colorFilter = ColorFilter.tint(
+                        MaterialTheme.colorScheme.onSurface
+                    ),
+                    contentDescription = "No Timer"
+                )
+                Text(
+                    modifier = Modifier,
+                    text = "off", style = MaterialTheme.typography.bodyLarge)
+            } else {
+                Text(
+                    modifier = Modifier.align(Alignment.Start),
+                    text = duration.toString(), style = MaterialTheme.typography.headlineLarge)
+                Text(text = label, style = MaterialTheme.typography.bodyLarge)
+            }
         }
     }
 }
@@ -237,7 +340,7 @@ fun TimerChoice(
 fun TimerSoundSection(
     modifier: Modifier = Modifier,
     selectedTimerSound: SoundEffectType,
-    onSoundEffectSelected: (SoundEffectType) -> Unit
+    onSoundEffectSelected: (SoundEffectType) -> Unit,
 ) {
     var selectedSoundEffectType by remember {
         mutableStateOf(selectedTimerSound)
@@ -253,7 +356,7 @@ fun TimerSoundSection(
     if (playSoundEffectByType != SoundEffectType.NONE) {
         PlaySoundEffect(
             playSoundEffectByType,
-            playSoundEffectByType
+            playSoundEffectByType,
         )
     }
     val soundTypes = SoundEffectType.entries.toTypedArray()
@@ -261,14 +364,14 @@ fun TimerSoundSection(
         modifier = modifier.then(
             Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp)
+                .padding(horizontal = 8.dp),
         ),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         soundTypes.forEach {
             SoundChoice(
                 soundEffectType = it,
-                selected = it == selectedSoundEffectType
+                selected = it == selectedSoundEffectType,
             ) {
                 playSoundEffectByType = it
                 selectedSoundEffectType = it
@@ -283,11 +386,14 @@ fun SoundChoice(
     modifier: Modifier = Modifier,
     soundEffectType: SoundEffectType,
     selected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     val animatedColor = animateColorAsState(
-        targetValue = if (selected) MaterialTheme.colorScheme.primary
-        else MaterialTheme.colorScheme.primary.copy(alpha = .25F)
+        targetValue = if (selected) {
+            MaterialTheme.colorScheme.primary
+        } else {
+            MaterialTheme.colorScheme.primary.copy(alpha = .25F)
+        },
     )
     val border = if (selected) {
         BorderStroke(2.dp, animatedColor.value)
@@ -300,8 +406,22 @@ fun SoundChoice(
         border = border,
     ) {
         Column(Modifier.padding(8.dp)) {
-            Icon(imageVector = Icons.Outlined.PlayArrow, contentDescription = null)
-            Text(text = soundEffectType.name, style = MaterialTheme.typography.labelSmall)
+            if (soundEffectType == SoundEffectType.NONE) {
+                Icon(
+                    modifier = Modifier.size(22.dp),
+                    painter = painterResource(Res.drawable.ic_pause_icon_32dp),
+                    contentDescription = null
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Outlined.PlayArrow,
+                    contentDescription = null
+                )
+            }
+            Text(
+                text = soundEffectType.name.lowercase().replace("_", " "),
+                style = MaterialTheme.typography.labelSmall
+            )
         }
     }
 }
@@ -312,16 +432,14 @@ fun AboutAppSection() {
         modifier = Modifier
             .fillMaxWidth()
             .height(128.dp),
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
-
         Text(
-            text = "© Copyright 2024 Tabiat (by Anwar Pasaribu)\n" +
+            text = "© 2024 Tabiat (by Anwar Pasaribu)\n" +
                     "All rights reserved.",
             style = MaterialTheme.typography.labelMedium,
             modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
-
     }
 }

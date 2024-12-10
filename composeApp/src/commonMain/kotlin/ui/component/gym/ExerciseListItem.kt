@@ -1,3 +1,28 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2024 Anwar Pasaribu
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Project Name: Tabiat
+ */
 package ui.component.gym
 
 import androidx.compose.animation.core.Animatable
@@ -5,7 +30,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -22,6 +46,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerDefaults
+import androidx.compose.foundation.pager.PagerSnapDistance
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -70,7 +97,7 @@ fun ExerciseListItemView(
     selected: Boolean = false,
     enabled: Boolean = true,
     highlightedText: String = "",
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
 ) {
     val imageAvailable = image.isNotEmpty() || imageUrlList.isNotEmpty()
     val imageUrl = remember { image.ifEmpty { imageUrlList.getOrNull(0) }.orEmpty() }
@@ -80,7 +107,7 @@ fun ExerciseListItemView(
     LaunchedEffect(bigPictureMode) {
         animatedFloat.animateTo(
             targetValue = if (bigPictureMode) 0f else 1f,
-            animationSpec = tween(durationMillis = 150)
+            animationSpec = tween(durationMillis = 150),
         )
     }
 
@@ -89,28 +116,29 @@ fun ExerciseListItemView(
             imageUrlList = imageUrlList,
             onBack = {
                 bigPictureMode = false
-            }
+            },
         )
     }
     Card(
         modifier = modifier,
         border = BorderStroke(
             width = 2.dp,
-            color = if (selected) Color.Green else Color.Transparent
+            color = if (selected) Color.Green else Color.Transparent,
         ),
     ) {
         Row(
             modifier = Modifier.clickable(enabled = enabled) { onClick() },
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             if (imageAvailable) {
-                Box(modifier = Modifier
-                    .alpha(animatedFloat.value)
-                    .clickable {
-                        bigPictureMode = !bigPictureMode
-                    }
-                    .size(128.dp)
-                    .align(Alignment.CenterVertically)
+                Box(
+                    modifier = Modifier
+                        .alpha(animatedFloat.value)
+                        .clickable {
+                            bigPictureMode = !bigPictureMode
+                        }
+                        .size(128.dp)
+                        .align(Alignment.CenterVertically),
                 ) {
                     var loadingIndicatorVisible by remember { mutableStateOf(true) }
                     ImageWrapper(
@@ -122,16 +150,16 @@ fun ExerciseListItemView(
                         contentDescription = "Picture of $title",
                         contentScale = ContentScale.Crop,
                         onLoading = { loadingIndicatorVisible = true },
-                        onLoadSuccess = { loadingIndicatorVisible = false }
+                        onLoadSuccess = { loadingIndicatorVisible = false },
                     )
                     androidx.compose.animation.AnimatedVisibility(
                         visible = loadingIndicatorVisible,
                         enter = fadeIn(),
-                        exit = fadeOut()
+                        exit = fadeOut(),
                     ) {
                         Box(
                             Modifier.size(128.dp)
-                                .background(MaterialTheme.colorScheme.primary.copy(alpha = .35F))
+                                .background(MaterialTheme.colorScheme.primary.copy(alpha = .35F)),
                         )
                     }
 
@@ -146,14 +174,14 @@ fun ExerciseListItemView(
                                 .align(Alignment.Center),
                             resource = Res.drawable.full_screen_24dp,
                             contentDescription = "",
-                            colorFilter = ColorFilter.tint(Color.Black)
+                            colorFilter = ColorFilter.tint(Color.Black),
                         )
                         ImageWrapper(
                             modifier = Modifier
                                 .align(Alignment.Center),
                             resource = Res.drawable.full_screen_24dp,
                             contentDescription = "",
-                            colorFilter = ColorFilter.tint(Color.White)
+                            colorFilter = ColorFilter.tint(Color.White),
                         )
                     }
                 }
@@ -162,9 +190,8 @@ fun ExerciseListItemView(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
+                    .padding(horizontal = 16.dp),
             ) {
-
                 Column(modifier = Modifier.padding(end = 32.dp, top = 6.dp, bottom = 6.dp)) {
                     if (highlightedText.isEmpty()) {
                         Text(text = title, style = MaterialTheme.typography.titleLarge)
@@ -178,13 +205,13 @@ fun ExerciseListItemView(
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
                         .alpha(if (enabled) 1f else 0f),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(
                         painter = rememberVectorPainter(
-                            image = if (selected) Icons.Default.Check else Icons.AutoMirrored.Filled.KeyboardArrowRight
+                            image = if (selected) Icons.Default.Check else Icons.AutoMirrored.Filled.KeyboardArrowRight,
                         ),
-                        contentDescription = "See more: $title"
+                        contentDescription = "See more: $title",
                     )
                 }
             }
@@ -224,7 +251,7 @@ fun WorkoutExerciseItemView(
     selected: Boolean = false,
     enabled: Boolean = true,
     progressContentView: @Composable () -> Unit,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
 ) {
     val imageAvailable = imageUrlList.isNotEmpty()
     val imageUrl = remember { imageUrlList.getOrNull(0).orEmpty() }
@@ -234,7 +261,7 @@ fun WorkoutExerciseItemView(
     LaunchedEffect(bigPictureMode) {
         animatedFloat.animateTo(
             targetValue = if (bigPictureMode) 0f else 1f,
-            animationSpec = tween(durationMillis = 150)
+            animationSpec = tween(durationMillis = 150),
         )
     }
 
@@ -243,19 +270,21 @@ fun WorkoutExerciseItemView(
             imageUrlList = imageUrlList,
             onBack = {
                 bigPictureMode = false
-            }
+            },
         )
     }
     Card(
         modifier = modifier,
         border = BorderStroke(
             width = 2.dp,
-            color = if (selected) Color.Green else Color.Transparent
+            color = if (selected) Color.Green else Color.Transparent,
         ),
     ) {
-        Row(modifier = Modifier.clickable(enabled = enabled) {
-            onClick()
-        }) {
+        Row(
+            modifier = Modifier.clickable(enabled = enabled) {
+                onClick()
+            },
+        ) {
             if (imageAvailable) {
                 ImageWrapper(
                     modifier = Modifier
@@ -269,16 +298,15 @@ fun WorkoutExerciseItemView(
                         .align(Alignment.CenterVertically),
                     imageUrl = imageUrl,
                     contentDescription = "Picture of $title",
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Crop,
                 )
             }
 
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 16.dp)
+                    .padding(horizontal = 16.dp, vertical = 16.dp),
             ) {
-
                 Column(modifier = Modifier.padding(end = 32.dp)) {
                     Text(text = title, style = MaterialTheme.typography.titleMedium)
                     Spacer(Modifier.height(8.dp))
@@ -289,13 +317,13 @@ fun WorkoutExerciseItemView(
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
                         .alpha(if (enabled) 1f else 0f),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(
                         painter = rememberVectorPainter(
-                            image = if (selected) Icons.Default.Check else Icons.AutoMirrored.Filled.KeyboardArrowRight
+                            image = if (selected) Icons.Default.Check else Icons.AutoMirrored.Filled.KeyboardArrowRight,
                         ),
-                        contentDescription = "See more: $title"
+                        contentDescription = "See more: $title",
                     )
                 }
             }
@@ -307,25 +335,25 @@ fun WorkoutExerciseItemView(
 fun FullScreenImageViewer(
     modifier: Modifier = Modifier,
     imageUrlList: List<String>,
-    onBack: () -> Unit
+    onBack: () -> Unit,
 ) {
     Dialog(
         onDismissRequest = { onBack() },
         properties = DialogProperties(
-            usePlatformDefaultWidth = false
-        )
+            usePlatformDefaultWidth = false,
+        ),
     ) {
         Surface(
             modifier = modifier.then(Modifier.fillMaxSize()),
-            color = Color.Transparent
+            color = Color.Transparent,
         ) {
             Box(
                 modifier = Modifier.clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
-                    onClick = { onBack() }
+                    onClick = { onBack() },
                 ).fillMaxSize(),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 ImagePager(modifier = Modifier.fillMaxWidth(), imageUrlList)
             }
@@ -333,47 +361,51 @@ fun FullScreenImageViewer(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ImagePager(
     modifier: Modifier = Modifier,
     imageUrlList: List<String>,
+    pagerStateAdapter: PagerState = rememberPagerState(initialPage = 0) { imageUrlList.size },
     pageSpacing: Dp = 4.dp,
     fillWidth: Boolean = false,
     contentScale: ContentScale = ContentScale.FillWidth,
     shape: Shape = RoundedCornerShape(6.dp),
-    onPageChange: (Int) -> Unit = {}
+    onPageChange: (Int) -> Unit = {},
+    onItemClicked: (Int) -> Unit = {},
 ) {
-    val pagerState = rememberPagerState(initialPage = 0) {
-        imageUrlList.size
-    }
+
     val contentPaddingValues = if (imageUrlList.size == 1 || fillWidth) {
         PaddingValues(0.dp)
     } else {
         PaddingValues(horizontal = 8.dp, vertical = 0.dp)
     }
 
-    LaunchedEffect(pagerState) {
-        snapshotFlow { pagerState.currentPage }.collect {
+    LaunchedEffect(pagerStateAdapter) {
+        snapshotFlow { pagerStateAdapter.currentPage }.collect {
             onPageChange(it)
         }
     }
 
     HorizontalPager(
         modifier = modifier,
-        state = pagerState,
+        state = pagerStateAdapter,
         contentPadding = contentPaddingValues,
-        pageSpacing = pageSpacing
+        pageSpacing = pageSpacing,
+        flingBehavior = PagerDefaults.flingBehavior(
+            state = pagerStateAdapter, pagerSnapDistance = PagerSnapDistance.atMost(0)
+        )
     ) {
         ImageWrapper(
             modifier = Modifier.clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
-                onClick = { }
+                onClick = {
+                    onItemClicked.invoke(it)
+                },
             ).clip(shape).fillMaxWidth(),
             imageUrl = imageUrlList[it],
             contentDescription = "Picture $it",
-            contentScale = contentScale
+            contentScale = contentScale,
         )
     }
 }

@@ -1,3 +1,28 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2024 Anwar Pasaribu
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Project Name: Tabiat
+ */
 package features.workoutHistory
 
 import androidx.lifecycle.ViewModel
@@ -9,7 +34,6 @@ import features.workoutHistory.model.ExerciseHistoryUiItem
 import features.workoutHistory.model.MonthCalendarData
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -28,12 +52,12 @@ import kotlinx.datetime.until
 import kotlinx.serialization.json.Json
 
 sealed class WorkoutHistoryUiState {
-    data object Loading: WorkoutHistoryUiState()
-    data class Success(val calendarItems: List<MonthCalendarData>): WorkoutHistoryUiState()
+    data object Loading : WorkoutHistoryUiState()
+    data class Success(val calendarItems: List<MonthCalendarData>) : WorkoutHistoryUiState()
 }
 class WorkoutHistoryScreenViewModel(
     private val getExerciseLogListByDateTimeStampUseCase: GetExerciseLogListByDateTimeStampUseCase,
-    private val getExerciseByIdUseCase: GetExerciseByIdUseCase
+    private val getExerciseByIdUseCase: GetExerciseByIdUseCase,
 ) : ViewModel() {
 
     val selectedTimeStamp = MutableStateFlow(Clock.System.now().toEpochMilliseconds())
@@ -59,7 +83,7 @@ class WorkoutHistoryScreenViewModel(
                     weight = exerciseLog.weight,
                     measurement = exerciseLog.measurement,
                     finishedDateTime = exerciseLog.finishedDateTime,
-                    logNotes = exerciseLog.logNotes
+                    logNotes = exerciseLog.logNotes,
                 )
             }
         }
@@ -103,7 +127,7 @@ class WorkoutHistoryScreenViewModel(
         "traps" to "trapezius (punggung)",
         "adductors" to "adduktor (paha dlm)",
         "abductors" to "abduktor (paha luar)",
-        "neck" to "leher"
+        "neck" to "leher",
     )
 
     private fun getKeyByValue(value: String): String {
@@ -117,14 +141,12 @@ class WorkoutHistoryScreenViewModel(
 
     fun loadCalenderData() {
         viewModelScope.launch {
-            delay(600)
             withContext(Dispatchers.Default) {
                 val tz = TimeZone.currentSystemDefault()
                 val today: LocalDate = Clock.System.todayIn(tz)
-                val calendarEmojis = mutableListOf<MonthCalendarData>()
+                val calendarDataList = mutableListOf<MonthCalendarData>()
 
                 for (monthNum in 1..12) {
-
                     val start = LocalDate(year = today.year, monthNumber = monthNum, dayOfMonth = 1)
                     val end = start.plus(1, DateTimeUnit.MONTH)
                     val totalDayCountInTheMonth = start.until(end, DateTimeUnit.DAY)
@@ -132,41 +154,39 @@ class WorkoutHistoryScreenViewModel(
                     val dailyEmojiList = ArrayList<DayCalendarData>(totalDayCountInTheMonth)
 
                     for (day in start.dayOfMonth..totalDayCountInTheMonth) {
-
                         val dayLocalDate = LocalDate(
                             year = today.year,
                             monthNumber = monthNum,
-                            dayOfMonth = day
+                            dayOfMonth = day,
                         )
 
                         val isFutureDate = dayLocalDate > today
 
                         val exerciseLogList = getExerciseLogListByDateTimeStampUseCase.invoke(
-                            dayLocalDate.toEpochTimeStamp()
+                            dayLocalDate.toEpochTimeStamp(),
                         )
 
                         dailyEmojiList.add(
                             DayCalendarData(
                                 day = dayLocalDate,
                                 isFutureDate = isFutureDate,
-                                exerciseActivityCount = exerciseLogList.size
-                            )
+                                exerciseActivityCount = exerciseLogList.size,
+                            ),
                         )
                     }
-                    calendarEmojis.add(
+                    calendarDataList.add(
                         MonthCalendarData(
                             month = start,
-                            dailyDataList = dailyEmojiList.toImmutableList()
-                        )
+                            dailyDataList = dailyEmojiList.toImmutableList(),
+                        ),
                     )
                 }
 
                 uiStateMutableStateFlow.update {
-                    WorkoutHistoryUiState.Success(calendarEmojis)
+                    WorkoutHistoryUiState.Success(calendarDataList)
                 }
             }
         }
-
     }
 
     fun setSelectedDate(localDate: LocalDate) {

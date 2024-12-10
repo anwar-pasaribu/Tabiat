@@ -1,3 +1,28 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2024 Anwar Pasaribu
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Project Name: Tabiat
+ */
 package com.unwur.tabiatmu.playground
 
 import androidx.compose.animation.AnimatedVisibility
@@ -18,11 +43,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -45,12 +68,10 @@ import ui.theme.MyAppTheme
 
 @Composable
 fun CreateExerciseForm(modifier: Modifier = Modifier, onSave: (Exercise) -> Unit) {
-
     var shouldShowTargetMuscleList by remember { mutableStateOf(false) }
     var exerciseMuscleTarget by remember { mutableStateOf(MuscleGroup(0, "")) }
 
     Surface {
-
         Column(modifier = modifier.then(Modifier)) {
             var exerciseName by remember { mutableStateOf("") }
             var exerciseNotes by remember { mutableStateOf("") }
@@ -68,9 +89,9 @@ fun CreateExerciseForm(modifier: Modifier = Modifier, onSave: (Exercise) -> Unit
                 placeholder = { Text("Ex. Dumbell Curl") },
                 keyboardOptions = KeyboardOptions.Default.copy(
                     capitalization = KeyboardCapitalization.Words,
-                    imeAction = ImeAction.Next
+                    imeAction = ImeAction.Next,
                 ),
-                maxLines = 1
+                maxLines = 1,
             )
             Spacer(Modifier.height(8.dp))
             ButtonRowWithAnimatedContent(
@@ -78,7 +99,7 @@ fun CreateExerciseForm(modifier: Modifier = Modifier, onSave: (Exercise) -> Unit
                 animatedText = exerciseMuscleTarget.name,
                 onClick = {
                     shouldShowTargetMuscleList = true
-                }
+                },
             )
             OutlinedTextField(
                 modifier = Modifier
@@ -92,9 +113,9 @@ fun CreateExerciseForm(modifier: Modifier = Modifier, onSave: (Exercise) -> Unit
                 placeholder = { Text("Ex. Angkat Dumbell") },
                 keyboardOptions = KeyboardOptions.Default.copy(
                     capitalization = KeyboardCapitalization.Sentences,
-                    imeAction = ImeAction.Done
+                    imeAction = ImeAction.Done,
                 ),
-                maxLines = 1
+                maxLines = 1,
             )
 
             Spacer(Modifier.height(32.dp))
@@ -105,8 +126,7 @@ fun CreateExerciseForm(modifier: Modifier = Modifier, onSave: (Exercise) -> Unit
                     .align(Alignment.CenterHorizontally),
                 enabled = exerciseName.isNotEmpty(),
                 onClick = {
-
-                }
+                },
             ) {
                 Text(text = "Tambah Latihan")
             }
@@ -120,7 +140,7 @@ fun CreateExerciseForm(modifier: Modifier = Modifier, onSave: (Exercise) -> Unit
             onDismiss = {
                 shouldShowTargetMuscleList = false
             },
-            showFullScreen = false
+            showFullScreen = false,
         ) {
             val muscleTarget = listOf(
                 MuscleGroup(1, "Bahu"),
@@ -134,7 +154,7 @@ fun CreateExerciseForm(modifier: Modifier = Modifier, onSave: (Exercise) -> Unit
             Text(
                 modifier = Modifier.padding(16.dp),
                 text = "Pilih Target Otot",
-                style = MaterialTheme.typography.headlineSmall
+                style = MaterialTheme.typography.headlineSmall,
             )
             LazyColumn {
                 items(items = muscleTarget) { item ->
@@ -145,11 +165,13 @@ fun CreateExerciseForm(modifier: Modifier = Modifier, onSave: (Exercise) -> Unit
                         onClick = {
                             exerciseMuscleTarget = item
                             shouldShowTargetMuscleList = false
-                        }
+                        },
                     ) {
                         Text(
                             modifier = Modifier.padding(16.dp),
-                            text = item.name, style = MaterialTheme.typography.titleLarge)
+                            text = item.name,
+                            style = MaterialTheme.typography.titleLarge,
+                        )
                     }
                 }
                 item {
@@ -165,30 +187,32 @@ fun ButtonRowWithAnimatedContent(
     modifier: Modifier = Modifier,
     title: String,
     animatedText: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
-    Box(modifier = Modifier
-        .clickable {
-            onClick()
-        }
-        .fillMaxWidth()
-        .height(64.dp)) {
+    Box(
+        modifier = Modifier
+            .clickable {
+                onClick()
+            }
+            .fillMaxWidth()
+            .height(64.dp),
+    ) {
         Column(
             modifier = Modifier
                 .align(Alignment.CenterStart)
                 .padding(start = 16.dp),
         ) {
             Text(
-                text = title
+                text = title,
             )
             AnimatedVisibility(
-                visible = animatedText.isNotEmpty()
+                visible = animatedText.isNotEmpty(),
             ) {
                 Text(
                     text = animatedText,
                     style = MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.Bold
-                    )
+                        fontWeight = FontWeight.Bold,
+                    ),
                 )
             }
         }
@@ -198,7 +222,7 @@ fun ButtonRowWithAnimatedContent(
                 .align(Alignment.CenterEnd)
                 .padding(end = 8.dp),
             imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
-            contentDescription = title
+            contentDescription = title,
         )
     }
 }

@@ -1,3 +1,28 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2024 Anwar Pasaribu
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Project Name: Tabiat
+ */
 package data.source.local.dao
 
 import app.cash.sqldelight.coroutines.asFlow
@@ -9,9 +34,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class WorkoutPlanDao(
-    private val database: TabiatDatabase
+    private val database: TabiatDatabase,
 ) : IWorkoutPlanDao {
-    override suspend fun getAllWorkoutPlanObservable(): Flow<List<WorkoutPlan>> {
+    override fun getAllWorkoutPlanObservable(): Flow<List<WorkoutPlan>> {
         return database.workoutPlanQueries.selectAllWorkoutPlan()
             .asFlow()
             .mapToList(Dispatchers.Default)
@@ -22,7 +47,7 @@ class WorkoutPlanDao(
                         name = it.name,
                         description = it.description,
                         dateTimeStamp = it.dateTimeStamp,
-                        orderingNumber = it.orderingNumber.toInt()
+                        orderingNumber = it.orderingNumber.toInt(),
                     )
                 }
             }
@@ -37,7 +62,7 @@ class WorkoutPlanDao(
                     name = it.name,
                     description = it.description,
                     dateTimeStamp = it.dateTimeStamp,
-                    orderingNumber = it.orderingNumber.toInt()
+                    orderingNumber = it.orderingNumber.toInt(),
                 )
             }
     }
@@ -50,7 +75,7 @@ class WorkoutPlanDao(
                 name = data.name,
                 description = data.description,
                 dateTimeStamp = data.dateTimeStamp,
-                orderingNumber = data.orderingNumber.toInt()
+                orderingNumber = data.orderingNumber.toInt(),
             )
         } catch (e: Exception) {
             return WorkoutPlan(
@@ -58,7 +83,7 @@ class WorkoutPlanDao(
                 name = "",
                 description = "",
                 dateTimeStamp = 0,
-                orderingNumber = 0
+                orderingNumber = 0,
             )
         }
     }
@@ -71,7 +96,7 @@ class WorkoutPlanDao(
                 name = data.name,
                 description = data.description,
                 dateTimeStamp = data.dateTimeStamp,
-                orderingNumber = data.orderingNumber.toInt()
+                orderingNumber = data.orderingNumber.toInt(),
             )
         } catch (e: Exception) {
             return WorkoutPlan(
@@ -79,7 +104,7 @@ class WorkoutPlanDao(
                 name = "",
                 description = "",
                 dateTimeStamp = 0,
-                orderingNumber = 0
+                orderingNumber = 0,
             )
         }
     }
@@ -88,20 +113,20 @@ class WorkoutPlanDao(
         name: String,
         description: String,
         datetimeStamp: Long,
-        orderingNumber: Int
+        orderingNumber: Int,
     ) {
         database.workoutPlanQueries.insertWorkoutPlan(
             name = name,
             description = description,
             dateTimeStamp = datetimeStamp,
-            orderingNumber = orderingNumber.toLong()
+            orderingNumber = orderingNumber.toLong(),
         )
     }
 
     override suspend fun updateWorkoutPlan(
         workoutPlanId: Long,
         name: String,
-        description: String
+        description: String,
     ) {
         val existingWorkoutPlan = getWorkoutPlan(workoutPlanId)
         if (existingWorkoutPlan.id > 0) {

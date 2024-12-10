@@ -1,3 +1,28 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2024 Anwar Pasaribu
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Project Name: Tabiat
+ */
 package features.home
 
 import androidx.lifecycle.ViewModel
@@ -6,6 +31,7 @@ import domain.model.gym.WorkoutPlanProgress
 import domain.repository.IGymRepository
 import domain.usecase.GetExerciseLogListByDateTimeStampUseCase
 import domain.usecase.ResetAllYesterdayActivitiesUseCase
+import domain.usecase.personalization.SetWorkoutPlanPersonalizationUseCase
 import features.home.model.HomeListItemUiData
 import features.home.model.HomeWeeklyUiData
 import kotlinx.coroutines.Dispatchers
@@ -30,29 +56,47 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.todayIn
+import ui.component.colorPalette.parseHexToComposeColor
 
 sealed class HomeScreenUiState {
     data object Loading : HomeScreenUiState()
     data object Empty : HomeScreenUiState()
     data class Success(val data: List<HomeListItemUiData>) : HomeScreenUiState()
-    data class Error(val message: String) : HomeScreenUiState()
 }
 
 class HomeScreenViewModel(
     private val repository: IGymRepository,
     private val resetAllYesterdayActivitiesUseCase: ResetAllYesterdayActivitiesUseCase,
     private val getExerciseLogListByDateTimeStampUseCase: GetExerciseLogListByDateTimeStampUseCase,
+    private val setWorkoutPlanPersonalizationUseCase: SetWorkoutPlanPersonalizationUseCase,
 ) : ViewModel() {
 
     private val _workoutListStateFlow =
         MutableStateFlow<HomeScreenUiState>(HomeScreenUiState.Loading)
     val workoutListStateFlow: StateFlow<HomeScreenUiState> = _workoutListStateFlow.asStateFlow()
+//    val workoutListStateFlow = repository
+//        .getWorkoutPlanProgressListObservable()
+//        .map { workoutPlanProgressList ->
+//            val homeList = workoutPlanProgressList.map { it.toUI() }
+//            when {
+//                homeList.isEmpty() -> HomeScreenUiState.Empty
+//                else -> HomeScreenUiState.Success(homeList)
+//            }
+//        }
+//        .stateIn(
+//            scope = viewModelScope,
+//            started = SharingStarted.WhileSubscribed(5000), // Stop sharing after 5 seconds of inactivity
+//            initialValue = HomeScreenUiState.Loading
+//        )
 
     private val _weeklyDataListStateFlow =
         MutableStateFlow<List<HomeWeeklyUiData>>(emptyList())
     val weeklyDataListStateFlow: StateFlow<List<HomeWeeklyUiData>> = _weeklyDataListStateFlow.asStateFlow()
 
     init {
+//        viewModelScope.launch {
+//            resetAllYesterdayActivitiesUseCase.invoke()
+//        }
         loadWeeklyData()
     }
 
@@ -72,8 +116,8 @@ class HomeScreenViewModel(
                     isFuture = false,
                     isToday = false,
                     date = today,
-                    hasActivity = false
-                )
+                    hasActivity = false,
+                ),
             )
             withContext(Dispatchers.IO) {
                 listOfDaysThisWeek.forEachIndexed { index, date ->
@@ -86,7 +130,7 @@ class HomeScreenViewModel(
                     val lowerLabel = dayOfMonth.toString()
 
                     val exerciseLogList = getExerciseLogListByDateTimeStampUseCase.invoke(
-                        date.toEpochTimeStamp()
+                        date.toEpochTimeStamp(),
                     )
                     weeklyUiDataList.add(
                         HomeWeeklyUiData(
@@ -95,8 +139,8 @@ class HomeScreenViewModel(
                             isFuture = isFuture,
                             isToday = isToday,
                             date = date,
-                            hasActivity = exerciseLogList.isNotEmpty()
-                        )
+                            hasActivity = exerciseLogList.isNotEmpty(),
+                        ),
                     )
                 }
                 _weeklyDataListStateFlow.value = weeklyUiDataList
@@ -124,6 +168,7 @@ class HomeScreenViewModel(
         val formattedLastActivityDetail = lastExercise?.let {
             "${it.name.take(15)} $lastExerciseSet"
         }
+        val parsedBackgroundColor = this.workoutPersonalization?.colorTheme.parseHexToComposeColor()
 
         return HomeListItemUiData(
             workoutPlanId = this.workoutPlan.id,
@@ -133,7 +178,8 @@ class HomeScreenViewModel(
             progress = this.progress,
             lastActivityDate = lastActivityDateFormatted.orEmpty(),
             lastActivityDetail = formattedLastActivityDetail.orEmpty(),
-            exerciseImageUrl = this.lastExercise?.image.orEmpty()
+            exerciseImageUrl = this.lastExercise?.image.orEmpty(),
+            backgroundColor = parsedBackgroundColor
         )
     }
 
@@ -161,6 +207,17 @@ class HomeScreenViewModel(
             repository.deleteWorkoutPlan(workoutPlanId)
         }
     }
+
+    fun changeWorkoutPlanColor(workoutPlanId: Long, colorHex: String) {
+        viewModelScope.launch {
+            setWorkoutPlanPersonalizationUseCase.invoke(
+                personalizationRequest = domain.model.personalization.PersonalizationRequest(
+                    workoutPlanId = workoutPlanId,
+                    colorHexString = colorHex
+                )
+            )
+        }
+    }
 }
 
 private fun Long?.epochTimestampToShortDateTimeFormat(): String {
@@ -168,7 +225,7 @@ private fun Long?.epochTimestampToShortDateTimeFormat(): String {
 
     // Convert epoch timestamp to LocalDateTime object
     val dateTime = Instant.fromEpochMilliseconds(
-        this
+        this,
     ).toLocalDateTime(TimeZone.currentSystemDefault())
 
     // Format the date using the desired pattern

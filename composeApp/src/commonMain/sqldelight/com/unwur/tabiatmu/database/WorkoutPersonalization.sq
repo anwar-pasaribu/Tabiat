@@ -1,0 +1,23 @@
+CREATE TABLE WorkoutPersonalizationEntity (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    workoutPlanId INTEGER NOT NULL,
+    colorTheme TEXT NOT NULL
+);
+
+selectWorkoutPersonalizationByWorkoutPlanId:
+SELECT * FROM WorkoutPersonalizationEntity WHERE workoutPlanId = :workoutPlanId;
+
+insertWorkoutPersonalization:
+INSERT INTO WorkoutPersonalizationEntity
+(workoutPlanId, colorTheme)
+VALUES (?, ?);
+
+updateWorkoutPersonalization:
+UPDATE WorkoutPersonalizationEntity
+SET colorTheme = :colorTheme
+WHERE id = :id;
+
+updateWorkoutPersonalizationByWorkoutId:
+UPDATE WorkoutPersonalizationEntity
+SET colorTheme = :colorTheme
+WHERE workoutPlanId = :workoutPlanId;
