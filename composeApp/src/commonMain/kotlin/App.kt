@@ -30,7 +30,6 @@ import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.BoundsTransform
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
@@ -99,23 +98,28 @@ import ui.component.BackButton
 import ui.component.ImageWrapper
 import ui.component.gym.FloatingTimerView
 import ui.theme.MyAppTheme
-import kotlin.jvm.JvmSuppressWildcards
 import kotlin.reflect.KType
 
 sealed class MyAppRoute {
-    @Serializable object Home
-    @Serializable class InputWorkout(val workoutPlanId: Long = 0L)
-    @Serializable class WorkoutDetail(val workoutPlanId: Long)
-    @Serializable class InputExercise(val workoutPlanId: Long)
-    @Serializable class LogWorkoutExercise(val currentWorkoutPlanId: Long, val currentExerciseId: Long)
-    @Serializable object WorkoutHistory
-    @Serializable object CreateNewExercise
-    @Serializable object Settings
+    @Serializable
+    object Home
+    @Serializable
+    data class InputWorkout(val workoutPlanId: Long = 0L) : MyAppRoute()
+    @Serializable
+    class WorkoutDetail(val workoutPlanId: Long)
+    @Serializable
+    class InputExercise(val workoutPlanId: Long)
+    @Serializable
+    class LogWorkoutExercise(val currentWorkoutPlanId: Long, val currentExerciseId: Long)
+    @Serializable
+    object WorkoutHistory
+    @Serializable
+    object CreateNewExercise
+    @Serializable
+    data object Settings : MyAppRoute()
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class, ExperimentalAnimationApi::class,
-    ExperimentalHazeMaterialsApi::class
-)
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 @Preview
 fun App(
@@ -125,14 +129,6 @@ fun App(
     KoinContext {
         MyAppTheme(useDarkColors = shouldDarkTheme) {
             val navViewModel = koinInject<NavigationViewModel>()
-            val homeScreenVisible = remember { mutableStateOf(true) }
-            val logExerciseScreenVisible = remember { mutableStateOf(false) }
-            val navBackStackEntry by navController.currentBackStackEntryAsState()
-            navBackStackEntry?.destination?.let { currentDestination ->
-                homeScreenVisible.value = currentDestination.hasRoute(MyAppRoute.Home::class)
-                logExerciseScreenVisible.value = currentDestination.hasRoute(MyAppRoute.LogWorkoutExercise::class)
-            }
-
             val hazeState = remember { HazeState() }
 
             Box(Modifier.fillMaxSize()) {
@@ -142,52 +138,11 @@ fun App(
                     ) {
                         Scaffold(
                             topBar = {
-                                CenterAlignedTopAppBar(
-                                    modifier = Modifier.fillMaxWidth().hazeChild(
-                                        state = hazeState,
-                                        style = HazeMaterials.regular(MaterialTheme.colorScheme.background),
-                                    ) {
-                                        alpha = 0F
-                                    },
-                                    colors = TopAppBarDefaults.topAppBarColors(Color.Transparent),
-                                    title = {
-                                        if (homeScreenVisible.value) {
-                                            ImageWrapper(
-                                                resource = Res.drawable.tabiat_icon_32dp,
-                                                contentDescription = "Tabiat App Icon",
-                                            )
-                                        }
-                                    },
-                                    navigationIcon = {
-                                        if (homeScreenVisible.value) {
-                                            IconButton(onClick = {
-                                                navController.navigate(
-                                                    MyAppRoute.Settings
-                                                )
-                                            }) {
-                                                Icon(
-                                                    imageVector = Icons.Outlined.Settings,
-                                                    contentDescription = "Setting Menu",
-                                                )
-                                            }
-                                        } else {
-                                            BackButton(
-                                                showBackground = true
-                                            ) {
-                                                navController.navigateUp()
-                                            }
-                                        }
-                                    },
-                                    actions = {
-                                        if (homeScreenVisible.value) {
-                                            AddIconButton(
-                                                onClick = {
-                                                    navController.navigate(MyAppRoute.InputWorkout())
-                                                }
-                                            )
-                                            Spacer(Modifier.width(8.dp))
-                                        }
-                                    },
+                                AppTopBar(
+                                    hazeState = hazeState,
+                                    navController = navController,
+                                    onNavigateBack = { navController.navigateUp() },
+                                    navigateTo = { navController.navigate(it) }
                                 )
                             },
                         ) { contentPadding ->
@@ -239,7 +194,7 @@ fun App(
                                         },
                                     )
                                 }
-                                composableWithCompositionLocal<MyAppRoute.InputWorkout> {
+                                composableSlideWithCompositionLocal<MyAppRoute.InputWorkout> {
                                     val inputWorkout: MyAppRoute.InputWorkout = it.toRoute()
                                     InputWorkoutScreen(
                                         paddingValues = contentPadding,
@@ -252,7 +207,7 @@ fun App(
                                         },
                                     )
                                 }
-                                composableWithCompositionLocal<MyAppRoute.InputExercise> {
+                                composableSlideWithCompositionLocal<MyAppRoute.InputExercise> {
                                     val inputExercise: MyAppRoute.InputExercise = it.toRoute()
                                     InputExerciseScreen(
                                         contentPadding = contentPadding,
@@ -265,7 +220,7 @@ fun App(
                                         },
                                     )
                                 }
-                                composableWithCompositionLocal<MyAppRoute.LogWorkoutExercise> {
+                                composableSlideWithCompositionLocal<MyAppRoute.LogWorkoutExercise> {
                                     val logWorkoutExercise: MyAppRoute.LogWorkoutExercise =
                                         it.toRoute()
                                     LogWorkoutExerciseScreen(
@@ -277,13 +232,13 @@ fun App(
                                         },
                                     )
                                 }
-                                composableWithCompositionLocal<MyAppRoute.WorkoutHistory> {
+                                composableSlideWithCompositionLocal<MyAppRoute.WorkoutHistory> {
                                     WorkoutHistoryScreen(
                                         contentPadding = contentPadding,
                                         hazeState = hazeState,
                                     )
                                 }
-                                composableWithCompositionLocal<MyAppRoute.CreateNewExercise> {
+                                composableSlideWithCompositionLocal<MyAppRoute.CreateNewExercise> {
                                     CreateExerciseScreen(
                                         contentPadding = contentPadding,
                                         onBack = {
@@ -294,7 +249,7 @@ fun App(
                                         },
                                     )
                                 }
-                                composableWithCompositionLocal<MyAppRoute.Settings> {
+                                composableSlideWithCompositionLocal<MyAppRoute.Settings> {
                                     SettingsScreen(
                                         contentPadding = contentPadding
                                     )
@@ -326,6 +281,73 @@ fun App(
     }
 }
 
+@OptIn(ExperimentalHazeMaterialsApi::class)
+@Composable
+fun AppTopBar(
+    modifier: Modifier = Modifier,
+    hazeState: HazeState,
+    navController: NavHostController,
+    onNavigateBack: () -> Unit = {},
+    navigateTo: (MyAppRoute) -> Unit = {}
+) {
+    val homeScreenVisible = remember { mutableStateOf(true) }
+    val logExerciseScreenVisible = remember { mutableStateOf(false) }
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    navBackStackEntry?.destination?.let { currentDestination ->
+        homeScreenVisible.value = currentDestination.hasRoute(MyAppRoute.Home::class)
+        logExerciseScreenVisible.value =
+            currentDestination.hasRoute(MyAppRoute.LogWorkoutExercise::class)
+    }
+
+    CenterAlignedTopAppBar(
+        modifier = Modifier.fillMaxWidth().hazeChild(
+            state = hazeState,
+            style = HazeMaterials.regular(MaterialTheme.colorScheme.background),
+        ) {
+            alpha = 0F
+        },
+        colors = TopAppBarDefaults.topAppBarColors(Color.Transparent),
+        title = {
+            if (homeScreenVisible.value) {
+                ImageWrapper(
+                    resource = Res.drawable.tabiat_icon_32dp,
+                    contentDescription = "Tabiat App Icon",
+                )
+            }
+        },
+        navigationIcon = {
+            if (homeScreenVisible.value) {
+                IconButton(onClick = {
+                    navigateTo.invoke(
+                        MyAppRoute.Settings
+                    )
+                }) {
+                    Icon(
+                        imageVector = Icons.Outlined.Settings,
+                        contentDescription = "Setting Menu",
+                    )
+                }
+            } else {
+                BackButton(
+                    showBackground = true
+                ) {
+                    onNavigateBack.invoke()
+                }
+            }
+        },
+        actions = {
+            if (homeScreenVisible.value) {
+                AddIconButton(
+                    onClick = {
+                        navigateTo.invoke(MyAppRoute.InputWorkout())
+                    }
+                )
+                Spacer(Modifier.width(8.dp))
+            }
+        },
+    )
+}
+
 val LocalNavAnimatedVisibilityScope = compositionLocalOf<AnimatedVisibilityScope?> { null }
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -351,28 +373,14 @@ fun <T> nonSpatialExpressiveSpring() = spring<T>(
 inline fun <reified T : Any> NavGraphBuilder.composableWithCompositionLocal(
     typeMap: Map<KType, NavType<*>> = emptyMap(),
     deepLinks: List<NavDeepLink> = emptyList(),
-    noinline enterTransition: (
-    @JvmSuppressWildcards
-    AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?
-    )? = {
+    noinline enterTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)? = {
         fadeIn(nonSpatialExpressiveSpring())
     },
-    noinline exitTransition: (
-    @JvmSuppressWildcards
-    AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?
-    )? = {
+    noinline exitTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? = {
         fadeOut(nonSpatialExpressiveSpring())
     },
-    noinline popEnterTransition: (
-    @JvmSuppressWildcards
-    AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?
-    )? =
-        enterTransition,
-    noinline popExitTransition: (
-    @JvmSuppressWildcards
-    AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?
-    )? =
-        exitTransition,
+    noinline popEnterTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)? = enterTransition,
+    noinline popExitTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? = exitTransition,
     crossinline content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit
 ) {
     composable<T>(
@@ -383,9 +391,50 @@ inline fun <reified T : Any> NavGraphBuilder.composableWithCompositionLocal(
         popEnterTransition,
         popExitTransition
     ) {
-        CompositionLocalProvider(
-            LocalNavAnimatedVisibilityScope provides this@composable
-        ) {
+        CompositionLocalProvider(LocalNavAnimatedVisibilityScope provides this@composable) {
+            content(it)
+        }
+    }
+}
+
+inline fun <reified T : Any> NavGraphBuilder.composableSlideWithCompositionLocal(
+    typeMap: Map<KType, NavType<*>> = emptyMap(),
+    deepLinks: List<NavDeepLink> = emptyList(),
+    noinline enterTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)? = {
+        fadeIn() + slideIntoContainer(
+            AnimatedContentTransitionScope.SlideDirection.Left,
+            tween(300)
+        )
+    },
+    noinline exitTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? = {
+        slideOutOfContainer(
+            AnimatedContentTransitionScope.SlideDirection.Left,
+            tween(300)
+        ) + fadeOut()
+    },
+    noinline popEnterTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)? = {
+        slideIntoContainer(
+            AnimatedContentTransitionScope.SlideDirection.Right,
+            tween(300)
+        ) + fadeIn()
+    },
+    noinline popExitTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? = {
+        fadeOut() + slideOutOfContainer(
+            AnimatedContentTransitionScope.SlideDirection.Right,
+            tween(300)
+        )
+    },
+    crossinline content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit
+) {
+    composable<T>(
+        typeMap,
+        deepLinks,
+        enterTransition,
+        exitTransition,
+        popEnterTransition,
+        popExitTransition
+    ) {
+        CompositionLocalProvider(LocalNavAnimatedVisibilityScope provides this@composable) {
             content(it)
         }
     }

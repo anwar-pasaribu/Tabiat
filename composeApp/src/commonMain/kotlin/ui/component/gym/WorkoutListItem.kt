@@ -25,6 +25,10 @@
  */
 package ui.component.gym
 
+import LocalNavAnimatedVisibilityScope
+import LocalSharedTransitionScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -73,9 +77,11 @@ fun Color.bestContrastColor(): Color {
     return if (luminance > 0.5) Color.Black else Color.White
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun WorkoutPlanItemView(
     modifier: Modifier = Modifier,
+    workoutPlanId: Long = 0L,
     title: String,
     description: String,
     lastActivityInfo: @Composable() (RowScope.() -> Unit)? = null,
@@ -87,6 +93,12 @@ fun WorkoutPlanItemView(
     onChangeColorRequest: (colorHex: String) -> Unit = {},
     backgroundColor: Color = MaterialTheme.colorScheme.primary,
 ) {
+
+    val sharedTransitionScope = LocalSharedTransitionScope.current
+        ?: throw IllegalStateException("No SharedElementScope found")
+    val animatedVisibilityScope = LocalNavAnimatedVisibilityScope.current
+        ?: throw IllegalStateException("No SharedElementScope found")
+
 
     var menuVisible by remember { mutableStateOf(false) }
     var temporarySelectedColorHex by rememberSaveable { mutableStateOf("") }
@@ -109,92 +121,100 @@ fun WorkoutPlanItemView(
         }
     }
 
-    Card(
-        modifier = modifier,
-        colors = CardDefaults.cardColors(
-            containerColor = animatedBackgroundColor,
-            contentColor = MaterialTheme.colorScheme.onPrimary,
-        ),
-    ) {
-        Box(
-            modifier = Modifier
-                .clickable { onClick() }
-                .fillMaxWidth()
-                .heightIn(min = 132.dp),
+    with(sharedTransitionScope) {
+        Card(
+            modifier = Modifier.sharedBounds(
+                rememberSharedContentState(
+                    key = workoutPlanId
+                ),
+                animatedVisibilityScope = animatedVisibilityScope,
+                resizeMode = SharedTransitionScope.ResizeMode.RemeasureToBounds,
+            ).then(modifier),
+            colors = CardDefaults.cardColors(
+                containerColor = animatedBackgroundColor,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+            ),
         ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
+            Box(
+                modifier = Modifier
+                    .clickable { onClick() }
+                    .fillMaxWidth()
+                    .heightIn(min = 132.dp),
             ) {
-                Text(
-                    text = title,
-                    color = textColorBasedOnBackgroundColor,
-                    style = MaterialTheme.typography.titleLarge,
-                    maxLines = 1,
-                )
-                if (description.isNotEmpty()) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                ) {
                     Text(
-                        text = description,
+                        text = title,
                         color = textColorBasedOnBackgroundColor,
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = MaterialTheme.typography.titleLarge,
                         maxLines = 1,
+                    )
+                    if (description.isNotEmpty()) {
+                        Text(
+                            text = description,
+                            color = textColorBasedOnBackgroundColor,
+                            style = MaterialTheme.typography.bodyLarge,
+                            maxLines = 1,
+                        )
+                    }
+                }
+
+                WorkoutPlanProgressIndicator(
+                    modifier = Modifier.align(Alignment.BottomEnd)
+                        .padding(end = 8.dp, bottom = 8.dp).size(size = 40.dp),
+                    total = total,
+                    progress = progress,
+                )
+
+                if (lastActivityInfo != null) {
+                    Row(
+                        modifier = Modifier.align(Alignment.BottomStart),
+                    ) {
+                        lastActivityInfo()
+                    }
+                }
+
+                IconButton(
+                    modifier = Modifier.align(Alignment.TopEnd),
+                    onClick = { menuVisible = true },
+                ) {
+                    Icon(
+                        painter = rememberVectorPainter(
+                            image = Icons.Default.MoreVert,
+                        ),
+                        contentDescription = "More menu",
                     )
                 }
             }
 
-            WorkoutPlanProgressIndicator(
-                modifier = Modifier.align(Alignment.BottomEnd)
-                    .padding(end = 8.dp, bottom = 8.dp).size(size = 40.dp),
-                total = total,
-                progress = progress,
-            )
-
-            if (lastActivityInfo != null) {
-                Row(
-                    modifier = Modifier.align(Alignment.BottomStart),
-                ) {
-                    lastActivityInfo()
-                }
-            }
-
-            IconButton(
-                modifier = Modifier.align(Alignment.TopEnd),
-                onClick = { menuVisible = true },
-            ) {
-                Icon(
-                    painter = rememberVectorPainter(
-                        image = Icons.Default.MoreVert,
-                    ),
-                    contentDescription = "More menu",
-                )
-            }
         }
 
-    }
-
-    if (menuVisible) {
-        BottomSheet(
-            onDismiss = { menuVisible = false },
-            showFullScreen = false,
-        ) {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
+        if (menuVisible) {
+            BottomSheet(
+                onDismiss = { menuVisible = false },
+                showFullScreen = false,
             ) {
-                WorkoutPlanPersonalization(
-                    onEditRequest = {
-                        menuVisible = false
-                        onEditRequest.invoke()
-                    },
-                    onDeleteRequest = {
-                        menuVisible = false
-                        onDeleteRequest.invoke()
-                    },
-                    onColorChangeRequest = { selectedColorHex, selectedColor ->
-                        temporarySelectedColorHex = selectedColorHex
-                        onChangeColorRequest.invoke(selectedColorHex)
-                    }
-                )
-                InsetNavigationHeight()
-                InsetNavigationHeight()
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    WorkoutPlanPersonalization(
+                        onEditRequest = {
+                            menuVisible = false
+                            onEditRequest.invoke()
+                        },
+                        onDeleteRequest = {
+                            menuVisible = false
+                            onDeleteRequest.invoke()
+                        },
+                        onColorChangeRequest = { selectedColorHex, selectedColor ->
+                            temporarySelectedColorHex = selectedColorHex
+                            onChangeColorRequest.invoke(selectedColorHex)
+                        }
+                    )
+                    InsetNavigationHeight()
+                    InsetNavigationHeight()
+                }
             }
         }
     }

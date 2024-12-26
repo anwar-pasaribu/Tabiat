@@ -52,6 +52,7 @@ import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -136,31 +137,36 @@ fun SettingsScreen(
         end = contentPadding.calculateEndPadding(LayoutDirection.Ltr)
     )
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(settingContentPadding)
-            .verticalScroll(
-                state = rememberScrollState()
-            )
+    Surface(
+        color = MaterialTheme.colorScheme.background,
+        shape = MaterialTheme.shapes.extraLarge
     ) {
-        SettingPage(
-            modifier = modifier,
-            gymPreferences = gymPreference,
-            exerciseTimerOptions = gymTimerOptions,
-            onPerSetTimerClick = {
-                viewModel.saveExerciseTimerDuration(it)
-            },
-            onPerBreakTimeClick = {
-                viewModel.saveBreakTimeDuration(it)
-            },
-            onTimerSoundChangeClick = {
-                viewModel.saveSoundEffectSelection(it)
-            },
-            onCreateDummyData = {
-                viewModel.createDummyData()
-            },
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(settingContentPadding)
+                .verticalScroll(
+                    state = rememberScrollState()
+                )
+        ) {
+            SettingPage(
+                modifier = modifier,
+                gymPreferences = gymPreference,
+                exerciseTimerOptions = gymTimerOptions,
+                onPerSetTimerClick = {
+                    viewModel.saveExerciseTimerDuration(it)
+                },
+                onPerBreakTimeClick = {
+                    viewModel.saveBreakTimeDuration(it)
+                },
+                onTimerSoundChangeClick = {
+                    viewModel.saveSoundEffectSelection(it)
+                },
+                onCreateDummyData = {
+                    viewModel.createDummyData()
+                },
+            )
+        }
     }
 }
 

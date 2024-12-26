@@ -25,6 +25,7 @@
  */
 package features.home
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -159,7 +160,7 @@ private fun HomeEmptyState(modifier: Modifier = Modifier, onCta: () -> Unit) {
     }
 }
 
-@OptIn(ExperimentalHazeMaterialsApi::class)
+@OptIn(ExperimentalHazeMaterialsApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
 fun HomeScreenList(
     modifier: Modifier = Modifier,
@@ -239,6 +240,7 @@ fun HomeScreenList(
                         }
                         WorkoutPlanItemView(
                             modifier = Modifier.fillMaxWidth().animateItem(),
+                            workoutPlanId = item.workoutPlanId,
                             title = item.title,
                             description = item.description,
                             lastActivityInfo = {

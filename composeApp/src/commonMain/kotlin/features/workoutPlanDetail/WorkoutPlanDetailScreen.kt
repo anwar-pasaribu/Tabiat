@@ -25,7 +25,11 @@
  */
 package features.workoutPlanDetail
 
+import LocalNavAnimatedVisibilityScope
+import LocalSharedTransitionScope
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -74,9 +78,9 @@ import androidx.compose.ui.unit.dp
 import domain.model.gym.ExerciseProgress
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
-import platform.BackHandler
 import tabiat.composeapp.generated.resources.Res
 import tabiat.composeapp.generated.resources.ic_plus_circle_icon_32dp
+import tabiatDetailBoundsTransform
 import ui.component.DeleteIconButton
 import ui.component.EditIconButton
 import ui.component.EmptyState
@@ -106,6 +110,7 @@ fun WorkoutDetailScreen(
 
     WorkoutDetailView(
         modifier = Modifier.fillMaxSize(),
+        workoutPlanId = workoutPlanId,
         paddingValues = paddingValues,
         exerciseList = exerciseListState,
         workoutPlanUiState = workoutPlanDetailState,
@@ -121,11 +126,12 @@ fun WorkoutDetailScreen(
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
 fun WorkoutDetailView(
     modifier: Modifier = Modifier,
     paddingValues: PaddingValues,
+    workoutPlanId: Long = 0L,
     exerciseList: List<ExerciseProgress>,
     workoutPlanUiState: WorkoutDetailUiState,
     lazyListState: LazyListState = rememberLazyListState(),
@@ -134,6 +140,12 @@ fun WorkoutDetailView(
     onSelectExercise: (exerciseId: Long) -> Unit,
     onDeleteExercise: (exerciseId: Long) -> Unit,
 ) {
+
+    val sharedTransitionScope = LocalSharedTransitionScope.current
+        ?: throw IllegalStateException("No sharedTransitionScope found")
+    val animatedVisibilityScope = LocalNavAnimatedVisibilityScope.current
+        ?: throw IllegalStateException("No animatedVisibilityScope found")
+
     var workoutPlanName by rememberSaveable {
         mutableStateOf("")
     }
@@ -166,151 +178,161 @@ fun WorkoutDetailView(
         }
     }
 
-    BackHandler {
-        if (editMode) {
-            editMode = false
-        } else {
-            onBack.invoke()
-        }
-    }
+//    BackHandler {
+//        if (editMode) {
+//            editMode = false
+//        } else {
+//            onBack.invoke()
+//        }
+//    }
 
-    Box(modifier = modifier) {
-        Card(
-            modifier = Modifier
-                .padding(
-                    start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
-                    top = paddingValues.calculateTopPadding(),
-                    end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+    with (sharedTransitionScope) {
+        Box(modifier = modifier) {
+            Card(
+                modifier = Modifier
+                    .padding(
+                        start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                        top = paddingValues.calculateTopPadding(),
+                        end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+                    )
+                    .sharedBounds(
+                        rememberSharedContentState(
+                            key = workoutPlanId
+                        ),
+                        animatedVisibilityScope = animatedVisibilityScope,
+                        resizeMode = SharedTransitionScope.ResizeMode.RemeasureToBounds,
+                        boundsTransform = tabiatDetailBoundsTransform,
+                    )
+                    .fillMaxSize(),
+                colors = CardDefaults.cardColors(
+                    containerColor = colorTheme,
+                    contentColor = onTopColorTheme,
                 )
-                .fillMaxSize(),
-            colors = CardDefaults.cardColors(
-                containerColor = colorTheme,
-                contentColor = onTopColorTheme,
-            )
-        ) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                state = lazyListState,
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                stickyHeader(contentType = "exercises") {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(min = 56.dp)
-                            .background(colorTheme),
-                    ) {
-                        Row(modifier = Modifier.align(Alignment.CenterStart)) {
-                            MainHeaderText(
-                                modifier = Modifier.padding(end = 72.dp),
-                                textTitle = headerTitle,
-                                color = onTopColorTheme
-                            )
-                        }
-
-                        Row(
-                            modifier = Modifier.width(72.dp).align(Alignment.CenterEnd),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    state = lazyListState,
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    stickyHeader(contentType = "exercises") {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(min = 56.dp)
+                                .background(colorTheme),
                         ) {
-                            IconButton(
-                                modifier = Modifier.size(32.dp).alpha(animateAlphaValue)
-                                    .scale(animateAlphaValue),
-                                enabled = !editMode,
-                                onClick = { onNewExerciseToWorkoutPlan.invoke() },
-                            ) {
-                                Icon(
-                                    modifier = Modifier.size(22.dp),
-                                    painter = painterResource(Res.drawable.ic_plus_circle_icon_32dp),
-                                    contentDescription = "",
-                                    tint = onTopColorTheme
+                            Row(modifier = Modifier.align(Alignment.CenterStart)) {
+                                MainHeaderText(
+                                    modifier = Modifier.padding(end = 72.dp),
+                                    textTitle = headerTitle,
+                                    color = onTopColorTheme
                                 )
                             }
-                            EditIconButton(
-                                modifier = Modifier.size(32.dp),
-                                editMode = !editMode,
-                                onEditClick = { editMode = true },
-                                onCancelClick = { editMode = false }
-                            )
+
+                            Row(
+                                modifier = Modifier.width(72.dp).align(Alignment.CenterEnd),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                IconButton(
+                                    modifier = Modifier.size(32.dp).alpha(animateAlphaValue)
+                                        .scale(animateAlphaValue),
+                                    enabled = !editMode,
+                                    onClick = { onNewExerciseToWorkoutPlan.invoke() },
+                                ) {
+                                    Icon(
+                                        modifier = Modifier.size(22.dp),
+                                        painter = painterResource(Res.drawable.ic_plus_circle_icon_32dp),
+                                        contentDescription = "",
+                                        tint = onTopColorTheme
+                                    )
+                                }
+                                EditIconButton(
+                                    modifier = Modifier.size(32.dp),
+                                    editMode = !editMode,
+                                    onEditClick = { editMode = true },
+                                    onCancelClick = { editMode = false }
+                                )
+                            }
                         }
                     }
-                }
 
-                when(workoutPlanUiState) {
-                    is WorkoutDetailUiState.Error -> {}
-                    WorkoutDetailUiState.Loading -> {}
-                    is WorkoutDetailUiState.Success -> {
-                        workoutPlanName = workoutPlanUiState.data.workoutPlan.name
-                        colorThemeString = workoutPlanUiState.data.colorTheme
-                        items(
-                            items = exerciseList,
-                            key = { item -> item.exercise.id },
-                            contentType = { "exercises-${it.exercise.id}" },
-                        ) { item: ExerciseProgress ->
-                            Box(
-                                modifier = Modifier.fillMaxWidth().animateItem(),
-                            ) {
-                                WorkoutExerciseItemView(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    title = item.exercise.name,
-                                    description = item.exercise.description,
-                                    imageUrlList = item.exercise.imageList,
-                                    enabled = !editMode,
-                                    onClick = {
-                                        onSelectExercise(item.exercise.id)
-                                    },
-                                    progressContentView = {
-                                        ExerciseFinishingStatusView(
-                                            total = item.sessionTotal,
-                                            progress = item.sessionDoneCount,
-                                        )
-                                    },
-                                )
-
-                                this@Card.AnimatedVisibility(
-                                    visible = editMode,
-                                    modifier = Modifier.width(48.dp).align(Alignment.CenterEnd),
-                                    enter = scaleIn(
-                                        animationSpec = spring(
-                                            dampingRatio = Spring.DampingRatioMediumBouncy,
-                                            stiffness = Spring.StiffnessMediumLow,
-                                        ),
-                                    ),
-                                    exit = scaleOut(animationSpec = tween(150)),
+                    when (workoutPlanUiState) {
+                        is WorkoutDetailUiState.Error -> {}
+                        WorkoutDetailUiState.Loading -> {}
+                        is WorkoutDetailUiState.Success -> {
+                            workoutPlanName = workoutPlanUiState.data.workoutPlan.name
+                            colorThemeString = workoutPlanUiState.data.colorTheme
+                            items(
+                                items = exerciseList,
+                                key = { item -> item.exercise.id },
+                                contentType = { "exercises-${it.exercise.id}" },
+                            ) { item: ExerciseProgress ->
+                                Box(
+                                    modifier = Modifier.fillMaxWidth().animateItem(),
                                 ) {
-                                    Row {
-                                        DeleteIconButton(
-                                            onClick = {
-                                                onDeleteExercise.invoke(
-                                                    item.exercise.id
-                                                )
-                                            },
-                                        )
-                                        Spacer(Modifier.width(8.dp))
+                                    WorkoutExerciseItemView(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        title = item.exercise.name,
+                                        description = item.exercise.description,
+                                        imageUrlList = item.exercise.imageList,
+                                        enabled = !editMode,
+                                        onClick = {
+                                            onSelectExercise(item.exercise.id)
+                                        },
+                                        progressContentView = {
+                                            ExerciseFinishingStatusView(
+                                                total = item.sessionTotal,
+                                                progress = item.sessionDoneCount,
+                                            )
+                                        },
+                                    )
+
+                                    this@Card.AnimatedVisibility(
+                                        visible = editMode,
+                                        modifier = Modifier.width(48.dp).align(Alignment.CenterEnd),
+                                        enter = scaleIn(
+                                            animationSpec = spring(
+                                                dampingRatio = Spring.DampingRatioMediumBouncy,
+                                                stiffness = Spring.StiffnessMediumLow,
+                                            ),
+                                        ),
+                                        exit = scaleOut(animationSpec = tween(150)),
+                                    ) {
+                                        Row {
+                                            DeleteIconButton(
+                                                onClick = {
+                                                    onDeleteExercise.invoke(
+                                                        item.exercise.id
+                                                    )
+                                                },
+                                            )
+                                            Spacer(Modifier.width(8.dp))
+                                        }
                                     }
+                                }
+                            }
+                        }
+
+                        WorkoutDetailUiState.NoExercise -> {
+                            editMode = false
+                            item {
+                                Column(modifier = Modifier.fillMaxSize()) {
+                                    EmptyState(
+                                        title = "Belum ada latihan yang ditambahkan",
+                                        btnText = "Tambah Latihan",
+                                        onClick = {
+                                            onNewExerciseToWorkoutPlan()
+                                        },
+                                    )
                                 }
                             }
                         }
                     }
 
-                    WorkoutDetailUiState.NoExercise -> {
-                        editMode = false
-                        item {
-                            Column(modifier = Modifier.fillMaxSize()) {
-                                EmptyState(
-                                    title = "Belum ada latihan yang ditambahkan",
-                                    btnText = "Tambah Latihan",
-                                    onClick = {
-                                        onNewExerciseToWorkoutPlan()
-                                    },
-                                )
-                            }
-                        }
+                    item {
+                        InsetNavigationHeight()
                     }
-                }
-
-                item {
-                    InsetNavigationHeight()
                 }
             }
         }

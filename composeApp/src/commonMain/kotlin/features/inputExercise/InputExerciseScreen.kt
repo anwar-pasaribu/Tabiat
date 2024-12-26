@@ -31,7 +31,7 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -39,15 +39,11 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.haze
-import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import org.koin.compose.koinInject
 import ui.component.InsetNavigationHeight
 import ui.component.gym.InputWorkoutPlanExerciseView
 
-@OptIn(
-    ExperimentalMaterial3Api::class,
-    ExperimentalHazeMaterialsApi::class,
-)
+
 @Composable
 fun InputExerciseScreen(
     contentPadding: PaddingValues,
@@ -58,30 +54,36 @@ fun InputExerciseScreen(
     val hazeState = remember { HazeState() }
     val viewModel = koinInject<InputExerciseScreenViewModel>()
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize().haze(hazeState),
-            contentPadding = PaddingValues(
-                start = contentPadding.calculateStartPadding(LayoutDirection.Ltr) + 8.dp,
-                top = contentPadding.calculateTopPadding() + 16.dp,
-                end = contentPadding.calculateEndPadding(LayoutDirection.Ltr) + 8.dp,
-                bottom = contentPadding.calculateBottomPadding(),
-            ),
-        ) {
-            item {
-                InputWorkoutPlanExerciseView(
-                    modifier = Modifier,
-                    onSave = { exerciseId, exerciseSetList ->
-                        viewModel.insertExerciseSetList(workoutPlanId, exerciseId, exerciseSetList)
-                        onBack()
-                    },
-                    onCreateNewExerciseRequested = {
-                        onCreateNewExerciseRequested()
-                    },
-                )
-            }
-            item {
-                InsetNavigationHeight()
+    Surface {
+        Box(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize().haze(hazeState),
+                contentPadding = PaddingValues(
+                    start = contentPadding.calculateStartPadding(LayoutDirection.Ltr) + 8.dp,
+                    top = contentPadding.calculateTopPadding() + 16.dp,
+                    end = contentPadding.calculateEndPadding(LayoutDirection.Ltr) + 8.dp,
+                    bottom = contentPadding.calculateBottomPadding(),
+                ),
+            ) {
+                item {
+                    InputWorkoutPlanExerciseView(
+                        modifier = Modifier,
+                        onSave = { exerciseId, exerciseSetList ->
+                            viewModel.insertExerciseSetList(
+                                workoutPlanId,
+                                exerciseId,
+                                exerciseSetList
+                            )
+                            onBack()
+                        },
+                        onCreateNewExerciseRequested = {
+                            onCreateNewExerciseRequested()
+                        },
+                    )
+                }
+                item {
+                    InsetNavigationHeight()
+                }
             }
         }
     }
