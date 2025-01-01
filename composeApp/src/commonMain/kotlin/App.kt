@@ -23,19 +23,10 @@
  *
  * Project Name: Tabiat
  */
-import androidx.compose.animation.AnimatedContentScope
-import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.BoundsTransform
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
-import androidx.compose.animation.SharedTransitionScope
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
@@ -56,21 +47,15 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavDeepLink
 import androidx.navigation.NavDestination.Companion.hasRoute
-import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
@@ -79,6 +64,7 @@ import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import features.createNewExercise.CreateExerciseScreen
+import features.exerciseDetail.FullImageViewerScreen
 import features.home.HomeScreen
 import features.inputExercise.InputExerciseScreen
 import features.inputWorkout.InputWorkoutScreen
@@ -97,26 +83,25 @@ import ui.component.AddIconButton
 import ui.component.BackButton
 import ui.component.ImageWrapper
 import ui.component.gym.FloatingTimerView
+import ui.extension.LocalSharedTransitionScope
+import ui.extension.composableScaleWithCompositionLocal
+import ui.extension.composableSlideWithCompositionLocal
+import ui.extension.composableWithCompositionLocal
 import ui.theme.MyAppTheme
-import kotlin.reflect.KType
 
 sealed class MyAppRoute {
-    @Serializable
-    object Home
-    @Serializable
-    data class InputWorkout(val workoutPlanId: Long = 0L) : MyAppRoute()
-    @Serializable
-    class WorkoutDetail(val workoutPlanId: Long)
-    @Serializable
-    class InputExercise(val workoutPlanId: Long)
-    @Serializable
-    class LogWorkoutExercise(val currentWorkoutPlanId: Long, val currentExerciseId: Long)
-    @Serializable
-    object WorkoutHistory
-    @Serializable
-    object CreateNewExercise
-    @Serializable
-    data object Settings : MyAppRoute()
+    @Serializable object Home
+    @Serializable data class InputWorkout(val workoutPlanId: Long = 0L) : MyAppRoute()
+    @Serializable data class WorkoutDetail(val workoutPlanId: Long, val targetColorTheme: String = "")
+    @Serializable class InputExercise(val workoutPlanId: Long)
+    @Serializable class LogWorkoutExercise(val currentWorkoutPlanId: Long, val currentExerciseId: Long)
+    @Serializable object WorkoutHistory
+    @Serializable object CreateNewExercise
+    @Serializable data object Settings : MyAppRoute()
+    @Serializable data class FullImageViewer(
+        val exerciseId: Long,
+        val imageUrl: String
+    ) : MyAppRoute()
 }
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -150,12 +135,17 @@ fun App(
                                 navController = navController,
                                 startDestination = MyAppRoute.Home,
                             ) {
-                                composableWithCompositionLocal<MyAppRoute.Home> {
+                                composableScaleWithCompositionLocal<MyAppRoute.Home> {
                                     HomeScreen(
                                         paddingValues = contentPadding,
                                         hazeState = hazeState,
                                         onWorkoutDetail = {
-                                            navController.navigate(MyAppRoute.WorkoutDetail(it))
+                                            navController.navigate(
+                                                MyAppRoute.WorkoutDetail(
+                                                    workoutPlanId = it.workoutPlanId,
+                                                    targetColorTheme = it.rawColorTheme
+                                                )
+                                            )
                                         },
                                         onEditWorkout = {
                                             navController.navigate(MyAppRoute.InputWorkout(it))
@@ -168,12 +158,13 @@ fun App(
                                         },
                                     )
                                 }
-                                composableWithCompositionLocal<MyAppRoute.WorkoutDetail> { backStackEntry ->
+                                composableScaleWithCompositionLocal<MyAppRoute.WorkoutDetail> { backStackEntry ->
                                     val workoutDetail: MyAppRoute.WorkoutDetail =
                                         backStackEntry.toRoute()
                                     WorkoutDetailScreen(
                                         paddingValues = contentPadding,
                                         workoutPlanId = workoutDetail.workoutPlanId,
+                                        targetColorTheme = workoutDetail.targetColorTheme,
                                         onBack = {
                                             navController.navigateUp()
                                         },
@@ -191,6 +182,24 @@ fun App(
                                                     it
                                                 )
                                             )
+                                        },
+                                        onImageClick = { exerciseId, imageUrl ->
+                                            navController.navigate(
+                                                MyAppRoute.FullImageViewer(
+                                                    exerciseId = exerciseId,
+                                                    imageUrl = imageUrl ?: ""
+                                                )
+                                            )
+                                        }
+                                    )
+                                }
+                                composableWithCompositionLocal<MyAppRoute.FullImageViewer>{
+                                    val fullImageViewer: MyAppRoute.FullImageViewer = it.toRoute()
+                                    FullImageViewerScreen(
+                                        exerciseId = fullImageViewer.exerciseId,
+                                        imageUrlList = listOf(fullImageViewer.imageUrl),
+                                        onBack = {
+                                            navController.navigateUp()
                                         },
                                     )
                                 }
@@ -346,96 +355,4 @@ fun AppTopBar(
             }
         },
     )
-}
-
-val LocalNavAnimatedVisibilityScope = compositionLocalOf<AnimatedVisibilityScope?> { null }
-
-@OptIn(ExperimentalSharedTransitionApi::class)
-val LocalSharedTransitionScope = compositionLocalOf<SharedTransitionScope?> { null }
-
-val LocalHazeState = compositionLocalOf<HazeState?> { null }
-
-@OptIn(ExperimentalSharedTransitionApi::class)
-val tabiatDetailBoundsTransform = BoundsTransform { _, _ ->
-    spatialExpressiveSpring()
-}
-
-fun <T> spatialExpressiveSpring() = spring<T>(
-    dampingRatio = 0.8f,
-    stiffness = 380f
-)
-
-fun <T> nonSpatialExpressiveSpring() = spring<T>(
-    dampingRatio = 1f,
-    stiffness = 1600f
-)
-
-inline fun <reified T : Any> NavGraphBuilder.composableWithCompositionLocal(
-    typeMap: Map<KType, NavType<*>> = emptyMap(),
-    deepLinks: List<NavDeepLink> = emptyList(),
-    noinline enterTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)? = {
-        fadeIn(nonSpatialExpressiveSpring())
-    },
-    noinline exitTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? = {
-        fadeOut(nonSpatialExpressiveSpring())
-    },
-    noinline popEnterTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)? = enterTransition,
-    noinline popExitTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? = exitTransition,
-    crossinline content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit
-) {
-    composable<T>(
-        typeMap,
-        deepLinks,
-        enterTransition,
-        exitTransition,
-        popEnterTransition,
-        popExitTransition
-    ) {
-        CompositionLocalProvider(LocalNavAnimatedVisibilityScope provides this@composable) {
-            content(it)
-        }
-    }
-}
-
-inline fun <reified T : Any> NavGraphBuilder.composableSlideWithCompositionLocal(
-    typeMap: Map<KType, NavType<*>> = emptyMap(),
-    deepLinks: List<NavDeepLink> = emptyList(),
-    noinline enterTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)? = {
-        fadeIn() + slideIntoContainer(
-            AnimatedContentTransitionScope.SlideDirection.Left,
-            tween(300)
-        )
-    },
-    noinline exitTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? = {
-        slideOutOfContainer(
-            AnimatedContentTransitionScope.SlideDirection.Left,
-            tween(300)
-        ) + fadeOut()
-    },
-    noinline popEnterTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)? = {
-        slideIntoContainer(
-            AnimatedContentTransitionScope.SlideDirection.Right,
-            tween(300)
-        ) + fadeIn()
-    },
-    noinline popExitTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? = {
-        fadeOut() + slideOutOfContainer(
-            AnimatedContentTransitionScope.SlideDirection.Right,
-            tween(300)
-        )
-    },
-    crossinline content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit
-) {
-    composable<T>(
-        typeMap,
-        deepLinks,
-        enterTransition,
-        exitTransition,
-        popEnterTransition,
-        popExitTransition
-    ) {
-        CompositionLocalProvider(LocalNavAnimatedVisibilityScope provides this@composable) {
-            content(it)
-        }
-    }
 }
