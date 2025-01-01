@@ -53,7 +53,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeGestures
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ButtonDefaults
@@ -138,12 +140,6 @@ fun TimerDisplay(
         }
     }
 
-    val breakTimeBackground = if (breakTime) {
-        MaterialTheme.colorScheme.surfaceDim
-    } else {
-        Color.Transparent
-    }
-
     val bigCircleBackground = if (breakTime) {
         MaterialTheme.colorScheme.primary
     } else {
@@ -155,7 +151,11 @@ fun TimerDisplay(
     }
 
     Box(
-        modifier = modifier.then(Modifier.fillMaxSize().background(Color.Black.copy(alpha = .75F))),
+        modifier = modifier.then(
+            Modifier
+                .clip(RoundedCornerShape(25))
+                .wrapContentSize()
+        ),
         contentAlignment = Alignment.Center,
     ) {
         Column(

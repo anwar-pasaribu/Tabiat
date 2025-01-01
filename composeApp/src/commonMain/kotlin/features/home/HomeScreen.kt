@@ -25,7 +25,6 @@
  */
 package features.home
 
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -62,6 +61,7 @@ import dev.chrisbanes.haze.haze
 import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
+import features.home.model.HomeListItemUiData
 import features.home.model.HomeWeeklyUiData
 import features.workoutHistory.ExerciseLogListBottomSheet
 import kotlinx.datetime.LocalDate
@@ -74,7 +74,7 @@ import ui.component.gym.WorkoutPlanItemView
 
 @Composable
 fun HomeScreen(
-    onWorkoutDetail: (Long) -> Unit = {},
+    onWorkoutDetail: (HomeListItemUiData) -> Unit = {},
     onEditWorkout: (Long) -> Unit = {},
     openHistoryScreen: () -> Unit = {},
     onCreateNewWorkoutPlan: () -> Unit = {},
@@ -160,7 +160,7 @@ private fun HomeEmptyState(modifier: Modifier = Modifier, onCta: () -> Unit) {
     }
 }
 
-@OptIn(ExperimentalHazeMaterialsApi::class, ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalHazeMaterialsApi::class)
 @Composable
 fun HomeScreenList(
     modifier: Modifier = Modifier,
@@ -169,7 +169,7 @@ fun HomeScreenList(
     homeScreenUiState: HomeScreenUiState,
     hazeState: HazeState,
     lazyListState: LazyListState = rememberLazyListState(),
-    onWorkoutDetail: (Long) -> Unit,
+    onWorkoutDetail: (HomeListItemUiData) -> Unit,
     onEditWorkout: (Long) -> Unit,
     onDeleteWorkout: (Long) -> Unit,
     onChangeWorkoutPlanColor: (Long, String) -> Unit,
@@ -260,7 +260,7 @@ fun HomeScreenList(
                             total = item.total,
                             progress = item.progress,
                             backgroundColor = colorTheme,
-                            onClick = { onWorkoutDetail(item.workoutPlanId) },
+                            onClick = { onWorkoutDetail(item) },
                             onEditRequest = { onEditWorkout(item.workoutPlanId) },
                             onDeleteRequest = { onDeleteWorkout(item.workoutPlanId) },
                             onChangeColorRequest = { onChangeWorkoutPlanColor.invoke(item.workoutPlanId, it)},

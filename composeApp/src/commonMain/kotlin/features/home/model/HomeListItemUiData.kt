@@ -37,4 +37,5 @@ data class HomeListItemUiData(
     val total: Int,
     val progress: Int,
     val backgroundColor: Color,
+    val rawColorTheme: String,
 )

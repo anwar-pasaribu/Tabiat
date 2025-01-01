@@ -33,11 +33,14 @@ import domain.usecase.GetExerciseListByWorkoutPlanUseCase
 import domain.usecase.GetWorkoutPlanByIdUseCase
 import domain.usecase.personalization.GetWorkoutPlanPersonalizationUseCase
 import features.workoutPlanDetail.model.WorkoutPlanDetailUiData
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 sealed class WorkoutDetailUiState {
     data object Loading : WorkoutDetailUiState()
@@ -101,7 +104,11 @@ class WorkoutDetailScreenViewModel(
     }
 
     fun loadWorkoutPlanDetails(workoutPlanId: Long) {
-        loadWorkoutPlanExercises(workoutPlanId = workoutPlanId)
-        loadWorkoutPlanById(workoutPlanId = workoutPlanId)
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                loadWorkoutPlanExercises(workoutPlanId = workoutPlanId)
+                loadWorkoutPlanById(workoutPlanId = workoutPlanId)
+            }
+        }
     }
 }

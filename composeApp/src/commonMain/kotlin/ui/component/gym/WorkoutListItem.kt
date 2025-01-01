@@ -25,8 +25,6 @@
  */
 package ui.component.gym
 
-import LocalNavAnimatedVisibilityScope
-import LocalSharedTransitionScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.animateColorAsState
@@ -71,6 +69,8 @@ import features.exerciseList.BottomSheet
 import ui.component.ImageWrapper
 import ui.component.InsetNavigationHeight
 import ui.component.colorPalette.parseHexToComposeColor
+import ui.extension.LocalNavAnimatedVisibilityScope
+import ui.extension.LocalSharedTransitionScope
 
 fun Color.bestContrastColor(): Color {
     val luminance = (0.2126 * red + 0.7152 * green + 0.0722 * blue)

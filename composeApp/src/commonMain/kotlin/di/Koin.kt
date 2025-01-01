@@ -63,6 +63,7 @@ import domain.usecase.UpdateWorkoutExerciseRepsAndWeightUseCase
 import domain.usecase.personalization.GetWorkoutPlanPersonalizationUseCase
 import domain.usecase.personalization.SetWorkoutPlanPersonalizationUseCase
 import features.createNewExercise.CreateExerciseScreenViewModel
+import features.exerciseDetail.ExerciseDetailScreenViewModel
 import features.exerciseList.ExerciseListScreenViewModel
 import features.home.HomeScreenViewModel
 import features.inputExercise.InputExerciseScreenViewModel
@@ -201,11 +202,13 @@ fun viewModels() = module {
 
     factoryOf(::WorkoutHistoryScreenViewModel)
 
-    factoryOf(::WorkoutDetailScreenViewModel)
+    singleOf(::WorkoutDetailScreenViewModel)
 
     singleOf(::ExerciseListScreenViewModel)
 
     factoryOf(::LogWorkoutExerciseScreenViewModel)
+
+    factoryOf(::ExerciseDetailScreenViewModel)
 
     singleOf(::CreateExerciseScreenViewModel)
 

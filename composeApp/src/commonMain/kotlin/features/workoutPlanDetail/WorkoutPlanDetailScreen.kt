@@ -25,8 +25,6 @@
  */
 package features.workoutPlanDetail
 
-import LocalNavAnimatedVisibilityScope
-import LocalSharedTransitionScope
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
@@ -60,6 +58,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -73,6 +72,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import domain.model.gym.ExerciseProgress
@@ -80,7 +80,6 @@ import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
 import tabiat.composeapp.generated.resources.Res
 import tabiat.composeapp.generated.resources.ic_plus_circle_icon_32dp
-import tabiatDetailBoundsTransform
 import ui.component.DeleteIconButton
 import ui.component.EditIconButton
 import ui.component.EmptyState
@@ -90,33 +89,48 @@ import ui.component.colorPalette.parseHexToComposeColor
 import ui.component.gym.ExerciseFinishingStatusView
 import ui.component.gym.WorkoutExerciseItemView
 import ui.component.gym.bestContrastColor
+import ui.extension.LocalNavAnimatedVisibilityScope
+import ui.extension.LocalSharedTransitionScope
+import ui.extension.tabiatDetailBoundsTransform
 
 @Composable
 fun WorkoutDetailScreen(
     paddingValues: PaddingValues,
     workoutPlanId: Long,
+    targetColorTheme: String = "",
     onBack: () -> Unit = {},
     onNewExerciseToWorkoutPlan: () -> Unit = {},
     onSelectExercise: (exerciseId: Long) -> Unit = {},
+    onImageClick: (exerciseId: Long, imageUrl: String?) -> Unit = { _,_ -> },
 ) {
 
+    val currentWorkoutPlanId by rememberSaveable {
+        mutableStateOf(workoutPlanId)
+    }
     val viewModel = koinInject<WorkoutDetailScreenViewModel>()
     val exerciseListState by viewModel.exerciseListStateFlow.collectAsState()
     val workoutPlanDetailState by viewModel.workoutPlanStateFlow.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.loadWorkoutPlanDetails(workoutPlanId)
+    LaunchedEffect(key1 = currentWorkoutPlanId) {
+        viewModel.loadWorkoutPlanDetails(currentWorkoutPlanId)
     }
 
     WorkoutDetailView(
         modifier = Modifier.fillMaxSize(),
-        workoutPlanId = workoutPlanId,
         paddingValues = paddingValues,
+        workoutPlanId = workoutPlanId,
+        targetBackgroundColor = if (targetColorTheme.isEmpty()) {
+            MaterialTheme.colorScheme.primary
+        } else {
+            targetColorTheme.parseHexToComposeColor()
+        },
         exerciseList = exerciseListState,
         workoutPlanUiState = workoutPlanDetailState,
-        onBack = onBack,
         onNewExerciseToWorkoutPlan = onNewExerciseToWorkoutPlan,
         onSelectExercise = onSelectExercise,
+        onImageClick = { exerciseId, imageUrl ->
+            onImageClick.invoke(exerciseId, imageUrl)
+        },
         onDeleteExercise = {
             viewModel.deleteExercise(
                 workoutPlanId = workoutPlanId,
@@ -132,12 +146,13 @@ fun WorkoutDetailView(
     modifier: Modifier = Modifier,
     paddingValues: PaddingValues,
     workoutPlanId: Long = 0L,
+    targetBackgroundColor: Color = MaterialTheme.colorScheme.primary,
     exerciseList: List<ExerciseProgress>,
     workoutPlanUiState: WorkoutDetailUiState,
     lazyListState: LazyListState = rememberLazyListState(),
     onNewExerciseToWorkoutPlan: () -> Unit,
-    onBack: () -> Unit,
     onSelectExercise: (exerciseId: Long) -> Unit,
+    onImageClick: (exerciseId: Long, imageUrl: String?) -> Unit,
     onDeleteExercise: (exerciseId: Long) -> Unit,
 ) {
 
@@ -149,19 +164,10 @@ fun WorkoutDetailView(
     var workoutPlanName by rememberSaveable {
         mutableStateOf("")
     }
-    var colorThemeString by remember {
-        mutableStateOf("")
-    }
-
-    val colorTheme by remember {
-        derivedStateOf {
-            colorThemeString.parseHexToComposeColor()
-        }
-    }
 
     val onTopColorTheme by remember {
         derivedStateOf {
-            colorThemeString.parseHexToComposeColor().bestContrastColor()
+            targetBackgroundColor.bestContrastColor()
         }
     }
     var editMode by remember { mutableStateOf(false) }
@@ -205,7 +211,7 @@ fun WorkoutDetailView(
                     )
                     .fillMaxSize(),
                 colors = CardDefaults.cardColors(
-                    containerColor = colorTheme,
+                    containerColor = targetBackgroundColor,
                     contentColor = onTopColorTheme,
                 )
             ) {
@@ -220,7 +226,7 @@ fun WorkoutDetailView(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .heightIn(min = 56.dp)
-                                .background(colorTheme),
+                                .background(targetBackgroundColor),
                         ) {
                             Row(modifier = Modifier.align(Alignment.CenterStart)) {
                                 MainHeaderText(
@@ -262,11 +268,9 @@ fun WorkoutDetailView(
                         WorkoutDetailUiState.Loading -> {}
                         is WorkoutDetailUiState.Success -> {
                             workoutPlanName = workoutPlanUiState.data.workoutPlan.name
-                            colorThemeString = workoutPlanUiState.data.colorTheme
                             items(
                                 items = exerciseList,
                                 key = { item -> item.exercise.id },
-                                contentType = { "exercises-${it.exercise.id}" },
                             ) { item: ExerciseProgress ->
                                 Box(
                                     modifier = Modifier.fillMaxWidth().animateItem(),
@@ -279,6 +283,12 @@ fun WorkoutDetailView(
                                         enabled = !editMode,
                                         onClick = {
                                             onSelectExercise(item.exercise.id)
+                                        },
+                                        onImageClick = {
+                                            onImageClick.invoke(
+                                                item.exercise.id,
+                                                item.exercise.imageList.first()
+                                            )
                                         },
                                         progressContentView = {
                                             ExerciseFinishingStatusView(

@@ -179,7 +179,8 @@ class HomeScreenViewModel(
             lastActivityDate = lastActivityDateFormatted.orEmpty(),
             lastActivityDetail = formattedLastActivityDetail.orEmpty(),
             exerciseImageUrl = this.lastExercise?.image.orEmpty(),
-            backgroundColor = parsedBackgroundColor
+            backgroundColor = parsedBackgroundColor,
+            rawColorTheme = this.workoutPersonalization?.colorTheme.orEmpty()
         )
     }
 
