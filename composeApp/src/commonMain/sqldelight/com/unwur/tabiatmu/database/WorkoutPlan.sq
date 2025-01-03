@@ -10,6 +10,43 @@ CREATE TABLE IF NOT EXISTS WorkoutPlanEntity (
 selectAllWorkoutPlan:
 SELECT * FROM WorkoutPlanEntity;
 
+selectAllWorkoutPlanWithProgress:
+SELECT
+    wp.id AS workoutPlanId,
+    wp.name AS workoutPlanName,
+    wp.description AS workoutDescription,
+    wpe.exerciseId,
+    COUNT(wpe.id) AS total,
+    SUM(CASE WHEN wpe.finishedDateTime > 0 THEN 1 ELSE 0 END) AS progress,
+    e.name AS exerciseName,
+    e.image AS exerciseImage,
+    wpz.colorTheme,
+    MAX(wpe.finishedDateTime) AS lastFinishedDateTime,
+    wpe.reps AS lastReps,
+    wpe.weight AS lastWeight
+FROM WorkoutPlanEntity AS wp
+INNER JOIN WorkoutPlanExerciseEntity AS wpe ON wp.id = wpe.workoutPlanId
+INNER JOIN ExerciseEntity AS e ON wpe.exerciseId = e.id
+LEFT JOIN WorkoutPersonalizationEntity AS wpz ON wp.id = wpz.workoutPlanId
+GROUP BY wp.id;
+
+selectAllWorkoutExerciseListWithProgress:
+SELECT
+    wp.id AS workoutPlanId,
+    wp.name AS workoutPlanName,
+    wp.description AS workoutPlanDescription,
+    e.id AS exerciseId,
+    e.name AS exerciseName,
+    e.image AS exerciseImageUrlList,
+    COUNT(e.id) AS totalExerciseSet,
+    SUM(CASE WHEN wpe.finishedDateTime > 0 THEN 1 ELSE 0 END) AS totalFinishedSet
+FROM WorkoutPlanEntity AS wp
+INNER JOIN WorkoutPlanExerciseEntity AS wpe ON wp.id = wpe.workoutPlanId
+INNER JOIN ExerciseEntity AS e ON e.id = wpe.exerciseId
+WHERE wp.id = :workoutPlanId
+GROUP BY e.id
+ORDER BY wpe.id ASC;
+
 selectWorkoutPlanById:
 SELECT * FROM WorkoutPlanEntity WHERE id = ?;
 
