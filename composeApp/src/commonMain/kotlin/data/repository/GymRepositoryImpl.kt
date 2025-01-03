@@ -31,6 +31,7 @@ import data.source.local.dao.IWorkoutPlanDao
 import data.source.local.dao.IWorkoutPlanExerciseDao
 import data.source.preferences.IPreferencesDataSource
 import data.source.remote.api.IGymApi
+import domain.model.detail.DetailItemEntity
 import domain.model.gym.DifficultyLevel
 import domain.model.gym.Exercise
 import domain.model.gym.ExerciseLog
@@ -40,6 +41,7 @@ import domain.model.gym.GymPreferences
 import domain.model.gym.WorkoutPlan
 import domain.model.gym.WorkoutPlanExercise
 import domain.model.gym.WorkoutPlanProgress
+import domain.model.home.HomeItemEntity
 import domain.repository.IGymRepository
 import domain.repository.IPersonalizationRepository
 import kotlinx.coroutines.Dispatchers
@@ -47,6 +49,7 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -161,39 +164,53 @@ class GymRepositoryImpl(
         )
     }
 
+    private suspend fun calculateWorkoutPlanProgress(workoutPlan: WorkoutPlan): WorkoutPlanProgress {
+        val woExerciseProgressList =
+            workoutPlanExerciseDao.getAllWorkoutPlanExercise(
+                workoutPlanId = workoutPlan.id,
+            ).map { workoutPlanExercise ->
+                getExerciseProgress(
+                    workoutPlanId = workoutPlanExercise.workoutPlanId,
+                    exerciseId = workoutPlanExercise.exerciseId,
+                )
+            }
+        val total = woExerciseProgressList.sumOf { it.sessionTotal }
+        val progress = woExerciseProgressList.sumOf { it.sessionDoneCount }
+        val latestExerciseLog = exerciseLogDao.getLatestExerciseLog(
+            workoutPlanId = workoutPlan.id,
+        )
+        val lastExercise = latestExerciseLog?.let {
+            exerciseDao.getExerciseById(it.exerciseId)
+        }
+        val workoutPersonalization =
+            personalizationRepository.getWorkoutPlanPersonalization(
+                workoutPlanId = workoutPlan.id
+            )
+        return WorkoutPlanProgress(
+            workoutPlan = workoutPlan,
+            total = total,
+            progress = progress,
+            lastExerciseLog = latestExerciseLog,
+            lastExercise = lastExercise,
+            workoutPersonalization = workoutPersonalization
+        )
+    }
+
+    override fun getPlanProgressListObservable(): Flow<List<HomeItemEntity>> {
+        return workoutPlanDao.getAllWorkoutPlanWithProgressObservable()
+    }
+
+    override fun getPlanExerciseListObservable(workoutPlanId: Long): Flow<List<DetailItemEntity>> {
+        return workoutPlanDao.getAllWorkoutPlanExerciseWithProgressObservable(workoutPlanId = workoutPlanId)
+    }
+
     override fun getWorkoutPlanProgressListObservable(): Flow<List<WorkoutPlanProgress>> {
         return workoutPlanDao
-            .getAllWorkoutPlanObservable().map { workoutPlanList ->
-                workoutPlanList.map { workoutPlan ->
-                    val woExerciseProgressList =
-                        workoutPlanExerciseDao.getAllWorkoutPlanExercise(
-                            workoutPlanId = workoutPlan.id,
-                        ).map { workoutPlanExercise ->
-                            getExerciseProgress(
-                                workoutPlanId = workoutPlanExercise.workoutPlanId,
-                                exerciseId = workoutPlanExercise.exerciseId,
-                            )
-                        }
-                    val total = woExerciseProgressList.sumOf { it.sessionTotal }
-                    val progress = woExerciseProgressList.sumOf { it.sessionDoneCount }
-                    val latestExerciseLog = exerciseLogDao.getLatestExerciseLog(
-                        workoutPlanId = workoutPlan.id,
-                    )
-                    val lastExercise = latestExerciseLog?.let {
-                        exerciseDao.getExerciseById(it.exerciseId)
-                    }
-                    val workoutPersonalization =
-                        personalizationRepository.getWorkoutPlanPersonalization(
-                            workoutPlanId = workoutPlan.id
-                        )
-                    WorkoutPlanProgress(
-                        workoutPlan = workoutPlan,
-                        total = total,
-                        progress = progress,
-                        lastExerciseLog = latestExerciseLog,
-                        lastExercise = lastExercise,
-                        workoutPersonalization = workoutPersonalization
-                    )
+            .getAllWorkoutPlanObservable().flatMapConcat { workoutPlanList ->
+                flow {
+                    emit(workoutPlanList.map { workoutPlan ->
+                        calculateWorkoutPlanProgress(workoutPlan = workoutPlan)
+                    })
                 }
             }
     }

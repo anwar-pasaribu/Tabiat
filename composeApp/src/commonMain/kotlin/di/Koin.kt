@@ -60,6 +60,7 @@ import domain.usecase.ResetAllYesterdayActivitiesUseCase
 import domain.usecase.SaveRunningTimerPreferencesUseCase
 import domain.usecase.SearchExerciseUseCase
 import domain.usecase.UpdateWorkoutExerciseRepsAndWeightUseCase
+import domain.usecase.detail.GetExerciseListWithProgressByWorkoutPlanUseCase
 import domain.usecase.personalization.GetWorkoutPlanPersonalizationUseCase
 import domain.usecase.personalization.SetWorkoutPlanPersonalizationUseCase
 import features.createNewExercise.CreateExerciseScreenViewModel
@@ -189,6 +190,8 @@ fun appModule() = module {
 
     singleOf(::SetWorkoutPlanPersonalizationUseCase)
     singleOf(::GetWorkoutPlanPersonalizationUseCase)
+
+    singleOf(::GetExerciseListWithProgressByWorkoutPlanUseCase)
 }
 
 fun viewModels() = module {

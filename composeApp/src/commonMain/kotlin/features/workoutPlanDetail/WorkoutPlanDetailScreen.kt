@@ -75,7 +75,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import domain.model.gym.ExerciseProgress
+import domain.model.detail.DetailItemEntity
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
 import tabiat.composeapp.generated.resources.Res
@@ -147,7 +147,7 @@ fun WorkoutDetailView(
     paddingValues: PaddingValues,
     workoutPlanId: Long = 0L,
     targetBackgroundColor: Color = MaterialTheme.colorScheme.primary,
-    exerciseList: List<ExerciseProgress>,
+    exerciseList: List<DetailItemEntity>,
     workoutPlanUiState: WorkoutDetailUiState,
     lazyListState: LazyListState = rememberLazyListState(),
     onNewExerciseToWorkoutPlan: () -> Unit,
@@ -270,30 +270,30 @@ fun WorkoutDetailView(
                             workoutPlanName = workoutPlanUiState.data.workoutPlan.name
                             items(
                                 items = exerciseList,
-                                key = { item -> item.exercise.id },
-                            ) { item: ExerciseProgress ->
+                                key = { item: DetailItemEntity -> item.exerciseId },
+                            ) { item: DetailItemEntity ->
                                 Box(
                                     modifier = Modifier.fillMaxWidth().animateItem(),
                                 ) {
                                     WorkoutExerciseItemView(
                                         modifier = Modifier.fillMaxWidth(),
-                                        title = item.exercise.name,
-                                        description = item.exercise.description,
-                                        imageUrlList = item.exercise.imageList,
+                                        title = item.exerciseName,
+                                        description = item.exerciseName,
+                                        imageUrlList = item.exerciseImageUrlList,
                                         enabled = !editMode,
                                         onClick = {
-                                            onSelectExercise(item.exercise.id)
+                                            onSelectExercise(item.exerciseId)
                                         },
                                         onImageClick = {
                                             onImageClick.invoke(
-                                                item.exercise.id,
-                                                item.exercise.imageList.first()
+                                                item.exerciseId,
+                                                item.exerciseImageUrlList.first()
                                             )
                                         },
                                         progressContentView = {
                                             ExerciseFinishingStatusView(
-                                                total = item.sessionTotal,
-                                                progress = item.sessionDoneCount,
+                                                total = item.totalExerciseSet,
+                                                progress = item.totalFinishedSet,
                                             )
                                         },
                                     )
@@ -313,7 +313,7 @@ fun WorkoutDetailView(
                                             DeleteIconButton(
                                                 onClick = {
                                                     onDeleteExercise.invoke(
-                                                        item.exercise.id
+                                                        item.exerciseId
                                                     )
                                                 },
                                             )

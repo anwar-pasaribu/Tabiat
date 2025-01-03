@@ -23,33 +23,16 @@
  *
  * Project Name: Tabiat
  */
-package data.source.local.dao
+package domain.usecase.detail
 
 import domain.model.detail.DetailItemEntity
-import domain.model.gym.WorkoutPlan
-import domain.model.home.HomeItemEntity
+import domain.repository.IGymRepository
 import kotlinx.coroutines.flow.Flow
 
-interface IWorkoutPlanDao {
-    fun getAllWorkoutPlanWithProgressObservable(): Flow<List<HomeItemEntity>>
-    fun getAllWorkoutPlanExerciseWithProgressObservable(workoutPlanId: Long): Flow<List<DetailItemEntity>>
-    fun getAllWorkoutPlanObservable(): Flow<List<WorkoutPlan>>
-    suspend fun getAllWorkoutPlan(): List<WorkoutPlan>
-    suspend fun getLatestWorkoutPlan(): WorkoutPlan
-    suspend fun getWorkoutPlan(workoutPlanId: Long): WorkoutPlan
-    suspend fun insertWorkoutPlan(
-        name: String,
-        description: String,
-        datetimeStamp: Long,
-        orderingNumber: Int,
-    )
-    suspend fun updateWorkoutPlan(
-        workoutPlanId: Long,
-        name: String,
-        description: String,
-    )
-
-    suspend fun deleteWorkoutPlan(
-        workoutPlanId: Long,
-    )
+class GetExerciseListWithProgressByWorkoutPlanUseCase(
+    private val repository: IGymRepository,
+) {
+    operator fun invoke(workoutPlanId: Long): Flow<List<DetailItemEntity>> {
+        return repository.getPlanExerciseListObservable(workoutPlanId)
+    }
 }

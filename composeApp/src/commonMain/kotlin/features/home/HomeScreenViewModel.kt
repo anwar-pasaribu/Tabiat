@@ -28,6 +28,7 @@ package features.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import domain.model.gym.WorkoutPlanProgress
+import domain.model.home.HomeItemEntity
 import domain.repository.IGymRepository
 import domain.usecase.GetExerciseLogListByDateTimeStampUseCase
 import domain.usecase.ResetAllYesterdayActivitiesUseCase
@@ -184,11 +185,41 @@ class HomeScreenViewModel(
         )
     }
 
+    private fun HomeItemEntity.toUI(): HomeListItemUiData {
+
+        val lastExerciseAvailable = this.lastFinishedDateTime != 0L
+
+        val lastActivityDateFormatted =
+            this.lastFinishedDateTime.epochTimestampToShortDateTimeFormat()
+
+        val lastExerciseSet = if (lastExerciseAvailable) {
+            "${this.lastReps} ✕ ${this.lastWeight}"
+        } else null
+        val formattedLastActivityDetail = if (lastExerciseAvailable)  {
+            "${this.exerciseName.take(15)} $lastExerciseSet"
+        } else ""
+
+        val parsedBackgroundColor = this.workoutPlanColorTheme.parseHexToComposeColor()
+
+        return HomeListItemUiData(
+            workoutPlanId = this.workoutPlanId,
+            title = this.workoutPlanName,
+            description = this.workoutPlanDescription,
+            total = this.totalTaskCount,
+            progress = this.progress,
+            lastActivityDate = lastActivityDateFormatted,
+            lastActivityDetail = formattedLastActivityDetail,
+            exerciseImageUrl = this.exerciseImageUrl,
+            backgroundColor = parsedBackgroundColor,
+            rawColorTheme = this.workoutPlanColorTheme
+        )
+    }
+
     fun loadWorkoutList() {
         viewModelScope.launch {
-            withContext(Dispatchers.Default) {
+            withContext(Dispatchers.IO) {
                 resetAllYesterdayActivitiesUseCase()
-                repository.getWorkoutPlanProgressListObservable()
+                repository.getPlanProgressListObservable()
                     .collect { workoutPlanProgressList ->
                         val homeList = workoutPlanProgressList.map { it.toUI() }
                         if (homeList.isEmpty()) {
