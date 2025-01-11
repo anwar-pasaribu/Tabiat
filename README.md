@@ -1,11 +1,17 @@
-### Tabiat
+## Tabiat
 ![Tabiat Hero Image](screenshots/tabiat-show-case.png)
 
 Gym Tracker with more than 800 exercise template and you can create your own custom exercise. Available on Android and iOS.
 
+### Download
+
+<a href="https://play.google.com/store/apps/details?id=com.unwur.tabiatmu&pcampaignid=web_share" target="_blank">
+<img src="https://play.google.com/intl/en_gb/badges/static/images/badges/en_badge_web_generic.png" width=200 />
+</a>
+
 Exercise source from [Github Repo](https://raw.githubusercontent.com/anwar-pasaribu/free-exercise-db/main/dist/exercises.json)
 
-#### Tech Stacks
+### Tech Stacks
 | Feature | Tech |
 | ----------- | ----------- |
 | Multiplatform UI |[Compose Multiplatform](https://www.jetbrains.com/compose-multiplatform/)|
