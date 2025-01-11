@@ -46,6 +46,7 @@ import domain.usecase.FilterExerciseByTargetMuscleCategoryUseCase
 import domain.usecase.GetExerciseByIdUseCase
 import domain.usecase.GetExerciseListByWorkoutPlanUseCase
 import domain.usecase.GetExerciseListUseCase
+import domain.usecase.GetExerciseLogCountByDateTimeStampUseCase
 import domain.usecase.GetExerciseLogListByDateTimeStampUseCase
 import domain.usecase.GetExerciseLogListByExerciseIdUseCase
 import domain.usecase.GetExerciseSetListUseCase
@@ -164,6 +165,9 @@ fun appModule() = module {
     single {
         GetExerciseLogListByDateTimeStampUseCase(repository = get())
     }
+
+    singleOf(::GetExerciseLogCountByDateTimeStampUseCase)
+
     singleOf(::GetExerciseLogListByExerciseIdUseCase)
 
     single {
@@ -203,7 +207,7 @@ fun viewModels() = module {
 
     factoryOf(::InputWorkoutScreenViewModel)
 
-    factoryOf(::WorkoutHistoryScreenViewModel)
+    singleOf(::WorkoutHistoryScreenViewModel)
 
     singleOf(::WorkoutDetailScreenViewModel)
 

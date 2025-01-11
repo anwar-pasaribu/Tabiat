@@ -93,10 +93,10 @@ sealed class MyAppRoute {
     @Serializable object Home
     @Serializable data class InputWorkout(val workoutPlanId: Long = 0L) : MyAppRoute()
     @Serializable data class WorkoutDetail(val workoutPlanId: Long, val targetColorTheme: String = "")
-    @Serializable class InputExercise(val workoutPlanId: Long)
-    @Serializable class LogWorkoutExercise(val currentWorkoutPlanId: Long, val currentExerciseId: Long)
-    @Serializable object WorkoutHistory
-    @Serializable object CreateNewExercise
+    @Serializable data class InputExercise(val workoutPlanId: Long) : MyAppRoute()
+    @Serializable data class LogWorkoutExercise(val currentWorkoutPlanId: Long, val currentExerciseId: Long) : MyAppRoute()
+    @Serializable data object WorkoutHistory : MyAppRoute()
+    @Serializable data object CreateNewExercise : MyAppRoute()
     @Serializable data object Settings : MyAppRoute()
     @Serializable data class FullImageViewer(
         val exerciseId: Long,
@@ -241,7 +241,7 @@ fun App(
                                         },
                                     )
                                 }
-                                composableSlideWithCompositionLocal<MyAppRoute.WorkoutHistory> {
+                                composableScaleWithCompositionLocal<MyAppRoute.WorkoutHistory> {
                                     WorkoutHistoryScreen(
                                         contentPadding = contentPadding,
                                         hazeState = hazeState,

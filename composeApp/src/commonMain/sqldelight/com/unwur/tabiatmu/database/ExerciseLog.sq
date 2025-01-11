@@ -36,3 +36,9 @@ selectExerciseLogByDateTimeStampRange:
 SELECT *
 FROM ExerciseLogEntity
 WHERE finishedDateTime BETWEEN :startTimeStamp AND :endTimeStamp;
+
+countExerciseLogByDateTimeStampRange:
+SELECT
+COUNT(id) AS logCount
+FROM ExerciseLogEntity
+WHERE finishedDateTime BETWEEN :startTimeStamp AND :endTimeStamp;

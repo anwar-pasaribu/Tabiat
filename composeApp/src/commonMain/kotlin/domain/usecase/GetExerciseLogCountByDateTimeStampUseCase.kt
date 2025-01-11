@@ -23,39 +23,16 @@
  *
  * Project Name: Tabiat
  */
-package ui.extension
+package domain.usecase
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.hoverable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
-import ui.extension.customIndication.ScaleIndicationNodeFactory
+import domain.repository.IGymRepository
 
-fun Modifier.bouncingClickable(
-    enabled: Boolean = true,
-    onClick: () -> Unit,
-) = composed {
-    val interactionSource = remember { MutableInteractionSource() }
-
-    this
-        .hoverable(interactionSource = interactionSource)
-        .clickable(
-            interactionSource = interactionSource,
-            indication = ScaleIndicationNodeFactory,
-            enabled = enabled,
-            onClick = onClick,
-        )
-}
-
-fun Modifier.dummyClickable() = composed {
-    val interactionSource = remember { MutableInteractionSource() }
-    this
-        .clickable(
-            interactionSource = interactionSource,
-            indication = null,
-            enabled = true,
-            onClick = {},
-        )
+class GetExerciseLogCountByDateTimeStampUseCase(
+    private val repository: IGymRepository,
+) {
+    suspend operator fun invoke(
+        dateTimeStamp: Long,
+    ): Int {
+        return repository.getExerciseLogCountByDateTimeStamp(dateTimeStamp)
+    }
 }

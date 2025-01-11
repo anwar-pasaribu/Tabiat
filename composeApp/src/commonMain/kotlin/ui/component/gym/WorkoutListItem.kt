@@ -29,7 +29,6 @@ import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -71,6 +70,7 @@ import ui.component.InsetNavigationHeight
 import ui.component.colorPalette.parseHexToComposeColor
 import ui.extension.LocalNavAnimatedVisibilityScope
 import ui.extension.LocalSharedTransitionScope
+import ui.extension.bouncingClickable
 
 fun Color.bestContrastColor(): Color {
     val luminance = (0.2126 * red + 0.7152 * green + 0.0722 * blue)
@@ -123,13 +123,15 @@ fun WorkoutPlanItemView(
 
     with(sharedTransitionScope) {
         Card(
-            modifier = Modifier.sharedBounds(
-                rememberSharedContentState(
-                    key = workoutPlanId
-                ),
-                animatedVisibilityScope = animatedVisibilityScope,
-                resizeMode = SharedTransitionScope.ResizeMode.RemeasureToBounds,
-            ).then(modifier),
+            modifier = Modifier
+                .bouncingClickable { onClick() }
+                .sharedBounds(
+                    rememberSharedContentState(
+                        key = workoutPlanId
+                    ),
+                    animatedVisibilityScope = animatedVisibilityScope,
+                    resizeMode = SharedTransitionScope.ResizeMode.RemeasureToBounds,
+                ).then(modifier),
             colors = CardDefaults.cardColors(
                 containerColor = animatedBackgroundColor,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
@@ -137,7 +139,6 @@ fun WorkoutPlanItemView(
         ) {
             Box(
                 modifier = Modifier
-                    .clickable { onClick() }
                     .fillMaxWidth()
                     .heightIn(min = 132.dp),
             ) {

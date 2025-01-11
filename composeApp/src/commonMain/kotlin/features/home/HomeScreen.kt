@@ -168,7 +168,6 @@ fun HomeScreenList(
     homeWeeklyData: List<HomeWeeklyUiData> = emptyList(),
     homeScreenUiState: HomeScreenUiState,
     hazeState: HazeState,
-    lazyListState: LazyListState = rememberLazyListState(),
     onWorkoutDetail: (HomeListItemUiData) -> Unit,
     onEditWorkout: (Long) -> Unit,
     onDeleteWorkout: (Long) -> Unit,
@@ -178,6 +177,7 @@ fun HomeScreenList(
     onCreateNewWorkoutPlan: () -> Unit,
 ) {
 
+    val lazyListState: LazyListState = rememberLazyListState()
     Box(modifier = modifier) {
         Column(
             Modifier

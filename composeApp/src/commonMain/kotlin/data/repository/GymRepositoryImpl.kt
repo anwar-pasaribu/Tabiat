@@ -305,6 +305,28 @@ class GymRepositoryImpl(
         )
     }
 
+    override suspend fun getExerciseLogCountByDateTimeStamp(dateTimeStamp: Long): Int {
+        val tz = TimeZone.currentSystemDefault()
+        val endOfTimeStampOfSelectedDate = LocalTime(hour = 23, minute = 59, second = 59)
+        val dateTime = LocalDateTime(
+            date = Instant.fromEpochMilliseconds(dateTimeStamp).toLocalDateTime(tz).date,
+            time = endOfTimeStampOfSelectedDate,
+        )
+        val untilTimeStampMillis = dateTime.toInstant(tz).toEpochMilliseconds()
+
+        val selectedDateTime = Instant.fromEpochMilliseconds(
+            untilTimeStampMillis,
+        ).toLocalDateTime(tz)
+        val firstSecondOfTheDay = LocalTime(hour = 0, minute = 0, second = 1)
+        val dateTimeTodayMorning =
+            LocalDateTime(date = selectedDateTime.date, time = firstSecondOfTheDay)
+        val startTimeStampMillis = dateTimeTodayMorning.toInstant(tz).toEpochMilliseconds()
+        return exerciseLogDao.getExerciseLogCountByDateTimeRange(
+            startTimeStampMillis,
+            untilTimeStampMillis,
+        )
+    }
+
     override suspend fun getExerciseLogListByExerciseId(exerciseId: Long): Flow<List<ExerciseLog>> {
         return exerciseLogDao.getExerciseLogByExerciseId(
             exerciseId = exerciseId,
