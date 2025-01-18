@@ -224,17 +224,18 @@ private fun EmojiCalendarCustomLayout(
             }
         }
 
-        val placeables: List<Placeable> = measurables.mapIndexed { index, measurable ->
+        val placeableList: List<Placeable> = measurables.mapIndexed { index, measurable ->
+            val singleWidthAbsolute = if (singleWidth <= 0) 0 else singleWidth
             measurable.measure(
                 constraints.copy(
-                    maxHeight = if (index <= 6) singleWidth / 2 else singleWidth,
-                    maxWidth = singleWidth,
+                    maxHeight = if (index <= 6) singleWidthAbsolute / 2 else singleWidthAbsolute,
+                    maxWidth = singleWidthAbsolute,
                 ),
             )
         }
 
         val calendarLayoutHeight =
-            if (placeables.size != 42) {
+            if (placeableList.size != 42) {
                 currentY + singleWidth + verticalGap
             } else {
                 currentY + verticalGap
@@ -243,7 +244,7 @@ private fun EmojiCalendarCustomLayout(
             width = constraints.maxWidth,
             height = calendarLayoutHeight,
         ) {
-            placeables.forEachIndexed { index, placeable ->
+            placeableList.forEachIndexed { index, placeable ->
                 placeable.placeRelative(
                     x = xPos[index],
                     y = yPos[index],

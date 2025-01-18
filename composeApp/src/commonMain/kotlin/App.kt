@@ -244,7 +244,6 @@ fun App(
                                 composableScaleWithCompositionLocal<MyAppRoute.WorkoutHistory> {
                                     WorkoutHistoryScreen(
                                         contentPadding = contentPadding,
-                                        hazeState = hazeState,
                                     )
                                 }
                                 composableSlideWithCompositionLocal<MyAppRoute.CreateNewExercise> {
@@ -301,11 +300,12 @@ fun AppTopBar(
 ) {
     val homeScreenVisible = remember { mutableStateOf(true) }
     val logExerciseScreenVisible = remember { mutableStateOf(false) }
+    val mediaViewerScreenVisible = remember { mutableStateOf(false) }
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     navBackStackEntry?.destination?.let { currentDestination ->
         homeScreenVisible.value = currentDestination.hasRoute(MyAppRoute.Home::class)
-        logExerciseScreenVisible.value =
-            currentDestination.hasRoute(MyAppRoute.LogWorkoutExercise::class)
+        logExerciseScreenVisible.value = currentDestination.hasRoute(MyAppRoute.LogWorkoutExercise::class)
+        mediaViewerScreenVisible.value = currentDestination.hasRoute(MyAppRoute.FullImageViewer::class)
     }
 
     CenterAlignedTopAppBar(
@@ -338,7 +338,7 @@ fun AppTopBar(
                 }
             } else {
                 BackButton(
-                    showBackground = true
+                    showBackground = (logExerciseScreenVisible.value || mediaViewerScreenVisible.value)
                 ) {
                     onNavigateBack.invoke()
                 }

@@ -162,7 +162,6 @@ class WorkoutHistoryScreenViewModel(
             }
 
             withContext(Dispatchers.IO) {
-
                 for (month in yearsRangeList) {
                     val end = month.plus(1, DateTimeUnit.MONTH)
                     val totalDayCountInTheMonth = month.daysUntil(end)

@@ -25,22 +25,26 @@
  */
 package features.workoutHistory
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -51,25 +55,32 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.haze
+import dev.chrisbanes.haze.hazeChild
+import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
+import dev.chrisbanes.haze.materials.HazeMaterials
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 import org.koin.compose.koinInject
+import ui.extension.LocalNavAnimatedVisibilityScope
+import ui.extension.LocalSharedTransitionScope
+import ui.extension.tabiatDetailBoundsTransform
 
 
+@OptIn(ExperimentalSharedTransitionApi::class, ExperimentalHazeMaterialsApi::class)
 @Composable
 fun WorkoutHistoryScreen(
     contentPadding: PaddingValues,
-    hazeState: HazeState,
 ) {
 
     val viewModel = koinInject<WorkoutHistoryScreenViewModel>()
     val historyUiState by viewModel.historyUiState.collectAsState()
+    val hazeState = remember { HazeState() }
 
     LaunchedEffect(Unit) {
         viewModel.loadCalenderData()
@@ -85,20 +96,50 @@ fun WorkoutHistoryScreen(
         )
     }
 
-    Surface(
-        color = MaterialTheme.colorScheme.background,
-        shape = MaterialTheme.shapes.extraLarge
-    ) {
-        Box(modifier = Modifier.fillMaxSize().background(Color.Red).zIndex(1F)) {
-            CalendarContent(
-                modifier = Modifier.fillMaxSize().haze(state = hazeState),
-                historyUiState = historyUiState,
-                onCalendarDayClick = {
-                    showSheet = true
-                    viewModel.setSelectedDate(it)
-                },
-                contentPadding = contentPadding,
+    val sharedTransitionScope = LocalSharedTransitionScope.current
+        ?: throw IllegalStateException("No sharedTransitionScope found")
+    val animatedVisibilityScope = LocalNavAnimatedVisibilityScope.current
+        ?: throw IllegalStateException("No animatedVisibilityScope found")
+
+    with(sharedTransitionScope) {
+        Card(
+            modifier = Modifier
+                .sharedBounds(
+                    rememberSharedContentState(
+                        key = "calender-screen"
+                    ),
+                    animatedVisibilityScope = animatedVisibilityScope,
+                    boundsTransform = tabiatDetailBoundsTransform,
+                )
+                .fillMaxSize(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.background,
+                contentColor = MaterialTheme.colorScheme.onBackground,
             )
+        ) {
+            Box(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                CalendarContent(
+                    modifier = Modifier.fillMaxSize().haze(hazeState),
+                    historyUiState = historyUiState,
+                    onCalendarDayClick = {
+                        showSheet = true
+                        viewModel.setSelectedDate(it)
+                    },
+                    contentPadding = contentPadding,
+                )
+                Spacer(
+                    Modifier
+                        .hazeChild(
+                            state = hazeState,
+                            style = HazeMaterials.thin(),
+                        )
+                        .fillMaxWidth()
+                        .height(contentPadding.calculateTopPadding()).background(
+                    Color.Transparent)
+                )
+            }
         }
     }
 }
@@ -120,14 +161,19 @@ fun CalendarContent(
                 it.month.year == today.year
                         && it.month.monthNumber == today.monthNumber
             }
-            //lazyColumnListState.scrollToItem(itemPos)
+            lazyColumnListState.scrollToItem(itemPos)
         }
     }
 
     LazyColumn(
         modifier = modifier,
         state = lazyColumnListState,
-        contentPadding = contentPadding,
+        contentPadding = PaddingValues(
+            start = contentPadding.calculateLeftPadding(LayoutDirection.Ltr),
+            top = contentPadding.calculateTopPadding(),
+            end = contentPadding.calculateRightPadding(LayoutDirection.Ltr),
+            bottom = contentPadding.calculateBottomPadding()
+        ),
     ) {
         when (historyUiState) {
             WorkoutHistoryUiState.Loading -> {
@@ -141,13 +187,14 @@ fun CalendarContent(
                     }
                 }
             }
+
             is WorkoutHistoryUiState.Success -> {
                 items(
                     items = historyUiState.calendarItems,
                     key = { it.month.toEpochDays() },
                 ) { calendarItem ->
                     WorkoutHistoryCalendarView(
-                        modifier = Modifier.wrapContentSize().height(200.dp).background(Color.Green),
+                        modifier = Modifier.wrapContentWidth().wrapContentHeight(),
                         monthCalendarData = calendarItem,
                         onClick = { selectedDate ->
                             onCalendarDayClick(selectedDate.day)

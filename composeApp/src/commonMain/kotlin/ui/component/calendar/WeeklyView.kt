@@ -26,15 +26,16 @@
 package ui.component.calendar
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -44,6 +45,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -69,6 +72,8 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.todayIn
+import ui.extension.LocalNavAnimatedVisibilityScope
+import ui.extension.LocalSharedTransitionScope
 
 @Composable
 fun WeekView(
@@ -140,6 +145,7 @@ fun WeekView(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun WeekView(
     modifier: Modifier = Modifier,
@@ -147,67 +153,93 @@ fun WeekView(
     onMonthNameClick: () -> Unit,
     onWeekDayClick: (LocalDate) -> Unit,
 ) {
-    Surface(
-        modifier = modifier,
-        color = Color.Transparent,
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(2.dp),
+
+    val sharedTransitionScope = LocalSharedTransitionScope.current
+        ?: throw IllegalStateException("No sharedTransitionScope found")
+    val animatedVisibilityScope = LocalNavAnimatedVisibilityScope.current
+        ?: throw IllegalStateException("No animatedVisibilityScope found")
+
+    with(sharedTransitionScope) {
+        Surface(
+            modifier = modifier,
+            color = Color.Transparent,
         ) {
-            AnimatedContent(
-                targetState = listWeeklyUiData.isNotEmpty(),
-                transitionSpec = {
-                    fadeIn().togetherWith(fadeOut())
-                },
-            ) { weeklyDataAvailable ->
-                if (weeklyDataAvailable) {
-                    Row {
-                        val firstData = listWeeklyUiData.first()
-                        WeeklyViewGrid(
-                            upperLabel = firstData.upperLabel,
-                            lowerLabel = firstData.lowerLabel,
-                            onClick = {
-                                onMonthNameClick()
-                            },
-                        )
-
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Box(
-                            modifier = Modifier.width(1.dp).height(32.dp)
-                                .background(
-                                    MaterialTheme.colorScheme.surfaceContainerHighest,
-                                    RoundedCornerShape(.5.dp),
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(2.dp)
+            ) {
+                AnimatedContent(
+                    targetState = listWeeklyUiData.isNotEmpty(),
+                    transitionSpec = {
+                        fadeIn().togetherWith(fadeOut())
+                    },
+                ) { weeklyDataAvailable ->
+                    if (weeklyDataAvailable) {
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            val firstData = listWeeklyUiData.first()
+                            Card(
+                                modifier = Modifier
+                                    .weight(1F)
+                                    .sharedBounds(
+                                        rememberSharedContentState(
+                                            key = "calender-screen"
+                                        ),
+                                        animatedVisibilityScope = animatedVisibilityScope,
+                                    ),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = Color.Transparent,
+                                ),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                WeeklyViewGrid(
+                                    upperLabel = firstData.upperLabel,
+                                    lowerLabel = firstData.lowerLabel,
+                                    onClick = {
+                                        onMonthNameClick.invoke()
+                                    },
                                 )
-                                .align(Alignment.CenterVertically),
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-
-                        listWeeklyUiData.subList(1, listWeeklyUiData.size).forEachIndexed { index, item ->
-                            WeeklyViewGrid(
-                                modifier = Modifier.alpha(if (item.isFuture) .4F else 1F),
-                                upperLabel = item.upperLabel,
-                                lowerLabel = item.lowerLabel,
-                                isToday = item.isToday,
-                                hasDot = item.hasActivity,
-                                clickEnabled = !item.isFuture,
-                                onClick = {
-                                    onWeekDayClick(item.date)
-                                },
-                            )
-                            if (index != 6) {
-                                Spacer(modifier = Modifier.width(8.dp))
                             }
+
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Box(
+                                modifier = Modifier.width(1.dp).height(32.dp)
+                                    .background(
+                                        MaterialTheme.colorScheme.surfaceContainerHighest,
+                                        RoundedCornerShape(.5.dp),
+                                    )
+                                    .align(Alignment.CenterVertically),
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+
+                            listWeeklyUiData.subList(1, listWeeklyUiData.size)
+                                .forEachIndexed { index, item ->
+                                    WeeklyViewGrid(
+                                        modifier = Modifier.weight(1F).alpha(if (item.isFuture) .4F else 1F),
+                                        upperLabel = item.upperLabel,
+                                        lowerLabel = item.lowerLabel,
+                                        isToday = item.isToday,
+                                        hasDot = item.hasActivity,
+                                        clickEnabled = !item.isFuture,
+                                        onClick = {
+                                            onWeekDayClick(item.date)
+                                        },
+                                    )
+                                    if (index != 6) {
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                    }
+                                }
                         }
+                    } else {
+                        Box(
+                            modifier = Modifier.fillMaxWidth().height(64.dp).background(
+                                MaterialTheme.colorScheme.surfaceContainerHigh,
+                                RoundedCornerShape(MaterialTheme.shapes.medium.topEnd),
+                            ),
+                        )
                     }
-                } else {
-                    Box(
-                        modifier = Modifier.fillMaxWidth().height(64.dp).background(
-                            MaterialTheme.colorScheme.surfaceContainerHigh,
-                            RoundedCornerShape(MaterialTheme.shapes.medium.topEnd),
-                        ),
-                    )
                 }
             }
         }
@@ -215,7 +247,7 @@ fun WeekView(
 }
 
 @Composable
-private fun RowScope.WeeklyViewGrid(
+private fun WeeklyViewGrid(
     modifier: Modifier = Modifier,
     upperLabel: String,
     lowerLabel: String,
@@ -227,7 +259,6 @@ private fun RowScope.WeeklyViewGrid(
     Column(
         modifier = modifier.then(
             Modifier
-                .weight(1F)
                 .clip(RoundedCornerShape(8.dp))
                 .clickable(enabled = clickEnabled) {
                     onClick()
