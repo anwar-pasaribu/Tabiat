@@ -46,6 +46,7 @@ import domain.usecase.FilterExerciseByTargetMuscleCategoryUseCase
 import domain.usecase.GetExerciseByIdUseCase
 import domain.usecase.GetExerciseListByWorkoutPlanUseCase
 import domain.usecase.GetExerciseListUseCase
+import domain.usecase.GetExerciseLogCountByDateTimeStampUseCase
 import domain.usecase.GetExerciseLogListByDateTimeStampUseCase
 import domain.usecase.GetExerciseLogListByExerciseIdUseCase
 import domain.usecase.GetExerciseSetListUseCase
@@ -60,9 +61,11 @@ import domain.usecase.ResetAllYesterdayActivitiesUseCase
 import domain.usecase.SaveRunningTimerPreferencesUseCase
 import domain.usecase.SearchExerciseUseCase
 import domain.usecase.UpdateWorkoutExerciseRepsAndWeightUseCase
+import domain.usecase.detail.GetExerciseListWithProgressByWorkoutPlanUseCase
 import domain.usecase.personalization.GetWorkoutPlanPersonalizationUseCase
 import domain.usecase.personalization.SetWorkoutPlanPersonalizationUseCase
 import features.createNewExercise.CreateExerciseScreenViewModel
+import features.exerciseDetail.ExerciseDetailScreenViewModel
 import features.exerciseList.ExerciseListScreenViewModel
 import features.home.HomeScreenViewModel
 import features.inputExercise.InputExerciseScreenViewModel
@@ -162,6 +165,9 @@ fun appModule() = module {
     single {
         GetExerciseLogListByDateTimeStampUseCase(repository = get())
     }
+
+    singleOf(::GetExerciseLogCountByDateTimeStampUseCase)
+
     singleOf(::GetExerciseLogListByExerciseIdUseCase)
 
     single {
@@ -188,6 +194,8 @@ fun appModule() = module {
 
     singleOf(::SetWorkoutPlanPersonalizationUseCase)
     singleOf(::GetWorkoutPlanPersonalizationUseCase)
+
+    singleOf(::GetExerciseListWithProgressByWorkoutPlanUseCase)
 }
 
 fun viewModels() = module {
@@ -199,13 +207,15 @@ fun viewModels() = module {
 
     factoryOf(::InputWorkoutScreenViewModel)
 
-    factoryOf(::WorkoutHistoryScreenViewModel)
+    singleOf(::WorkoutHistoryScreenViewModel)
 
-    factoryOf(::WorkoutDetailScreenViewModel)
+    singleOf(::WorkoutDetailScreenViewModel)
 
     singleOf(::ExerciseListScreenViewModel)
 
     factoryOf(::LogWorkoutExerciseScreenViewModel)
+
+    factoryOf(::ExerciseDetailScreenViewModel)
 
     singleOf(::CreateExerciseScreenViewModel)
 

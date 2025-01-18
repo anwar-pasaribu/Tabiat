@@ -28,14 +28,76 @@ package data.source.local.dao
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import com.unwur.tabiatmu.database.TabiatDatabase
+import domain.model.detail.DetailItemEntity
 import domain.model.gym.WorkoutPlan
+import domain.model.home.HomeItemEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.json.Json
 
 class WorkoutPlanDao(
     private val database: TabiatDatabase,
 ) : IWorkoutPlanDao {
+
+    private fun getDecodedListFromJsonString(jsonString: String): List<String> {
+        return try {
+            Json.decodeFromString<List<String>>(jsonString)
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    override fun getAllWorkoutPlanWithProgressObservable(): Flow<List<HomeItemEntity>> {
+        return database
+            .workoutPlanQueries
+            .selectAllWorkoutPlanWithProgress()
+            .asFlow()
+            .mapToList(Dispatchers.Default)
+            .map { woPlanWithProgressList ->
+                woPlanWithProgressList.map {
+                    val imageUrlList = getDecodedListFromJsonString(it.exerciseImage.orEmpty())
+                    HomeItemEntity(
+                        workoutPlanId = it.workoutPlanId,
+                        workoutPlanName = it.workoutPlanName,
+                        workoutPlanDescription = it.workoutDescription,
+                        exerciseId = it.exerciseId,
+                        exerciseName = it.exerciseName,
+                        exerciseImageUrl = imageUrlList.firstOrNull().orEmpty(),
+                        totalTaskCount = it.total.toInt(),
+                        progress = it.progress?.toInt() ?: 0,
+                        workoutPlanColorTheme = it.colorTheme.orEmpty(),
+                        lastFinishedDateTime = it.lastFinishedDateTime ?: 0L,
+                        lastReps = it.lastReps.toInt(),
+                        lastWeight = it.lastWeight.toInt(),
+                    )
+                }
+            }
+    }
+
+    override fun getAllWorkoutPlanExerciseWithProgressObservable(workoutPlanId: Long): Flow<List<DetailItemEntity>> {
+        return database
+            .workoutPlanQueries
+            .selectAllWorkoutExerciseListWithProgress(workoutPlanId)
+            .asFlow()
+            .mapToList(Dispatchers.Default)
+            .map { workoutPlanExerciseList ->
+                workoutPlanExerciseList.map {
+                    val imageUrlList = getDecodedListFromJsonString(it.exerciseImageUrlList.orEmpty())
+                    DetailItemEntity(
+                        workoutPlanId = it.workoutPlanId,
+                        workoutPlanName = it.workoutPlanName,
+                        workoutPlanDescription = it.workoutPlanDescription,
+                        exerciseId = it.exerciseId,
+                        exerciseName = it.exerciseName,
+                        exerciseImageUrlList = imageUrlList,
+                        totalExerciseSet = it.totalExerciseSet.toInt(),
+                        totalFinishedSet = it.totalFinishedSet?.toInt() ?: 0,
+                    )
+                }
+            }
+    }
+
     override fun getAllWorkoutPlanObservable(): Flow<List<WorkoutPlan>> {
         return database.workoutPlanQueries.selectAllWorkoutPlan()
             .asFlow()

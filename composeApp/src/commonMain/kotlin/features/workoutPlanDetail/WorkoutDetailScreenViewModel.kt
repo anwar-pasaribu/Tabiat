@@ -27,17 +27,21 @@ package features.workoutPlanDetail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import domain.model.gym.ExerciseProgress
+import domain.model.detail.DetailItemEntity
 import domain.repository.IGymRepository
 import domain.usecase.GetExerciseListByWorkoutPlanUseCase
 import domain.usecase.GetWorkoutPlanByIdUseCase
+import domain.usecase.detail.GetExerciseListWithProgressByWorkoutPlanUseCase
 import domain.usecase.personalization.GetWorkoutPlanPersonalizationUseCase
 import features.workoutPlanDetail.model.WorkoutPlanDetailUiData
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 sealed class WorkoutDetailUiState {
     data object Loading : WorkoutDetailUiState()
@@ -51,10 +55,11 @@ class WorkoutDetailScreenViewModel(
     private val getExerciseListByWorkoutPlanUseCase: GetExerciseListByWorkoutPlanUseCase,
     private val getWorkoutPlanByIdUseCase: GetWorkoutPlanByIdUseCase,
     private val getWoPersonalizationUseCase: GetWorkoutPlanPersonalizationUseCase,
+    private val getExerciseListWithProgressByWorkoutPlanUseCase: GetExerciseListWithProgressByWorkoutPlanUseCase,
 ) : ViewModel() {
 
-    private val _exerciseListStateFlow = MutableStateFlow(emptyList<ExerciseProgress>())
-    val exerciseListStateFlow: StateFlow<List<ExerciseProgress>> =
+    private val _exerciseListStateFlow = MutableStateFlow(emptyList<DetailItemEntity>())
+    val exerciseListStateFlow: StateFlow<List<DetailItemEntity>> =
         _exerciseListStateFlow.asStateFlow()
 
     private val _workoutPlanStateFlow =
@@ -63,16 +68,10 @@ class WorkoutDetailScreenViewModel(
 
     private fun loadWorkoutPlanExercises(workoutPlanId: Long) {
         viewModelScope.launch {
-            getExerciseListByWorkoutPlanUseCase(workoutPlanId).collect { exerciseList ->
-                _exerciseListStateFlow.emit(
-                    exerciseList.map { exercise ->
-                        repository.getWorkoutPlanExerciseProgress(
-                            workoutPlanId = workoutPlanId,
-                            exerciseId = exercise.id,
-                        )
-                    },
-                )
-            }
+            getExerciseListWithProgressByWorkoutPlanUseCase.invoke(workoutPlanId)
+                .collect { exerciseList ->
+                    _exerciseListStateFlow.emit(exerciseList)
+                }
         }
     }
 
@@ -101,7 +100,11 @@ class WorkoutDetailScreenViewModel(
     }
 
     fun loadWorkoutPlanDetails(workoutPlanId: Long) {
-        loadWorkoutPlanExercises(workoutPlanId = workoutPlanId)
-        loadWorkoutPlanById(workoutPlanId = workoutPlanId)
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                loadWorkoutPlanExercises(workoutPlanId = workoutPlanId)
+                loadWorkoutPlanById(workoutPlanId = workoutPlanId)
+            }
+        }
     }
 }

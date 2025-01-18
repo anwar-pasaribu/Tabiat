@@ -23,19 +23,32 @@
  *
  * Project Name: Tabiat
  */
-package features.home.model
+package features.exerciseDetail
 
-import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import domain.usecase.GetExerciseByIdUseCase
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
-data class HomeListItemUiData(
-    val workoutPlanId: Long,
-    val title: String,
-    val description: String,
-    val exerciseImageUrl: String,
-    val lastActivityDate: String,
-    val lastActivityDetail: String,
-    val total: Int,
-    val progress: Int,
-    val backgroundColor: Color,
-    val rawColorTheme: String,
-)
+class ExerciseDetailScreenViewModel(
+    private val getExerciseByIdUseCase: GetExerciseByIdUseCase,
+) : ViewModel() {
+
+    private val _exerciseName = MutableStateFlow("")
+    val exerciseName: StateFlow<String> = _exerciseName.asStateFlow()
+
+    private val _exercisePics = MutableStateFlow(emptyList<String>())
+    val exercisePics: StateFlow<List<String>> = _exercisePics.asStateFlow()
+
+    fun loadExercise(exerciseId: Long) {
+        viewModelScope.launch {
+            val exercise = getExerciseByIdUseCase.invoke(exerciseId)
+            _exerciseName.value = exercise.name
+            _exercisePics.value = exercise.imageList
+        }
+    }
+
+}

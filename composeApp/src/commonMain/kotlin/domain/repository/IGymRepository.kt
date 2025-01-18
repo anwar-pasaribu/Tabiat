@@ -25,6 +25,7 @@
  */
 package domain.repository
 
+import domain.model.detail.DetailItemEntity
 import domain.model.gym.Exercise
 import domain.model.gym.ExerciseLog
 import domain.model.gym.ExerciseProgress
@@ -33,9 +34,14 @@ import domain.model.gym.GymPreferences
 import domain.model.gym.WorkoutPlan
 import domain.model.gym.WorkoutPlanExercise
 import domain.model.gym.WorkoutPlanProgress
+import domain.model.home.HomeItemEntity
 import kotlinx.coroutines.flow.Flow
 
 interface IGymRepository {
+    fun getPlanProgressListObservable(): Flow<List<HomeItemEntity>>
+
+    fun getPlanExerciseListObservable(workoutPlanId: Long): Flow<List<DetailItemEntity>>
+
     suspend fun resetAllYesterdayActivities()
     suspend fun createWorkoutPlan(workoutName: String, notes: String): Boolean
     suspend fun updateWorkoutPlan(workoutPlanId: Long, workoutName: String, notes: String): Boolean
@@ -85,6 +91,8 @@ interface IGymRepository {
     ): Boolean
 
     suspend fun getExerciseLogListByDateTimeStamp(dateTimeStamp: Long): List<ExerciseLog>
+
+    suspend fun getExerciseLogCountByDateTimeStamp(dateTimeStamp: Long): Int
 
     suspend fun getExerciseLogListByExerciseId(exerciseId: Long): Flow<List<ExerciseLog>>
 

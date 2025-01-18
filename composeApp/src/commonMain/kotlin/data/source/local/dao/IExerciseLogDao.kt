@@ -41,6 +41,11 @@ interface IExerciseLogDao {
         endDateTime: Long,
     ): List<ExerciseLog>
 
+    suspend fun getExerciseLogCountByDateTimeRange(
+        startDateTime: Long,
+        endDateTime: Long,
+    ): Int
+
     suspend fun getExerciseLogByExerciseId(
         exerciseId: Long,
     ): Flow<List<ExerciseLog>>

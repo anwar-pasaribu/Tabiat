@@ -23,19 +23,16 @@
  *
  * Project Name: Tabiat
  */
-package features.home.model
+package domain.usecase.detail
 
-import androidx.compose.ui.graphics.Color
+import domain.model.detail.DetailItemEntity
+import domain.repository.IGymRepository
+import kotlinx.coroutines.flow.Flow
 
-data class HomeListItemUiData(
-    val workoutPlanId: Long,
-    val title: String,
-    val description: String,
-    val exerciseImageUrl: String,
-    val lastActivityDate: String,
-    val lastActivityDetail: String,
-    val total: Int,
-    val progress: Int,
-    val backgroundColor: Color,
-    val rawColorTheme: String,
-)
+class GetExerciseListWithProgressByWorkoutPlanUseCase(
+    private val repository: IGymRepository,
+) {
+    operator fun invoke(workoutPlanId: Long): Flow<List<DetailItemEntity>> {
+        return repository.getPlanExerciseListObservable(workoutPlanId)
+    }
+}

@@ -25,29 +25,24 @@
  */
 package features.workoutHistory
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
+import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -67,29 +62,31 @@ import dev.chrisbanes.haze.haze
 import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
-import features.workoutHistory.model.MonthCalendarData
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 import org.koin.compose.koinInject
+import ui.extension.LocalNavAnimatedVisibilityScope
+import ui.extension.LocalSharedTransitionScope
+import ui.extension.tabiatDetailBoundsTransform
 
 
-@OptIn(ExperimentalHazeMaterialsApi::class)
+@OptIn(ExperimentalSharedTransitionApi::class, ExperimentalHazeMaterialsApi::class)
 @Composable
 fun WorkoutHistoryScreen(
     contentPadding: PaddingValues,
-    hazeState: HazeState,
 ) {
-    var showSheet by remember { mutableStateOf(false) }
 
     val viewModel = koinInject<WorkoutHistoryScreenViewModel>()
-    val historyUiState by viewModel.uiStateMutableStateFlow.collectAsState()
+    val historyUiState by viewModel.historyUiState.collectAsState()
+    val hazeState = remember { HazeState() }
 
     LaunchedEffect(Unit) {
         viewModel.loadCalenderData()
     }
 
+    var showSheet by remember { mutableStateOf(false) }
     if (showSheet) {
         ExerciseLogListBottomSheet(
             targetDateTimeStamp = viewModel.selectedTimeStamp.collectAsState().value,
@@ -99,85 +96,112 @@ fun WorkoutHistoryScreen(
         )
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    val sharedTransitionScope = LocalSharedTransitionScope.current
+        ?: throw IllegalStateException("No sharedTransitionScope found")
+    val animatedVisibilityScope = LocalNavAnimatedVisibilityScope.current
+        ?: throw IllegalStateException("No animatedVisibilityScope found")
 
-        val paddingValues = PaddingValues(
-            start = contentPadding.calculateStartPadding(LayoutDirection.Ltr),
-            top = contentPadding.calculateTopPadding() + 16.dp,
-            end = contentPadding.calculateEndPadding(LayoutDirection.Ltr),
-            bottom = contentPadding.calculateBottomPadding() + WindowInsets.systemBars.asPaddingValues()
-                .calculateBottomPadding(),
-        )
-
-        AnimatedContent(
-            targetState = historyUiState,
-            transitionSpec = { (fadeIn()).togetherWith(fadeOut()) },
-        ) { uiState ->
-            when (uiState) {
-                WorkoutHistoryUiState.Loading -> {
-                    Column(
-                        modifier = Modifier.fillMaxSize().padding(paddingValues),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
-                    ) {
-                        CircularProgressIndicator(Modifier.size(32.dp))
-                    }
-                }
-
-                is WorkoutHistoryUiState.Success -> {
-                    CalendarContent(
-                        calendarList = uiState.calendarItems,
-                        contentPadding = paddingValues,
-                        hazeState = hazeState,
-                        onCalendarDayClick = {
-                            showSheet = true
-                            viewModel.setSelectedDate(it)
-                        },
-                    )
-                }
+    with(sharedTransitionScope) {
+        Card(
+            modifier = Modifier
+                .sharedBounds(
+                    rememberSharedContentState(
+                        key = "calender-screen"
+                    ),
+                    animatedVisibilityScope = animatedVisibilityScope,
+                    boundsTransform = tabiatDetailBoundsTransform,
+                )
+                .fillMaxSize(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.background,
+                contentColor = MaterialTheme.colorScheme.onBackground,
+            )
+        ) {
+            Box(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                CalendarContent(
+                    modifier = Modifier.fillMaxSize().haze(hazeState),
+                    historyUiState = historyUiState,
+                    onCalendarDayClick = {
+                        showSheet = true
+                        viewModel.setSelectedDate(it)
+                    },
+                    contentPadding = contentPadding,
+                )
+                Spacer(
+                    Modifier
+                        .hazeChild(
+                            state = hazeState,
+                            style = HazeMaterials.thin(),
+                        )
+                        .fillMaxWidth()
+                        .height(contentPadding.calculateTopPadding()).background(
+                    Color.Transparent)
+                )
             }
         }
-
-        Spacer(
-            Modifier.fillMaxWidth().height(contentPadding.calculateTopPadding()).hazeChild(
-                state = hazeState,
-                style = HazeMaterials.thick(MaterialTheme.colorScheme.background),
-            ).align(Alignment.TopCenter).background(Color.Transparent)
-        )
     }
 }
 
 @Composable
 fun CalendarContent(
     modifier: Modifier = Modifier,
-    calendarList: List<MonthCalendarData>,
+    historyUiState: WorkoutHistoryUiState,
     onCalendarDayClick: (LocalDate) -> Unit,
     contentPadding: PaddingValues,
-    hazeState: HazeState,
 ) {
+
     val lazyColumnListState = rememberLazyListState()
 
-    LaunchedEffect(Unit) {
-        val today = Clock.System.todayIn(TimeZone.currentSystemDefault()).month
-        val itemPos = calendarList.indexOfFirst { it.month.month == today }
-        lazyColumnListState.scrollToItem(itemPos)
+    LaunchedEffect(historyUiState) {
+        if (historyUiState is WorkoutHistoryUiState.Success) {
+            val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+            val itemPos = historyUiState.calendarItems.indexOfFirst {
+                it.month.year == today.year
+                        && it.month.monthNumber == today.monthNumber
+            }
+            lazyColumnListState.scrollToItem(itemPos)
+        }
     }
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize().haze(state = hazeState).then(modifier),
+        modifier = modifier,
         state = lazyColumnListState,
-        contentPadding = contentPadding,
+        contentPadding = PaddingValues(
+            start = contentPadding.calculateLeftPadding(LayoutDirection.Ltr),
+            top = contentPadding.calculateTopPadding(),
+            end = contentPadding.calculateRightPadding(LayoutDirection.Ltr),
+            bottom = contentPadding.calculateBottomPadding()
+        ),
     ) {
-        items(
-            items = calendarList,
-            key = { it.month.monthNumber },
-        ) { calendarItem ->
-            WorkoutHistoryCalendarView(
-                monthCalendarData = calendarItem,
-                onClick = { selectedDate ->
-                    onCalendarDayClick(selectedDate.day)
-                },
-            )
+        when (historyUiState) {
+            WorkoutHistoryUiState.Loading -> {
+                item {
+                    Column(
+                        modifier = Modifier.fillMaxWidth().height(200.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        CircularProgressIndicator(Modifier.size(32.dp))
+                    }
+                }
+            }
+
+            is WorkoutHistoryUiState.Success -> {
+                items(
+                    items = historyUiState.calendarItems,
+                    key = { it.month.toEpochDays() },
+                ) { calendarItem ->
+                    WorkoutHistoryCalendarView(
+                        modifier = Modifier.wrapContentWidth().wrapContentHeight(),
+                        monthCalendarData = calendarItem,
+                        onClick = { selectedDate ->
+                            onCalendarDayClick(selectedDate.day)
+                        },
+                    )
+                }
+            }
         }
     }
 }

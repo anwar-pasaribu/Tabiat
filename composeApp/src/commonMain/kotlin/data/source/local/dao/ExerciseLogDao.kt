@@ -75,6 +75,15 @@ class ExerciseLogDao(
             }
     }
 
+    override suspend fun getExerciseLogCountByDateTimeRange(
+        startDateTime: Long,
+        endDateTime: Long
+    ): Int {
+        return database.exerciseLogQueries
+            .countExerciseLogByDateTimeStampRange(startDateTime, endDateTime)
+            .executeAsOneOrNull()?.toInt() ?: 0
+    }
+
     override suspend fun insertExerciseLog(
         exerciseId: Long,
         workoutPlanId: Long,

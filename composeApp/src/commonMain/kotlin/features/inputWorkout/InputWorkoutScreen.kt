@@ -25,8 +25,6 @@
  */
 package features.inputWorkout
 
-import LocalNavAnimatedVisibilityScope
-import LocalSharedTransitionScope
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.core.animateFloatAsState
@@ -68,12 +66,14 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
-import nonSpatialExpressiveSpring
 import org.koin.compose.koinInject
-import tabiatDetailBoundsTransform
 import ui.TabiatSharedElementKey
 import ui.TabiatSharedElementType
 import ui.component.MyPrimaryButton
+import ui.extension.LocalNavAnimatedVisibilityScope
+import ui.extension.LocalSharedTransitionScope
+import ui.extension.nonSpatialExpressiveSpring
+import ui.extension.tabiatDetailBoundsTransform
 
 @OptIn(
     ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class,

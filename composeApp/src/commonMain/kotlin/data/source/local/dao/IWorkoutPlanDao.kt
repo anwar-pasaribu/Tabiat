@@ -25,10 +25,14 @@
  */
 package data.source.local.dao
 
+import domain.model.detail.DetailItemEntity
 import domain.model.gym.WorkoutPlan
+import domain.model.home.HomeItemEntity
 import kotlinx.coroutines.flow.Flow
 
 interface IWorkoutPlanDao {
+    fun getAllWorkoutPlanWithProgressObservable(): Flow<List<HomeItemEntity>>
+    fun getAllWorkoutPlanExerciseWithProgressObservable(workoutPlanId: Long): Flow<List<DetailItemEntity>>
     fun getAllWorkoutPlanObservable(): Flow<List<WorkoutPlan>>
     suspend fun getAllWorkoutPlan(): List<WorkoutPlan>
     suspend fun getLatestWorkoutPlan(): WorkoutPlan

@@ -23,19 +23,16 @@
  *
  * Project Name: Tabiat
  */
-package features.home.model
+package domain.usecase
 
-import androidx.compose.ui.graphics.Color
+import domain.repository.IGymRepository
 
-data class HomeListItemUiData(
-    val workoutPlanId: Long,
-    val title: String,
-    val description: String,
-    val exerciseImageUrl: String,
-    val lastActivityDate: String,
-    val lastActivityDetail: String,
-    val total: Int,
-    val progress: Int,
-    val backgroundColor: Color,
-    val rawColorTheme: String,
-)
+class GetExerciseLogCountByDateTimeStampUseCase(
+    private val repository: IGymRepository,
+) {
+    suspend operator fun invoke(
+        dateTimeStamp: Long,
+    ): Int {
+        return repository.getExerciseLogCountByDateTimeStamp(dateTimeStamp)
+    }
+}

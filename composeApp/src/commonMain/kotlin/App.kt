@@ -23,20 +23,10 @@
  *
  * Project Name: Tabiat
  */
-import androidx.compose.animation.AnimatedContentScope
-import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.BoundsTransform
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
-import androidx.compose.animation.SharedTransitionScope
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
@@ -57,21 +47,15 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavDeepLink
 import androidx.navigation.NavDestination.Companion.hasRoute
-import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
@@ -80,6 +64,7 @@ import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import features.createNewExercise.CreateExerciseScreen
+import features.exerciseDetail.FullImageViewerScreen
 import features.home.HomeScreen
 import features.inputExercise.InputExerciseScreen
 import features.inputWorkout.InputWorkoutScreen
@@ -98,24 +83,28 @@ import ui.component.AddIconButton
 import ui.component.BackButton
 import ui.component.ImageWrapper
 import ui.component.gym.FloatingTimerView
+import ui.extension.LocalSharedTransitionScope
+import ui.extension.composableScaleWithCompositionLocal
+import ui.extension.composableSlideWithCompositionLocal
+import ui.extension.composableWithCompositionLocal
 import ui.theme.MyAppTheme
-import kotlin.jvm.JvmSuppressWildcards
-import kotlin.reflect.KType
 
 sealed class MyAppRoute {
     @Serializable object Home
-    @Serializable class InputWorkout(val workoutPlanId: Long = 0L)
-    @Serializable class WorkoutDetail(val workoutPlanId: Long)
-    @Serializable class InputExercise(val workoutPlanId: Long)
-    @Serializable class LogWorkoutExercise(val currentWorkoutPlanId: Long, val currentExerciseId: Long)
-    @Serializable object WorkoutHistory
-    @Serializable object CreateNewExercise
-    @Serializable object Settings
+    @Serializable data class InputWorkout(val workoutPlanId: Long = 0L) : MyAppRoute()
+    @Serializable data class WorkoutDetail(val workoutPlanId: Long, val targetColorTheme: String = "")
+    @Serializable data class InputExercise(val workoutPlanId: Long) : MyAppRoute()
+    @Serializable data class LogWorkoutExercise(val currentWorkoutPlanId: Long, val currentExerciseId: Long) : MyAppRoute()
+    @Serializable data object WorkoutHistory : MyAppRoute()
+    @Serializable data object CreateNewExercise : MyAppRoute()
+    @Serializable data object Settings : MyAppRoute()
+    @Serializable data class FullImageViewer(
+        val exerciseId: Long,
+        val imageUrl: String
+    ) : MyAppRoute()
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class, ExperimentalAnimationApi::class,
-    ExperimentalHazeMaterialsApi::class
-)
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 @Preview
 fun App(
@@ -125,14 +114,6 @@ fun App(
     KoinContext {
         MyAppTheme(useDarkColors = shouldDarkTheme) {
             val navViewModel = koinInject<NavigationViewModel>()
-            val homeScreenVisible = remember { mutableStateOf(true) }
-            val logExerciseScreenVisible = remember { mutableStateOf(false) }
-            val navBackStackEntry by navController.currentBackStackEntryAsState()
-            navBackStackEntry?.destination?.let { currentDestination ->
-                homeScreenVisible.value = currentDestination.hasRoute(MyAppRoute.Home::class)
-                logExerciseScreenVisible.value = currentDestination.hasRoute(MyAppRoute.LogWorkoutExercise::class)
-            }
-
             val hazeState = remember { HazeState() }
 
             Box(Modifier.fillMaxSize()) {
@@ -142,52 +123,11 @@ fun App(
                     ) {
                         Scaffold(
                             topBar = {
-                                CenterAlignedTopAppBar(
-                                    modifier = Modifier.fillMaxWidth().hazeChild(
-                                        state = hazeState,
-                                        style = HazeMaterials.regular(MaterialTheme.colorScheme.background),
-                                    ) {
-                                        alpha = 0F
-                                    },
-                                    colors = TopAppBarDefaults.topAppBarColors(Color.Transparent),
-                                    title = {
-                                        if (homeScreenVisible.value) {
-                                            ImageWrapper(
-                                                resource = Res.drawable.tabiat_icon_32dp,
-                                                contentDescription = "Tabiat App Icon",
-                                            )
-                                        }
-                                    },
-                                    navigationIcon = {
-                                        if (homeScreenVisible.value) {
-                                            IconButton(onClick = {
-                                                navController.navigate(
-                                                    MyAppRoute.Settings
-                                                )
-                                            }) {
-                                                Icon(
-                                                    imageVector = Icons.Outlined.Settings,
-                                                    contentDescription = "Setting Menu",
-                                                )
-                                            }
-                                        } else {
-                                            BackButton(
-                                                showBackground = true
-                                            ) {
-                                                navController.navigateUp()
-                                            }
-                                        }
-                                    },
-                                    actions = {
-                                        if (homeScreenVisible.value) {
-                                            AddIconButton(
-                                                onClick = {
-                                                    navController.navigate(MyAppRoute.InputWorkout())
-                                                }
-                                            )
-                                            Spacer(Modifier.width(8.dp))
-                                        }
-                                    },
+                                AppTopBar(
+                                    hazeState = hazeState,
+                                    navController = navController,
+                                    onNavigateBack = { navController.navigateUp() },
+                                    navigateTo = { navController.navigate(it) }
                                 )
                             },
                         ) { contentPadding ->
@@ -195,12 +135,17 @@ fun App(
                                 navController = navController,
                                 startDestination = MyAppRoute.Home,
                             ) {
-                                composableWithCompositionLocal<MyAppRoute.Home> {
+                                composableScaleWithCompositionLocal<MyAppRoute.Home> {
                                     HomeScreen(
                                         paddingValues = contentPadding,
                                         hazeState = hazeState,
                                         onWorkoutDetail = {
-                                            navController.navigate(MyAppRoute.WorkoutDetail(it))
+                                            navController.navigate(
+                                                MyAppRoute.WorkoutDetail(
+                                                    workoutPlanId = it.workoutPlanId,
+                                                    targetColorTheme = it.rawColorTheme
+                                                )
+                                            )
                                         },
                                         onEditWorkout = {
                                             navController.navigate(MyAppRoute.InputWorkout(it))
@@ -213,12 +158,13 @@ fun App(
                                         },
                                     )
                                 }
-                                composableWithCompositionLocal<MyAppRoute.WorkoutDetail> { backStackEntry ->
+                                composableScaleWithCompositionLocal<MyAppRoute.WorkoutDetail> { backStackEntry ->
                                     val workoutDetail: MyAppRoute.WorkoutDetail =
                                         backStackEntry.toRoute()
                                     WorkoutDetailScreen(
                                         paddingValues = contentPadding,
                                         workoutPlanId = workoutDetail.workoutPlanId,
+                                        targetColorTheme = workoutDetail.targetColorTheme,
                                         onBack = {
                                             navController.navigateUp()
                                         },
@@ -237,9 +183,27 @@ fun App(
                                                 )
                                             )
                                         },
+                                        onImageClick = { exerciseId, imageUrl ->
+                                            navController.navigate(
+                                                MyAppRoute.FullImageViewer(
+                                                    exerciseId = exerciseId,
+                                                    imageUrl = imageUrl ?: ""
+                                                )
+                                            )
+                                        }
                                     )
                                 }
-                                composableWithCompositionLocal<MyAppRoute.InputWorkout> {
+                                composableWithCompositionLocal<MyAppRoute.FullImageViewer>{
+                                    val fullImageViewer: MyAppRoute.FullImageViewer = it.toRoute()
+                                    FullImageViewerScreen(
+                                        exerciseId = fullImageViewer.exerciseId,
+                                        imageUrlList = listOf(fullImageViewer.imageUrl),
+                                        onBack = {
+                                            navController.navigateUp()
+                                        },
+                                    )
+                                }
+                                composableSlideWithCompositionLocal<MyAppRoute.InputWorkout> {
                                     val inputWorkout: MyAppRoute.InputWorkout = it.toRoute()
                                     InputWorkoutScreen(
                                         paddingValues = contentPadding,
@@ -252,7 +216,7 @@ fun App(
                                         },
                                     )
                                 }
-                                composableWithCompositionLocal<MyAppRoute.InputExercise> {
+                                composableSlideWithCompositionLocal<MyAppRoute.InputExercise> {
                                     val inputExercise: MyAppRoute.InputExercise = it.toRoute()
                                     InputExerciseScreen(
                                         contentPadding = contentPadding,
@@ -265,7 +229,7 @@ fun App(
                                         },
                                     )
                                 }
-                                composableWithCompositionLocal<MyAppRoute.LogWorkoutExercise> {
+                                composableSlideWithCompositionLocal<MyAppRoute.LogWorkoutExercise> {
                                     val logWorkoutExercise: MyAppRoute.LogWorkoutExercise =
                                         it.toRoute()
                                     LogWorkoutExerciseScreen(
@@ -277,13 +241,12 @@ fun App(
                                         },
                                     )
                                 }
-                                composableWithCompositionLocal<MyAppRoute.WorkoutHistory> {
+                                composableScaleWithCompositionLocal<MyAppRoute.WorkoutHistory> {
                                     WorkoutHistoryScreen(
                                         contentPadding = contentPadding,
-                                        hazeState = hazeState,
                                     )
                                 }
-                                composableWithCompositionLocal<MyAppRoute.CreateNewExercise> {
+                                composableSlideWithCompositionLocal<MyAppRoute.CreateNewExercise> {
                                     CreateExerciseScreen(
                                         contentPadding = contentPadding,
                                         onBack = {
@@ -294,7 +257,7 @@ fun App(
                                         },
                                     )
                                 }
-                                composableWithCompositionLocal<MyAppRoute.Settings> {
+                                composableSlideWithCompositionLocal<MyAppRoute.Settings> {
                                     SettingsScreen(
                                         contentPadding = contentPadding
                                     )
@@ -326,67 +289,70 @@ fun App(
     }
 }
 
-val LocalNavAnimatedVisibilityScope = compositionLocalOf<AnimatedVisibilityScope?> { null }
-
-@OptIn(ExperimentalSharedTransitionApi::class)
-val LocalSharedTransitionScope = compositionLocalOf<SharedTransitionScope?> { null }
-
-val LocalHazeState = compositionLocalOf<HazeState?> { null }
-
-@OptIn(ExperimentalSharedTransitionApi::class)
-val tabiatDetailBoundsTransform = BoundsTransform { _, _ ->
-    spatialExpressiveSpring()
-}
-
-fun <T> spatialExpressiveSpring() = spring<T>(
-    dampingRatio = 0.8f,
-    stiffness = 380f
-)
-
-fun <T> nonSpatialExpressiveSpring() = spring<T>(
-    dampingRatio = 1f,
-    stiffness = 1600f
-)
-
-inline fun <reified T : Any> NavGraphBuilder.composableWithCompositionLocal(
-    typeMap: Map<KType, NavType<*>> = emptyMap(),
-    deepLinks: List<NavDeepLink> = emptyList(),
-    noinline enterTransition: (
-    @JvmSuppressWildcards
-    AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?
-    )? = {
-        fadeIn(nonSpatialExpressiveSpring())
-    },
-    noinline exitTransition: (
-    @JvmSuppressWildcards
-    AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?
-    )? = {
-        fadeOut(nonSpatialExpressiveSpring())
-    },
-    noinline popEnterTransition: (
-    @JvmSuppressWildcards
-    AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?
-    )? =
-        enterTransition,
-    noinline popExitTransition: (
-    @JvmSuppressWildcards
-    AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?
-    )? =
-        exitTransition,
-    crossinline content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit
+@OptIn(ExperimentalHazeMaterialsApi::class)
+@Composable
+fun AppTopBar(
+    modifier: Modifier = Modifier,
+    hazeState: HazeState,
+    navController: NavHostController,
+    onNavigateBack: () -> Unit = {},
+    navigateTo: (MyAppRoute) -> Unit = {}
 ) {
-    composable<T>(
-        typeMap,
-        deepLinks,
-        enterTransition,
-        exitTransition,
-        popEnterTransition,
-        popExitTransition
-    ) {
-        CompositionLocalProvider(
-            LocalNavAnimatedVisibilityScope provides this@composable
-        ) {
-            content(it)
-        }
+    val homeScreenVisible = remember { mutableStateOf(true) }
+    val logExerciseScreenVisible = remember { mutableStateOf(false) }
+    val mediaViewerScreenVisible = remember { mutableStateOf(false) }
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    navBackStackEntry?.destination?.let { currentDestination ->
+        homeScreenVisible.value = currentDestination.hasRoute(MyAppRoute.Home::class)
+        logExerciseScreenVisible.value = currentDestination.hasRoute(MyAppRoute.LogWorkoutExercise::class)
+        mediaViewerScreenVisible.value = currentDestination.hasRoute(MyAppRoute.FullImageViewer::class)
     }
+
+    CenterAlignedTopAppBar(
+        modifier = Modifier.fillMaxWidth().hazeChild(
+            state = hazeState,
+            style = HazeMaterials.regular(MaterialTheme.colorScheme.background),
+        ) {
+            alpha = 0F
+        },
+        colors = TopAppBarDefaults.topAppBarColors(Color.Transparent),
+        title = {
+            if (homeScreenVisible.value) {
+                ImageWrapper(
+                    resource = Res.drawable.tabiat_icon_32dp,
+                    contentDescription = "Tabiat App Icon",
+                )
+            }
+        },
+        navigationIcon = {
+            if (homeScreenVisible.value) {
+                IconButton(onClick = {
+                    navigateTo.invoke(
+                        MyAppRoute.Settings
+                    )
+                }) {
+                    Icon(
+                        imageVector = Icons.Outlined.Settings,
+                        contentDescription = "Setting Menu",
+                    )
+                }
+            } else {
+                BackButton(
+                    showBackground = (logExerciseScreenVisible.value || mediaViewerScreenVisible.value)
+                ) {
+                    onNavigateBack.invoke()
+                }
+            }
+        },
+        actions = {
+            if (homeScreenVisible.value) {
+                AddIconButton(
+                    onClick = {
+                        navigateTo.invoke(MyAppRoute.InputWorkout())
+                    }
+                )
+                Spacer(Modifier.width(8.dp))
+            }
+        },
+    )
 }
