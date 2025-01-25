@@ -25,8 +25,8 @@ SELECT
     wpe.reps AS lastReps,
     wpe.weight AS lastWeight
 FROM WorkoutPlanEntity AS wp
-INNER JOIN WorkoutPlanExerciseEntity AS wpe ON wp.id = wpe.workoutPlanId
-INNER JOIN ExerciseEntity AS e ON wpe.exerciseId = e.id
+LEFT JOIN WorkoutPlanExerciseEntity AS wpe ON wp.id = wpe.workoutPlanId
+LEFT JOIN ExerciseEntity AS e ON wpe.exerciseId = e.id
 LEFT JOIN WorkoutPersonalizationEntity AS wpz ON wp.id = wpz.workoutPlanId
 GROUP BY wp.id;
 

@@ -61,15 +61,15 @@ class WorkoutPlanDao(
                         workoutPlanId = it.workoutPlanId,
                         workoutPlanName = it.workoutPlanName,
                         workoutPlanDescription = it.workoutDescription,
-                        exerciseId = it.exerciseId,
-                        exerciseName = it.exerciseName,
+                        exerciseId = it.exerciseId ?: 0L,
+                        exerciseName = it.exerciseName.orEmpty(),
                         exerciseImageUrl = imageUrlList.firstOrNull().orEmpty(),
                         totalTaskCount = it.total.toInt(),
                         progress = it.progress?.toInt() ?: 0,
                         workoutPlanColorTheme = it.colorTheme.orEmpty(),
                         lastFinishedDateTime = it.lastFinishedDateTime ?: 0L,
-                        lastReps = it.lastReps.toInt(),
-                        lastWeight = it.lastWeight.toInt(),
+                        lastReps = (it.lastReps ?: 0L).toInt(),
+                        lastWeight = (it.lastWeight ?: 0L).toInt(),
                     )
                 }
             }
