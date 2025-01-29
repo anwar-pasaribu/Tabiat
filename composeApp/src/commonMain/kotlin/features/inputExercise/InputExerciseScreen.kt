@@ -54,7 +54,9 @@ fun InputExerciseScreen(
     val hazeState = remember { HazeState() }
     val viewModel = koinInject<InputExerciseScreenViewModel>()
 
-    Surface {
+    Surface(
+        color = androidx.compose.material3.MaterialTheme.colorScheme.background,
+    ) {
         Box(modifier = Modifier.fillMaxSize()) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize().haze(hazeState),
