@@ -119,6 +119,8 @@ kotlin {
 
             implementation("io.github.thechance101:chart:Beta-0.0.5")
 
+            implementation("com.mohamedrejeb.calf:calf-permissions:0.7.0")
+
             // Handle Error
             // Task :composeApp:compileKotlinIosX64 FAILED
             // e: Could not find "co.touchlab:stately-concurrent-collections"
