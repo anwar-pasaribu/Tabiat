@@ -56,6 +56,10 @@ import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import com.mohamedrejeb.calf.permissions.ExperimentalPermissionsApi
+import com.mohamedrejeb.calf.permissions.Permission
+import com.mohamedrejeb.calf.permissions.isNotGranted
+import com.mohamedrejeb.calf.permissions.rememberPermissionState
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.haze
 import dev.chrisbanes.haze.hazeChild
@@ -69,9 +73,11 @@ import org.koin.compose.koinInject
 import ui.component.EmptyState
 import ui.component.InsetNavigationHeight
 import ui.component.calendar.WeekView
+import ui.component.card.NotificationPermissionStatusCard
 import ui.component.gym.LatestExercise
 import ui.component.gym.WorkoutPlanItemView
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun HomeScreen(
     onWorkoutDetail: (HomeListItemUiData) -> Unit = {},
@@ -160,7 +166,7 @@ private fun HomeEmptyState(modifier: Modifier = Modifier, onCta: () -> Unit) {
     }
 }
 
-@OptIn(ExperimentalHazeMaterialsApi::class)
+@OptIn(ExperimentalHazeMaterialsApi::class, ExperimentalPermissionsApi::class)
 @Composable
 fun HomeScreenList(
     modifier: Modifier = Modifier,
@@ -178,6 +184,25 @@ fun HomeScreenList(
 ) {
 
     val lazyListState: LazyListState = rememberLazyListState()
+
+    val notificationCardDismissed = remember {
+        mutableStateOf(false)
+    }
+
+    val launchNotificationRequest = remember {
+        mutableStateOf(false)
+    }
+
+    val notificationPermissionState = rememberPermissionState(
+        Permission.Notification
+    )
+
+    LaunchedEffect(launchNotificationRequest.value) {
+        if (launchNotificationRequest.value) {
+            notificationPermissionState.launchPermissionRequest()
+        }
+    }
+
     Box(modifier = modifier) {
         Column(
             Modifier
@@ -211,12 +236,26 @@ fun HomeScreenList(
             state = lazyListState,
             contentPadding = PaddingValues(
                 start = contentPadding.calculateLeftPadding(LayoutDirection.Ltr) + 8.dp,
-                top = contentPadding.calculateTopPadding() + 72.dp,
+                top = contentPadding.calculateTopPadding() + 80.dp,
                 end = contentPadding.calculateRightPadding(LayoutDirection.Ltr) + 8.dp,
                 bottom = 0.dp
             ),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
+            if (notificationPermissionState.status.isNotGranted
+                && !notificationCardDismissed.value
+                && homeScreenUiState is HomeScreenUiState.Success) {
+                item {
+                    NotificationPermissionStatusCard(
+                        onClick = {
+                            launchNotificationRequest.value = true
+                        },
+                        onDismiss = {
+                            notificationCardDismissed.value = true
+                        }
+                    )
+                }
+            }
             when (homeScreenUiState) {
                 HomeScreenUiState.Empty -> {
                     item {
@@ -225,11 +264,13 @@ fun HomeScreenList(
                         }
                     }
                 }
+
                 HomeScreenUiState.Loading -> {
                     item {
                         HomeLoadingIndicator(Modifier.fillMaxWidth())
                     }
                 }
+
                 is HomeScreenUiState.Success -> {
                     items(
                         items = homeScreenUiState.data,
@@ -263,7 +304,12 @@ fun HomeScreenList(
                             onClick = { onWorkoutDetail(item) },
                             onEditRequest = { onEditWorkout(item.workoutPlanId) },
                             onDeleteRequest = { onDeleteWorkout(item.workoutPlanId) },
-                            onChangeColorRequest = { onChangeWorkoutPlanColor.invoke(item.workoutPlanId, it)},
+                            onChangeColorRequest = {
+                                onChangeWorkoutPlanColor.invoke(
+                                    item.workoutPlanId,
+                                    it
+                                )
+                            },
                         )
                     }
                 }

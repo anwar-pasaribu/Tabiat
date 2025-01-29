@@ -32,7 +32,6 @@ import android.media.AudioManager
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
-import android.provider.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -100,6 +99,7 @@ actual fun PlayHapticAndSound(trigger: Any) {
                     ),
                 )
             }
+
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
                 haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
             }
@@ -112,36 +112,46 @@ actual fun SendNotification(title: String, body: String) {
     val context = LocalContext.current
 
     // Create a PendingIntent
-    val intent = Intent(context, MainActivity::class.java)
+    val intent = Intent(context, MainActivity::class.java).apply {
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+    }
     val pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
     // Create a notification channel for Android 8.0 and above
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         val channel = NotificationChannel(
-            "YOUR_CHANNEL_ID",
-            "YOUR_CHANNEL_NAME",
+            AndroidNotificationChannel.EXERCISE_TIMER.channelId,
+            AndroidNotificationChannel.EXERCISE_TIMER.channelName,
             NotificationManager.IMPORTANCE_HIGH,
         )
+        channel.description = "Exercise"
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
     }
 
     // Build the notification
-    val notificationBuilder = NotificationCompat.Builder(context, "YOUR_CHANNEL_ID")
+    val notificationBuilder = NotificationCompat.Builder(
+        context,
+        AndroidNotificationChannel.EXERCISE_TIMER.channelId
+    )
         .setContentTitle(title)
         .setContentText(body)
         .setSmallIcon(R.drawable.notif_icon_32dp) // Replace with your icon resource
         .setAutoCancel(true)
         .setContentIntent(pendingIntent)
-        .setSound(Settings.System.DEFAULT_NOTIFICATION_URI)
         .setPriority(NotificationCompat.PRIORITY_MAX)
+        .setCategory(NotificationCompat.CATEGORY_EVENT)
 
     // Send the notification
+    val notificationId = System.currentTimeMillis().toInt()
     val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-    notificationManager.notify(0, notificationBuilder.build())
+    notificationManager.notify(notificationId, notificationBuilder.build())
 
-//    val player = MediaPlayer.create(context, Settings.System.DEFAULT_NOTIFICATION_URI)
-//    player.start()
+}
+
+enum class AndroidNotificationChannel(val channelId: String, val channelName: String) {
+    GENERAL("GENERAL_NOTIFICATION", "Tabiat"),
+    EXERCISE_TIMER("EXERCISE_TIMER_NOTIFICATION", "Exercise Timer")
 }
