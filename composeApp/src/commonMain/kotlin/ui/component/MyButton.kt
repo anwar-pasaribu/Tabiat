@@ -97,8 +97,8 @@ fun AddIconButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
             Icon(
                 modifier = Modifier.align(Alignment.Center),
                 imageVector = Icons.Default.Add,
-                tint = Color.White,
-                contentDescription = ""
+                tint = MaterialTheme.colorScheme.onPrimary,
+                contentDescription = "Add Workout Plan"
             )
         }
     }
@@ -138,6 +138,29 @@ fun EditIconButton(
                 contentDescription = if (iconEditMode) "Edit" else "Cancel"
             )
         }
+    }
+}
+
+@Composable
+fun CloseIconButton(
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    colors: IconButtonColors = IconButtonDefaults.iconButtonColors(),
+    onClick: () -> Unit,
+) {
+    IconButton(
+        modifier = modifier,
+        enabled = enabled,
+        onClick = {
+            onClick.invoke()
+        },
+        colors = colors,
+    ) {
+        Icon(
+            modifier = Modifier.size(24.dp),
+            painter = painterResource(Res.drawable.ic_xmark_icon_32dp),
+            contentDescription = "Close"
+        )
     }
 }
 
