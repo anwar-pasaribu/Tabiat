@@ -540,7 +540,7 @@ fun ExerciseImagePager(
                                             )
                                         },
                                         zIndexInOverlay = 1F,
-                                        state = rememberSharedContentState(key = "imagePager"),
+                                        sharedContentState = rememberSharedContentState(key = "imagePager"),
                                         animatedVisibilityScope = this@AnimatedContent,
                                     )
                                     .haze(hazeState),
@@ -561,7 +561,7 @@ fun ExerciseImagePager(
                                 Box(
                                     modifier = Modifier
                                         .sharedElement(
-                                            state = rememberSharedContentState(key = "pager-indicator-bounds"),
+                                            sharedContentState = rememberSharedContentState(key = "pager-indicator-bounds"),
                                             animatedVisibilityScope = this@AnimatedContent,
                                             zIndexInOverlay = 1F,
                                         )
@@ -605,7 +605,7 @@ fun ExerciseImagePager(
                                                 stiffness = Spring.StiffnessMediumLow // with medium speed
                                             )
                                         },
-                                        state = rememberSharedContentState(key = "imagePager"),
+                                        sharedContentState = rememberSharedContentState(key = "imagePager"),
                                         animatedVisibilityScope = this@AnimatedContent,
                                         placeHolderSize = animatedSize,
                                         zIndexInOverlay = 10F,
@@ -628,7 +628,7 @@ fun ExerciseImagePager(
                                 Box(
                                     modifier = Modifier
                                         .sharedElement(
-                                            state = rememberSharedContentState(key = "pager-indicator-bounds"),
+                                            sharedContentState = rememberSharedContentState(key = "pager-indicator-bounds"),
                                             animatedVisibilityScope = this@AnimatedContent,
                                             zIndexInOverlay = 1F,
                                         )

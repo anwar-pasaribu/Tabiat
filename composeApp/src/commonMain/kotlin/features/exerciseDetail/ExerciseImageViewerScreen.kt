@@ -56,7 +56,7 @@ fun FullImageViewerScreen(
                 ImagePager(
                     modifier = Modifier
                         .sharedElement(
-                            state = rememberSharedContentState(
+                            sharedContentState = rememberSharedContentState(
                                 key = "exercise-img-$imageUrl",
                             ),
                             animatedVisibilityScope = animatedVisibilityScope,

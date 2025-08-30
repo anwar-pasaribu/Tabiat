@@ -210,7 +210,7 @@ fun ExerciseListScreen(
                 onClick = {
                     onCreateNewExerciseRequested()
                 },
-                border = ButtonDefaults.outlinedButtonBorder.copy(width = 1.dp),
+                border = ButtonDefaults.outlinedButtonBorder(enabled = true).copy(width = 1.dp),
             ) {
                 Text(text = "Buat Latihan Baru")
             }
@@ -349,8 +349,8 @@ fun ExerciseLazyList(
             ) {
                 items(items = listExercise, key = { it.id }) { exercise ->
                     ExerciseListItemView(
-                        modifier = Modifier.animateItemPlacement(
-                            animationSpec = tween(delayMillis = 150),
+                        modifier = Modifier.animateItem(
+                            placementSpec = tween(delayMillis = 150),
                         ).padding(bottom = 8.dp),
                         selected = exercise.id == selectedExerciseId,
                         highlightedText = highlightedText,
