@@ -211,7 +211,7 @@ fun AddExerciseSet(
                     addExerciseSetDone(selectedReps, selectedWeight)
                 },
                 shape = MaterialTheme.shapes.small,
-                border = ButtonDefaults.outlinedButtonBorder.copy(width = 1.dp),
+                border = ButtonDefaults.outlinedButtonBorder(enabled = true).copy(width = 1.dp),
             ) {
                 Text(text = actionText)
             }
