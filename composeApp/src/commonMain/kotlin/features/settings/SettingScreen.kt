@@ -47,8 +47,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -77,6 +75,7 @@ import platform.PlaySoundEffect
 import tabiat.composeapp.generated.resources.Res
 import tabiat.composeapp.generated.resources.ic_pause_icon_32dp
 import tabiat.composeapp.generated.resources.ic_timer_off_icon_32dp
+import tabiat.composeapp.generated.resources.play_arrow_24px
 import ui.component.ImageWrapper
 import ui.component.InsetNavigationHeight
 import ui.component.MainHeaderText
@@ -420,7 +419,8 @@ fun SoundChoice(
                 )
             } else {
                 Icon(
-                    imageVector = Icons.Outlined.PlayArrow,
+//                    imageVector = Icons.Outlined.PlayArrow,
+                    painter = painterResource(Res.drawable.play_arrow_24px),
                     contentDescription = null
                 )
             }

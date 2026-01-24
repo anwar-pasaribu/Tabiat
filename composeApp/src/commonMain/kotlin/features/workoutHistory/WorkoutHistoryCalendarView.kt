@@ -54,13 +54,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import features.workoutHistory.model.DayCalendarData
 import features.workoutHistory.model.MonthCalendarData
-import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.minus
 import kotlinx.datetime.todayIn
+import kotlin.time.Clock
 
 @Composable
 private fun EmojiCalendarCell(
@@ -141,7 +141,7 @@ private fun EmojiCalendarGrid(
     modifier: Modifier = Modifier,
 ) {
     val date = monthCalendarData.month
-    val dayOfMonth = date.dayOfMonth
+    val dayOfMonth = date.day
     val day1ThisMonth = date.minus(dayOfMonth - 1, DateTimeUnit.DAY)
     val diffDaysLastMonth = kotlin.math.abs(day1ThisMonth.dayOfWeek.isoDayNumber - 1)
     val weekdays = remember { (1..7) }
@@ -162,7 +162,7 @@ private fun EmojiCalendarGrid(
             val isToday = it.day.dayOfYear == dayOfYearOfToday
             val dotColor = if (isToday) Color.Red else MaterialTheme.colorScheme.primary
             EmojiCalendarCell(
-                cellText = it.day.dayOfMonth.toString(),
+                cellText = it.day.day.toString(),
                 isToday = isToday,
                 enabled = containData,
                 isFuture = it.isFutureDate,

@@ -43,9 +43,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
-import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
@@ -58,6 +56,8 @@ import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.todayIn
 import ui.component.colorPalette.parseHexToComposeColor
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 sealed class HomeScreenUiState {
     data object Loading : HomeScreenUiState()
@@ -125,7 +125,7 @@ class HomeScreenViewModel(
                     val isToday = date.dayOfWeek.isoDayNumber == today.dayOfWeek.isoDayNumber
                     val todayDayOfWeek = today.dayOfWeek.isoDayNumber
                     val isFuture = date.dayOfWeek.isoDayNumber > todayDayOfWeek
-                    val dayOfMonth = date.dayOfMonth
+                    val dayOfMonth = date.day
                     val upperLabel = date.dayOfWeek.name
                         .take(3).lowercase().replaceFirstChar { it.uppercaseChar() }
                     val lowerLabel = dayOfMonth.toString()
@@ -261,7 +261,7 @@ private fun Long?.epochTimestampToShortDateTimeFormat(): String {
     ).toLocalDateTime(TimeZone.currentSystemDefault())
 
     // Format the date using the desired pattern
-    val dayOfMonth = dateTime.dayOfMonth.toString().padStart(2, '0')
+    val dayOfMonth = dateTime.day.toString().padStart(2, '0')
     val month = dateTime.month.number.toString().padStart(2, '0')
     val year = dateTime.year.toString().takeLast(2)
     val hour = dateTime.hour.toString().padStart(2, '0')

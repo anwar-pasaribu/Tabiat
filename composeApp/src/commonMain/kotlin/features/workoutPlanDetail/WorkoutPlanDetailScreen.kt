@@ -75,6 +75,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import domain.model.detail.DetailItemEntity
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
@@ -159,7 +160,7 @@ fun WorkoutDetailView(
     val sharedTransitionScope = LocalSharedTransitionScope.current
         ?: throw IllegalStateException("No sharedTransitionScope found")
     val animatedVisibilityScope = LocalNavAnimatedVisibilityScope.current
-        ?: throw IllegalStateException("No animatedVisibilityScope found")
+        ?: LocalNavAnimatedContentScope.current
 
     var workoutPlanName by rememberSaveable {
         mutableStateOf("")

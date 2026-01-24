@@ -44,8 +44,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -66,7 +64,11 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
+import androidx.navigation3.ui.LocalNavAnimatedContentScope
+import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
+import tabiat.composeapp.generated.resources.Res
+import tabiat.composeapp.generated.resources.keyboard_arrow_right_24px
 import ui.TabiatSharedElementKey
 import ui.TabiatSharedElementType
 import ui.component.MyPrimaryButton
@@ -99,7 +101,7 @@ fun InputWorkoutScreen(
         val sharedTransitionScope = LocalSharedTransitionScope.current
             ?: throw IllegalStateException("No Scope found")
         val animatedVisibilityScope = LocalNavAnimatedVisibilityScope.current
-            ?: throw IllegalStateException("No Scope found")
+            ?: LocalNavAnimatedContentScope.current
 
         with(sharedTransitionScope) {
             Card(
@@ -164,7 +166,8 @@ fun InputWorkoutScreen(
                             modifier = Modifier.size(20.dp).graphicsLayer {
                                 rotationZ = rotationAnimVal
                             }.alpha(.75F),
-                            imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+//                            imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+                            painter = painterResource(Res.drawable.keyboard_arrow_right_24px),
                             contentDescription = null,
                         )
                     }

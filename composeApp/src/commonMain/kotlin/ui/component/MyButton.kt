@@ -36,11 +36,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -53,12 +48,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.dp
-import domain.enums.PlatformType
-import getPlatform
 import org.jetbrains.compose.resources.painterResource
 import tabiat.composeapp.generated.resources.Res
+import tabiat.composeapp.generated.resources.add_2_24px
+import tabiat.composeapp.generated.resources.arrow_back_24px
+import tabiat.composeapp.generated.resources.ic_delete_24dp
 import tabiat.composeapp.generated.resources.ic_edit_pencil_icon_32dp
 import tabiat.composeapp.generated.resources.ic_xmark_icon_32dp
 
@@ -74,7 +69,8 @@ fun DeleteIconButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
         ),
     ) {
         Icon(
-            imageVector = Icons.Default.Delete,
+//            imageVector = Icons.Default.Delete,
+            painter = painterResource(Res.drawable.ic_delete_24dp),
             tint = MaterialTheme.colorScheme.onError,
             contentDescription = "Delete",
         )
@@ -96,7 +92,7 @@ fun AddIconButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
         Box(modifier = Modifier.fillMaxSize()) {
             Icon(
                 modifier = Modifier.align(Alignment.Center),
-                imageVector = Icons.Default.Add,
+                painter = painterResource(Res.drawable.add_2_24px),
                 tint = MaterialTheme.colorScheme.onPrimary,
                 contentDescription = "Add Workout Plan"
             )
@@ -191,13 +187,7 @@ fun BackButton(
         ),
         content = {
             Icon(
-                painter = rememberVectorPainter(
-                    image = if (getPlatform().type == PlatformType.ANDROID) {
-                        Icons.AutoMirrored.Filled.ArrowBack
-                    } else {
-                        Icons.AutoMirrored.Filled.KeyboardArrowLeft
-                    },
-                ),
+                painter = painterResource(Res.drawable.arrow_back_24px),
                 contentDescription = "Back",
             )
         },

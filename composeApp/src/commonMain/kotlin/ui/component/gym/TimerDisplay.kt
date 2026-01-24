@@ -56,8 +56,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -96,6 +94,7 @@ import org.jetbrains.compose.resources.painterResource
 import platform.BackHandler
 import platform.PlaySoundEffect
 import tabiat.composeapp.generated.resources.Res
+import tabiat.composeapp.generated.resources.add_2_24px
 import tabiat.composeapp.generated.resources.ic_timer_off_icon_32dp
 import tabiat.composeapp.generated.resources.ic_zoom_in_icon_24dp
 import kotlin.math.roundToInt
@@ -497,7 +496,8 @@ fun ExtendTimerButton(
     ) {
         Icon(
             modifier = Modifier,
-            imageVector = Icons.Default.Add,
+//            imageVector = Icons.Default.Add,
+            painter = painterResource(Res.drawable.add_2_24px),
             contentDescription = "",
         )
         Spacer(Modifier.width(2.dp))

@@ -10,9 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -21,8 +18,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.dp
+import org.jetbrains.compose.resources.painterResource
+import tabiat.composeapp.generated.resources.Res
+import tabiat.composeapp.generated.resources.ic_delete_24dp
+import tabiat.composeapp.generated.resources.ic_edit_pencil_icon_32dp
 import ui.component.colorPalette.ColorChooser
 
 @Composable
@@ -51,9 +51,10 @@ fun WorkoutPlanPersonalization(
         ) {
             Spacer(Modifier.width(16.dp))
             Icon(
-                painter = rememberVectorPainter(
-                    image = Icons.Default.Edit,
-                ),
+//                painter = rememberVectorPainter(
+//                    image = Icons.Default.Edit,
+//                ),
+                painter = painterResource(Res.drawable.ic_edit_pencil_icon_32dp),
                 contentDescription = "Edit",
             )
             Spacer(Modifier.width(8.dp))
@@ -93,9 +94,10 @@ fun WorkoutPlanPersonalization(
         ) {
             Spacer(Modifier.width(16.dp))
             Icon(
-                painter = rememberVectorPainter(
-                    image = Icons.Default.Delete,
-                ),
+//                painter = rememberVectorPainter(
+//                    image = Icons.Default.Delete,
+//                ),
+                painter = painterResource(Res.drawable.ic_delete_24dp),
                 tint = MaterialTheme.colorScheme.error,
                 contentDescription = "delete",
             )

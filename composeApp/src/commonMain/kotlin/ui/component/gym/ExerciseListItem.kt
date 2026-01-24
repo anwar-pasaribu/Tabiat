@@ -57,9 +57,6 @@ import androidx.compose.foundation.pager.PagerSnapDistance
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -81,7 +78,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -90,8 +86,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.navigation3.ui.LocalNavAnimatedContentScope
+import org.jetbrains.compose.resources.painterResource
 import tabiat.composeapp.generated.resources.Res
+import tabiat.composeapp.generated.resources.check_24px
 import tabiat.composeapp.generated.resources.full_screen_24dp
+import tabiat.composeapp.generated.resources.keyboard_arrow_right_24px
 import ui.component.ImageWrapper
 import ui.extension.LocalNavAnimatedVisibilityScope
 import ui.extension.LocalSharedTransitionScope
@@ -217,8 +217,12 @@ fun ExerciseListItemView(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(
-                        painter = rememberVectorPainter(
-                            image = if (selected) Icons.Default.Check else Icons.AutoMirrored.Filled.KeyboardArrowRight,
+//                        painter = rememberVectorPainter(
+//                            image = if (selected) Icons.Default.Check else Icons.AutoMirrored.Filled.KeyboardArrowRight,
+//                        ),
+                        painter = painterResource(
+                            if (selected) Res.drawable.check_24px
+                            else Res.drawable.keyboard_arrow_right_24px
                         ),
                         contentDescription = "See more: $title",
                     )
@@ -268,7 +272,7 @@ fun WorkoutExerciseItemView(
     val sharedTransitionScope = LocalSharedTransitionScope.current
         ?: throw IllegalStateException("No sharedTransitionScope found")
     val animatedVisibilityScope = LocalNavAnimatedVisibilityScope.current
-        ?: throw IllegalStateException("No animatedVisibilityScope found")
+        ?: LocalNavAnimatedContentScope.current
 
     val imageAvailable by remember {
         derivedStateOf { imageUrlList.isNotEmpty() }
@@ -339,8 +343,12 @@ fun WorkoutExerciseItemView(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Icon(
-                            painter = rememberVectorPainter(
-                                image = if (selected) Icons.Default.Check else Icons.AutoMirrored.Filled.KeyboardArrowRight,
+//                            painter = rememberVectorPainter(
+//                                image = if (selected) Icons.Default.Check else Icons.AutoMirrored.Filled.KeyboardArrowRight,
+//                            ),
+                            painter = painterResource(
+                                if (selected) Res.drawable.check_24px
+                                else Res.drawable.keyboard_arrow_right_24px
                             ),
                             contentDescription = "See more: $title",
                         )

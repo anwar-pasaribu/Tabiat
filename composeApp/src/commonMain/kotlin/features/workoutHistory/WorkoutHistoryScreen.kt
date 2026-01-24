@@ -57,19 +57,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.haze
 import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
-import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.number
 import kotlinx.datetime.todayIn
 import org.koin.compose.koinInject
 import ui.extension.LocalNavAnimatedVisibilityScope
 import ui.extension.LocalSharedTransitionScope
 import ui.extension.tabiatDetailBoundsTransform
+import kotlin.time.Clock
 
 
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalHazeMaterialsApi::class)
@@ -99,7 +101,7 @@ fun WorkoutHistoryScreen(
     val sharedTransitionScope = LocalSharedTransitionScope.current
         ?: throw IllegalStateException("No sharedTransitionScope found")
     val animatedVisibilityScope = LocalNavAnimatedVisibilityScope.current
-        ?: throw IllegalStateException("No animatedVisibilityScope found")
+        ?: LocalNavAnimatedContentScope.current
 
     with(sharedTransitionScope) {
         Card(
@@ -159,7 +161,7 @@ fun CalendarContent(
             val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
             val itemPos = historyUiState.calendarItems.indexOfFirst {
                 it.month.year == today.year
-                        && it.month.monthNumber == today.monthNumber
+                        && it.month.month.number == today.month.number
             }
             lazyColumnListState.scrollToItem(itemPos)
         }

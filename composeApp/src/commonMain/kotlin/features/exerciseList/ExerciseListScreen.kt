@@ -53,9 +53,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.List
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -82,7 +79,11 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import domain.model.gym.Exercise
+import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
+import tabiat.composeapp.generated.resources.Res
+import tabiat.composeapp.generated.resources.info_24px
+import tabiat.composeapp.generated.resources.lists_24px
 import ui.component.BackButton
 import ui.component.CategorySection
 import ui.component.InsetNavigationHeight
@@ -268,7 +269,8 @@ fun ExerciseListScreen(
                     verticalArrangement = Arrangement.Center,
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Info,
+//                        imageVector = Icons.Default.Info,
+                        painter = painterResource(Res.drawable.info_24px),
                         contentDescription = null,
                     )
                     Spacer(Modifier.height(16.dp))
@@ -335,7 +337,8 @@ fun ExerciseLazyList(
                 verticalArrangement = Arrangement.Center,
             ) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Outlined.List,
+//                    imageVector = Icons.AutoMirrored.Outlined.List,
+                    painter = painterResource(Res.drawable.lists_24px),
                     contentDescription = "",
                 )
                 Spacer(Modifier.height(16.dp))

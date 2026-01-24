@@ -46,11 +46,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -69,6 +64,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import domain.model.gym.ExerciseSet
 import features.exerciseList.ExerciseListBottomSheet
+import org.jetbrains.compose.resources.painterResource
+import tabiat.composeapp.generated.resources.Res
+import tabiat.composeapp.generated.resources.add_2_24px
+import tabiat.composeapp.generated.resources.cancel_24px
+import tabiat.composeapp.generated.resources.ic_delete_24dp
+import tabiat.composeapp.generated.resources.keyboard_arrow_right_24px
 import ui.component.MyPrimaryButton
 
 @Composable
@@ -147,7 +148,8 @@ fun InputWorkoutPlanExerciseView(
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
                         .padding(end = 8.dp),
-                    imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
+//                    imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
+                    painter = painterResource(Res.drawable.keyboard_arrow_right_24px),
                     contentDescription = "Pilih latihan",
                 )
             }
@@ -224,7 +226,11 @@ fun InputWorkoutPlanExerciseView(
                         modifier = Modifier
                             .align(Alignment.CenterEnd)
                             .padding(end = 8.dp),
-                        imageVector = if (addExerciseSetActionVisibility) Icons.Default.Add else Icons.Default.Clear,
+//                        imageVector = if (addExerciseSetActionVisibility) Icons.Default.Add else Icons.Default.Clear,
+                        painter = painterResource(
+                            if (addExerciseSetActionVisibility) Res.drawable.add_2_24px
+                            else Res.drawable.cancel_24px
+                        ),
                         contentDescription = "",
                     )
                 }
@@ -272,7 +278,11 @@ private fun ExerciseSetListView(
                     exerciseSets.removeAt(index)
                 },
                 stateIcon = {
-                    Icon(imageVector = Icons.Outlined.Delete, contentDescription = "")
+                    Icon(
+//                        imageVector = Icons.Outlined.Delete,
+                        painter = painterResource(Res.drawable.ic_delete_24dp),
+                        contentDescription = ""
+                    )
                 },
             )
         }

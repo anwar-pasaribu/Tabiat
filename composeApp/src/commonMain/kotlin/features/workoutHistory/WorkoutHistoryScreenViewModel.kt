@@ -41,7 +41,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -49,10 +48,12 @@ import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.daysUntil
 import kotlinx.datetime.minus
+import kotlinx.datetime.number
 import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.todayIn
 import kotlinx.serialization.json.Json
+import kotlin.time.Clock
 
 sealed class WorkoutHistoryUiState {
     data object Loading : WorkoutHistoryUiState()
@@ -153,9 +154,9 @@ class WorkoutHistoryScreenViewModel(
             val calendarDataList = mutableListOf<MonthCalendarData>()
 
             val oneYearAgoDate = today.minus(12, DateTimeUnit.MONTH).apply {
-                LocalDate(year, monthNumber, 1) // Set to the first day of the month
+                LocalDate(year, month.number, 1) // Set to the first day of the month
             }
-            val firstDayOneYearAgo = LocalDate(oneYearAgoDate.year, oneYearAgoDate.monthNumber, 1)
+            val firstDayOneYearAgo = LocalDate(oneYearAgoDate.year, oneYearAgoDate.month.number, 1)
 
             val yearsRangeList = List(24) { index ->
                 firstDayOneYearAgo.plus(index, DateTimeUnit.MONTH)
@@ -168,12 +169,13 @@ class WorkoutHistoryScreenViewModel(
 
                     val dailyEmojiList = ArrayList<DayCalendarData>(totalDayCountInTheMonth)
 
-                    for (day in month.dayOfMonth..totalDayCountInTheMonth) {
-                        val dayLocalDate = LocalDate(
-                            year = month.year,
-                            monthNumber = month.monthNumber,
-                            dayOfMonth = day,
-                        )
+                    for (day in month.day..totalDayCountInTheMonth) {
+                        val dayLocalDate =
+                            LocalDate(
+                                year = month.year,
+                                month = month.month.number,
+                                day = day
+                            )
 
                         val isFutureDate = dayLocalDate > today
 

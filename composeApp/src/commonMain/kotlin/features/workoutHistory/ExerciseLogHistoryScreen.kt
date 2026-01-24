@@ -64,13 +64,13 @@ import com.aay.compose.donutChart.PieChart
 import com.aay.compose.donutChart.model.PieChartData
 import features.exerciseList.BottomSheet
 import features.workoutHistory.model.ExerciseHistoryUiItem
-import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.koinInject
 import ui.component.InsetNavigationHeight
 import ui.component.gym.ExerciseSetBadge
+import kotlin.time.Instant
 
 @Composable
 fun ExerciseLogListBottomSheet(
@@ -285,7 +285,7 @@ private fun Long.epochTimestampToShortDateTimeFormat(): String {
     ).toLocalDateTime(TimeZone.currentSystemDefault())
 
     // Format the date using the desired pattern
-    val dayOfMonth = dateTime.dayOfMonth.toString().padStart(2, '0')
+    val dayOfMonth = dateTime.day.toString().padStart(2, '0')
     val month = dateTime.month.number.toString().padStart(2, '0')
     val year = dateTime.year
     val hour = dateTime.hour.toString().padStart(2, '0')
@@ -300,7 +300,7 @@ private fun Long.epochTimestampToLongDateFormat(): String {
     ).toLocalDateTime(TimeZone.currentSystemDefault())
 
     // Format the date using the desired pattern
-    val dayOfMonth = dateTime.dayOfMonth.toString().padStart(2, '0')
+    val dayOfMonth = dateTime.day.toString().padStart(2, '0')
     val month = dateTime.month.name.lowercase().replaceFirstChar { it.uppercase() }
     val year = dateTime.year
     return "$dayOfMonth $month $year"

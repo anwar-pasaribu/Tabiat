@@ -15,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import org.koin.compose.koinInject
 import ui.component.gym.ImagePager
 import ui.extension.LocalNavAnimatedVisibilityScope
@@ -40,7 +41,7 @@ fun FullImageViewerScreen(
     val sharedTransitionScope = LocalSharedTransitionScope.current
         ?: throw IllegalStateException("No sharedTransitionScope found")
     val animatedVisibilityScope = LocalNavAnimatedVisibilityScope.current
-        ?: throw IllegalStateException("No animatedVisibilityScope found")
+        ?: LocalNavAnimatedContentScope.current
 
     with(sharedTransitionScope) {
         val imageUrl = remember { imageUrlList.getOrNull(0).orEmpty() }

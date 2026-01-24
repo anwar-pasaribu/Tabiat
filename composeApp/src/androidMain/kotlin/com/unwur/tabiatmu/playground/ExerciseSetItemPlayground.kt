@@ -28,14 +28,15 @@ package com.unwur.tabiatmu.playground
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import org.jetbrains.compose.resources.painterResource
+import tabiat.composeapp.generated.resources.Res
+import tabiat.composeapp.generated.resources.ic_delete_24dp
 import ui.component.gym.ExerciseSetItemView
 import ui.theme.MyAppTheme
 
@@ -64,7 +65,11 @@ private fun ExerciseSetItemViewPrev() {
                     finished = listOf(false, true).random(),
                     onSetItemClick = {},
                     stateIcon = {
-                        Icon(imageVector = Icons.Outlined.Delete, contentDescription = "")
+                        Icon(
+//                            imageVector = Icons.Outlined.Delete,
+                            painter = painterResource(Res.drawable.ic_delete_24dp),
+                            contentDescription = ""
+                        )
                     },
                 )
             }

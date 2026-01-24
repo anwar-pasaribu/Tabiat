@@ -6,8 +6,9 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
-    alias(libs.plugins.jetbrainsCompose)
-    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.composeMultiplatform)
+    alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.composeHotReload)
     alias(libs.plugins.sqlDelight)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.spotless)
@@ -45,6 +46,7 @@ kotlin {
     sourceSets {
 
         all {
+            languageSettings.optIn("kotlin.time.ExperimentalTime")
             languageSettings.optIn("kotlin.RequiresOptIn")
             languageSettings.optIn("androidx.compose.material.ExperimentalMaterialApi")
             languageSettings.optIn("androidx.compose.material3.ExperimentalMaterial3Api")
@@ -53,7 +55,7 @@ kotlin {
         }
 
         androidMain.dependencies {
-            implementation(libs.compose.ui.tooling.preview)
+//            implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
 
             implementation(libs.androidx.core.splashscreen)
@@ -90,6 +92,12 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodel.compose)
             implementation(libs.androidx.navigation.compose)
 
+            implementation(libs.androidx.lifecycle.viewmodel.nav3)
+            implementation(libs.kotlinx.serialization.json)
+            implementation(libs.androidx.nav3.ui)
+            implementation(libs.androidx.material3.adaptive)
+            implementation(libs.androidx.material3.adaptive.nav3)
+
             implementation(libs.kotlinx.datetime)
 
             implementation(libs.koin.core)
@@ -106,7 +114,6 @@ kotlin {
             implementation(libs.ktor.client.negotiation)
             implementation(libs.ktor.client.json)
 
-            implementation(libs.ktor.client.core)
             implementation(libs.kotlinx.coroutines.core)
 
             implementation(libs.coil.compose)
@@ -115,17 +122,21 @@ kotlin {
             implementation(libs.androidx.datastore.preferences.core)
             implementation(libs.kotlinx.atomicfu)
 
-            implementation("com.soywiz.korge:korge-core:6.0.0-beta2")
+            implementation("com.soywiz.korge:korge-core:6.0.0")
 
             implementation("io.github.thechance101:chart:Beta-0.0.5")
 
-            implementation("com.mohamedrejeb.calf:calf-permissions:0.7.0")
+            implementation("com.mohamedrejeb.calf:calf-permissions:0.9.0")
 
             // Handle Error
             // Task :composeApp:compileKotlinIosX64 FAILED
             // e: Could not find "co.touchlab:stately-concurrent-collections"
             implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.7")
             implementation("co.touchlab:stately-concurrent-collections:2.0.6")
+        }
+
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
         }
     }
 }
@@ -182,7 +193,7 @@ android {
         }
     }
     dependencies {
-        debugImplementation(libs.compose.ui.tooling)
+        debugImplementation(compose.uiTooling)
     }
     buildFeatures {
         compose = true

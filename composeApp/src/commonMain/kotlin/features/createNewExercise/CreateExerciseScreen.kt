@@ -41,8 +41,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -69,7 +67,10 @@ import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import domain.model.gym.Exercise
 import features.exerciseList.BottomSheet
+import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
+import tabiat.composeapp.generated.resources.Res
+import tabiat.composeapp.generated.resources.keyboard_arrow_right_24px
 import ui.component.InsetNavigationHeight
 
 @OptIn(
@@ -278,7 +279,8 @@ fun ButtonRowWithAnimatedContent(
             modifier = Modifier
                 .align(Alignment.CenterEnd)
                 .padding(end = 8.dp),
-            imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
+//            imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
+            painter = painterResource(Res.drawable.keyboard_arrow_right_24px),
             contentDescription = title,
         )
     }

@@ -36,8 +36,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -74,10 +72,11 @@ import features.settings.SettingsScreen
 import features.workoutHistory.WorkoutHistoryScreen
 import features.workoutPlanDetail.WorkoutDetailScreen
 import kotlinx.serialization.Serializable
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.KoinContext
 import org.koin.compose.koinInject
 import tabiat.composeapp.generated.resources.Res
+import tabiat.composeapp.generated.resources.settings_24px
 import tabiat.composeapp.generated.resources.tabiat_icon_32dp
 import ui.component.AddIconButton
 import ui.component.BackButton
@@ -106,7 +105,6 @@ sealed class MyAppRoute {
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-@Preview
 fun App(
     shouldDarkTheme: Boolean = isSystemInDarkTheme(),
     navController: NavHostController = rememberNavController(),
@@ -332,7 +330,8 @@ fun AppTopBar(
                     )
                 }) {
                     Icon(
-                        imageVector = Icons.Outlined.Settings,
+//                        imageVector = Icons.Outlined.Settings,
+                        painter = painterResource(Res.drawable.settings_24px),
                         contentDescription = "Setting Menu",
                     )
                 }

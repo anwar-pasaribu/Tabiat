@@ -40,9 +40,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -62,9 +59,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.dp
+import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import features.exerciseList.BottomSheet
+import org.jetbrains.compose.resources.painterResource
+import tabiat.composeapp.generated.resources.Res
+import tabiat.composeapp.generated.resources.check_circle_24px
+import tabiat.composeapp.generated.resources.more_vert_24px
 import ui.component.ImageWrapper
 import ui.component.InsetNavigationHeight
 import ui.component.colorPalette.parseHexToComposeColor
@@ -97,7 +98,7 @@ fun WorkoutPlanItemView(
     val sharedTransitionScope = LocalSharedTransitionScope.current
         ?: throw IllegalStateException("No SharedElementScope found")
     val animatedVisibilityScope = LocalNavAnimatedVisibilityScope.current
-        ?: throw IllegalStateException("No SharedElementScope found")
+        ?: LocalNavAnimatedContentScope.current
 
 
     var menuVisible by remember { mutableStateOf(false) }
@@ -181,9 +182,7 @@ fun WorkoutPlanItemView(
                     onClick = { menuVisible = true },
                 ) {
                     Icon(
-                        painter = rememberVectorPainter(
-                            image = Icons.Default.MoreVert,
-                        ),
+                        painter = painterResource(Res.drawable.more_vert_24px),
                         contentDescription = "More menu",
                     )
                 }
@@ -243,7 +242,7 @@ private fun WorkoutPlanProgressIndicator(
         } else if (total != 0 && progress != 0) {
             Icon(
                 modifier = Modifier.size(40.dp),
-                imageVector = Icons.Outlined.CheckCircle,
+                painter = painterResource(Res.drawable.check_circle_24px),
                 contentDescription = "Finished",
                 tint = MaterialTheme.colorScheme.onPrimary,
             )

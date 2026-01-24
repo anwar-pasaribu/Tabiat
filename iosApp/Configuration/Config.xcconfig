@@ -1,3 +1,10 @@
 TEAM_ID=7G2GZC3X7P
-BUNDLE_ID=com.unwur.tabiatmu.Tabiat
+
+BUNDLE_ID=com.unwur.tabiatmu.Tabiat$(TEAM_ID)
 APP_NAME=Tabiat
+
+PRODUCT_NAME=Tabiat
+PRODUCT_BUNDLE_IDENTIFIER=com.unwur.tabiatmu.Tabiat$(TEAM_ID)
+
+CURRENT_PROJECT_VERSION=1
+MARKETING_VERSION=1.0

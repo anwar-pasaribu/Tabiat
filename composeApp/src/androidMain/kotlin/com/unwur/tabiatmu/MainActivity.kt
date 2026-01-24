@@ -25,9 +25,8 @@
  */
 package com.unwur.tabiatmu
 
-import App
+import AppV2
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -35,6 +34,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.DisposableEffect
+import androidx.core.graphics.drawable.toDrawable
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 
 class MainActivity : ComponentActivity() {
@@ -58,10 +58,10 @@ class MainActivity : ComponentActivity() {
                         darkScrim,
                     ) { darkTheme },
                 )
-                window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                window.setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
                 onDispose {}
             }
-            App(shouldDarkTheme = darkTheme)
+            AppV2(shouldDarkTheme = darkTheme)
         }
     }
 }

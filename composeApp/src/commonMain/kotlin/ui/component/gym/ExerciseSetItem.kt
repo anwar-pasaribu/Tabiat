@@ -37,9 +37,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -49,8 +46,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.dp
+import org.jetbrains.compose.resources.painterResource
+import tabiat.composeapp.generated.resources.Res
+import tabiat.composeapp.generated.resources.done_outline_24px
+import tabiat.composeapp.generated.resources.keyboard_arrow_right_24px
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -122,14 +122,18 @@ fun ExerciseSetItemView(
             contentAlignment = Alignment.CenterEnd,
         ) {
             if (stateIcon == null) {
-                val icon = if (finished) {
-                    Icons.Default.Done
-                } else {
-                    Icons.AutoMirrored.Filled.KeyboardArrowRight
-                }
+//                val icon = if (finished) {
+//                    Icons.Default.Done
+//                } else {
+//                    Icons.AutoMirrored.Filled.KeyboardArrowRight
+//                }
                 Icon(
-                    painter = rememberVectorPainter(
-                        image = icon,
+//                    painter = rememberVectorPainter(
+//                        image = icon,
+//                    ),
+                    painter = painterResource(
+                        if (finished) Res.drawable.done_outline_24px
+                        else Res.drawable.keyboard_arrow_right_24px
                     ),
                     contentDescription = "",
                     tint = if (finished) MaterialTheme.colorScheme.onPrimary else IconButtonDefaults.iconButtonColors().contentColor,

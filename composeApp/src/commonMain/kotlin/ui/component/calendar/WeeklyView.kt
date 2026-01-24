@@ -60,8 +60,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import features.home.model.HomeWeeklyUiData
-import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -74,6 +74,7 @@ import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.todayIn
 import ui.extension.LocalNavAnimatedVisibilityScope
 import ui.extension.LocalSharedTransitionScope
+import kotlin.time.Clock
 
 @Composable
 fun WeekView(
@@ -120,7 +121,7 @@ fun WeekView(
                 val isToday = date.dayOfWeek.isoDayNumber == today.dayOfWeek.isoDayNumber
                 val todayDayOfWeek = today.dayOfWeek.isoDayNumber
                 val isFuture = date.dayOfWeek.isoDayNumber > todayDayOfWeek
-                val dayOfMonth = date.dayOfMonth
+                val dayOfMonth = date.day
                 val upperLabel = date.dayOfWeek.name
                     .take(3).lowercase().replaceFirstChar { it.uppercaseChar() }
                 val lowerLabel = dayOfMonth.toString()
@@ -157,7 +158,7 @@ fun WeekView(
     val sharedTransitionScope = LocalSharedTransitionScope.current
         ?: throw IllegalStateException("No sharedTransitionScope found")
     val animatedVisibilityScope = LocalNavAnimatedVisibilityScope.current
-        ?: throw IllegalStateException("No animatedVisibilityScope found")
+        ?: LocalNavAnimatedContentScope.current
 
     with(sharedTransitionScope) {
         Surface(

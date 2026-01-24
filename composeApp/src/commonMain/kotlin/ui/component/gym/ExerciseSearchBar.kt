@@ -45,9 +45,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -70,6 +67,10 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
+import org.jetbrains.compose.resources.painterResource
+import tabiat.composeapp.generated.resources.Res
+import tabiat.composeapp.generated.resources.cancel_24px
+import tabiat.composeapp.generated.resources.search_24px
 
 @OptIn(FlowPreview::class)
 @Composable
@@ -146,7 +147,8 @@ fun ExerciseSearchView(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Search,
+//                            imageVector = Icons.Default.Search,
+                            painter = painterResource(Res.drawable.search_24px),
                             tint = MaterialTheme.colorScheme.primary,
                             contentDescription = "Search Icon",
                         )
@@ -176,7 +178,8 @@ fun ExerciseSearchView(
                                 },
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.Clear,
+//                                    imageVector = Icons.Default.Clear,
+                                    painter = painterResource(Res.drawable.cancel_24px),
                                     tint = MaterialTheme.colorScheme.primary,
                                     contentDescription = "Clear search text",
                                 )

@@ -33,9 +33,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
@@ -46,6 +43,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import org.jetbrains.compose.resources.painterResource
+import tabiat.composeapp.generated.resources.Res
+import tabiat.composeapp.generated.resources.add_2_24px
+import tabiat.composeapp.generated.resources.info_24px
 
 @Composable
 fun EmptyState(
@@ -64,7 +65,12 @@ fun EmptyState(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Spacer(modifier = Modifier.height(16.dp))
-            Icon(modifier = Modifier.align(Alignment.CenterHorizontally).size(40.dp), imageVector = Icons.Default.Info, contentDescription = "")
+            Icon(
+                modifier = Modifier.align(Alignment.CenterHorizontally).size(40.dp),
+//                imageVector = Icons.Default.Info,
+                painter = painterResource(Res.drawable.info_24px),
+                contentDescription = ""
+            )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
@@ -74,7 +80,12 @@ fun EmptyState(
             )
             Spacer(modifier = Modifier.height(16.dp))
             Button(onClick = { onClick() }) {
-                Icon(modifier = Modifier.size(20.dp), imageVector = Icons.Default.Add, contentDescription = "")
+                Icon(
+                    modifier = Modifier.size(20.dp),
+//                    imageVector = Icons.Default.Add,
+                    painter = painterResource(Res.drawable.add_2_24px),
+                    contentDescription = ""
+                )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(text = btnText, style = MaterialTheme.typography.bodyLarge)
             }

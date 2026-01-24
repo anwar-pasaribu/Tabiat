@@ -25,13 +25,13 @@
  */
 package features.logWorkoutExercise
 
+//import androidx.compose.animation.SharedTransitionScope.PlaceHolderSize.Companion.animatedSize
 import PlayHapticAndSound
 import SendNotification
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
-import androidx.compose.animation.SharedTransitionScope.PlaceHolderSize.Companion.animatedSize
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
@@ -66,8 +66,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -95,9 +93,12 @@ import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import domain.model.gym.ExerciseSet
+import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
 import platform.BackHandler
 import platform.PlaySoundEffect
+import tabiat.composeapp.generated.resources.Res
+import tabiat.composeapp.generated.resources.close_24px
 import ui.component.DeleteIconButton
 import ui.component.EditIconButton
 import ui.component.MainHeaderText
@@ -129,8 +130,6 @@ fun LogWorkoutExerciseScreen(
     exerciseId: Long,
     onBack: () -> Unit = {},
 ) {
-
-    val hazeState = remember { HazeState() }
 
     var uiState by remember { mutableStateOf<LogWorkoutExerciseUiState>(LogWorkoutExerciseUiState.Default) }
     var timerState by remember { mutableStateOf<TimerState>(TimerState.NoTimer) }
@@ -426,7 +425,8 @@ fun LogWorkoutExerciseScreen(
                         },
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Close,
+//                            imageVector = Icons.Default.Close,
+                            painter = painterResource(Res.drawable.close_24px),
                             contentDescription = "",
                         )
                     }
@@ -607,7 +607,7 @@ fun ExerciseImagePager(
                                         },
                                         sharedContentState = rememberSharedContentState(key = "imagePager"),
                                         animatedVisibilityScope = this@AnimatedContent,
-                                        placeHolderSize = animatedSize,
+//                                        placeHolderSize = animatedSize,
                                         zIndexInOverlay = 10F,
                                     )
                                     .haze(hazeState),
