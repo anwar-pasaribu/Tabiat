@@ -185,14 +185,6 @@ fun WorkoutDetailView(
         }
     }
 
-//    BackHandler {
-//        if (editMode) {
-//            editMode = false
-//        } else {
-//            onBack.invoke()
-//        }
-//    }
-
     with (sharedTransitionScope) {
         Box(modifier = modifier) {
             Card(

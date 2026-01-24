@@ -313,7 +313,6 @@ fun WorkoutExerciseItemView(
                                 boundsTransform = boundsTransform,
                             )
                             .padding(start = 16.dp)
-                            .clip(RoundedCornerShape(8.dp))
                             .clickable(enabled = enabled) {
                                 onImageClick.invoke()
                             }
@@ -321,7 +320,7 @@ fun WorkoutExerciseItemView(
                             .align(Alignment.CenterVertically),
                         imageUrl = imageUrl,
                         contentDescription = "Picture of $title",
-                        contentScale = ContentScale.Crop,
+                        contentScale = ContentScale.Fit,
                     )
                 }
 
@@ -343,9 +342,6 @@ fun WorkoutExerciseItemView(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Icon(
-//                            painter = rememberVectorPainter(
-//                                image = if (selected) Icons.Default.Check else Icons.AutoMirrored.Filled.KeyboardArrowRight,
-//                            ),
                             painter = painterResource(
                                 if (selected) Res.drawable.check_24px
                                 else Res.drawable.keyboard_arrow_right_24px
