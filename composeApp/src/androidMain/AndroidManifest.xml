@@ -10,22 +10,16 @@
         tools:node="remove" />
 
     <application
-        android:allowBackup="true"
         android:name=".MyApp"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.MyAppTheme.Splash"
-        android:enableOnBackInvokedCallback="true"
-        tools:targetApi="tiramisu">
+        android:theme="@style/Theme.MyAppTheme.Splash">
         <activity
             android:exported="true"
-            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|mnc|colorMode|density|fontScale|fontWeightAdjustment|keyboard|layoutDirection|locale|mcc|navigation|smallestScreenSize|touchscreen|uiMode"
             android:name=".MainActivity"
-            android:launchMode="singleTask"
-            android:taskAffinity=""
-            android:excludeFromRecents="true">
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

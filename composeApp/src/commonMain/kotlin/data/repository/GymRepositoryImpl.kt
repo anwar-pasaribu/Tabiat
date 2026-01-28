@@ -64,6 +64,7 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.json.Json
+import platform.getAppTracker
 import kotlin.time.Clock
 import kotlin.time.Instant
 
@@ -436,6 +437,17 @@ class GymRepositoryImpl(
         return exerciseDao.getAllExercisesObservable()
     }
 
+    override suspend fun prepareData() {
+        downloadExerciseJson()
+    }
+
+    private suspend fun downloadExerciseJson() {
+        val exerciseCount = exerciseDao.exerciseListCount()
+        if (exerciseCount == 0L) {
+            loadRemoteExercises()
+        }
+    }
+
     override suspend fun filterExercisesByTargetMuscle(targetMuscle: String): List<Exercise> {
         return exerciseDao.filterExercisesByTargetMuscle(targetMuscle)
     }
@@ -518,6 +530,7 @@ class GymRepositoryImpl(
             }
             return@coroutineScope true
         } catch (e: Exception) {
+            getAppTracker().trackException(eventName = "loadRemoteExercises", throwable = e)
             return@coroutineScope false
         }
     }

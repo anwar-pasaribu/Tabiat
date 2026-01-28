@@ -18,7 +18,6 @@ plugins {
 
 @OptIn(ExperimentalKotlinGradlePluginApi::class)
 kotlin {
-//    jvmToolchain(17)
     androidTarget {
         instrumentedTestVariant.sourceSetTree.set(KotlinSourceSetTree.test)
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
@@ -55,15 +54,14 @@ kotlin {
         }
 
         androidMain.dependencies {
-//            implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
 
             implementation(libs.androidx.core.splashscreen)
 
             implementation(libs.sqldelight.androidDriver)
 
-            implementation(libs.ktor.client.okhttp)
-            // implementation("org.slf4j:slf4j-simple:2.0.13")
+            implementation("org.slf4j:slf4j-api:2.0.7")
+            implementation("com.github.tony19:logback-android:3.0.0")
 
             // Import the BoM for the Firebase platform
             implementation(project.dependencies.platform("com.google.firebase:firebase-bom:33.1.2"))
@@ -75,8 +73,6 @@ kotlin {
         }
         iosMain.dependencies {
             implementation(libs.sqldelight.nativeDriver)
-
-            implementation(libs.ktor.client.darwin)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -110,6 +106,7 @@ kotlin {
             implementation(libs.sqldelight.primitiveAdapters)
 
             implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.cio)
             implementation(libs.ktor.client.logging)
             implementation(libs.ktor.client.negotiation)
             implementation(libs.ktor.client.json)
@@ -178,6 +175,7 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
             excludes += "META-INF/versions/9/previous-compilation-data.bin"
             excludes += "META-INF/versions/**"
+            excludes += "META-INF/INDEX.LIST"
         }
     }
     buildTypes {

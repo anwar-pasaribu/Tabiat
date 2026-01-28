@@ -30,6 +30,7 @@ import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -60,6 +61,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -108,13 +110,9 @@ fun InputWorkoutScreen(
                 modifier = Modifier.fillMaxWidth().padding(16.dp)
                     .sharedBounds(
                         rememberSharedContentState(
-                            key = TabiatSharedElementKey(
-                                name = "AUS",
-                                tabiatId = workoutPlanId,
-                                type = TabiatSharedElementType.Card
-                            )
+                            key = "create-new-plan"
                         ),
-                        animatedVisibilityScope,
+                        animatedVisibilityScope = animatedVisibilityScope,
                         boundsTransform = tabiatDetailBoundsTransform,
                         exit = fadeOut(nonSpatialExpressiveSpring()),
                         enter = fadeIn(nonSpatialExpressiveSpring()),

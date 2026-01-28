@@ -32,12 +32,15 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Icon
@@ -63,7 +66,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
-import androidx.savedstate.serialization.SavedStateConfiguration
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
@@ -79,9 +81,6 @@ import features.settings.SettingsScreen
 import features.workoutHistory.WorkoutHistoryScreen
 import features.workoutPlanDetail.WorkoutDetailScreen
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.polymorphic
-import kotlinx.serialization.modules.subclass
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.KoinContext
 import org.koin.compose.koinInject
@@ -129,24 +128,6 @@ fun AppV2(
             val navViewModel = koinInject<NavigationViewModel>()
             val hazeState = remember { HazeState() }
 
-            val config = SavedStateConfiguration {
-                // Register subtypes for open polymorphism or multiplatform use.
-                serializersModule = SerializersModule {
-                    polymorphic(baseClass = MyAppRouteV2.Screen::class) {
-                        subclass(serializer = MyAppRouteV2.Home.serializer())
-                        subclass(serializer = MyAppRouteV2.InputWorkout.serializer())
-                        subclass(serializer = MyAppRouteV2.WorkoutDetail.serializer())
-                        subclass(serializer = MyAppRouteV2.InputExercise.serializer())
-                        subclass(serializer = MyAppRouteV2.LogWorkoutExercise.serializer())
-                        subclass(serializer = MyAppRouteV2.WorkoutHistory.serializer())
-                        subclass(serializer = MyAppRouteV2.CreateNewExercise.serializer())
-                        subclass(serializer = MyAppRouteV2.Settings.serializer())
-                        subclass(serializer = MyAppRouteV2.FullImageViewer.serializer())
-                    }
-                }
-            }
-
-//            val backStack = rememberNavBackStack(config, MyAppRouteV2.Home)
             val backStack = remember { mutableStateListOf<NavKey>(MyAppRouteV2.Home) }
 
             val windowAdaptiveInfo = currentWindowAdaptiveInfo()
@@ -176,13 +157,57 @@ fun AppV2(
                                 onBack = { backStack.removeLastOrNull() },
                                 sceneStrategy = listDetailStrategy,
                                 sharedTransitionScope = this@SharedTransitionLayout,
+                                transitionSpec = {
+                                    // New screen slides in from the right
+                                    slideInHorizontally(
+                                        initialOffsetX = { fullWidth -> fullWidth },
+                                        animationSpec = tween()
+                                    ) togetherWith
+                                            // Current screen slides out to the left, but only partially to create a parallax effect
+                                            slideOutHorizontally(
+                                                targetOffsetX = { fullWidth -> -fullWidth / 4 },
+                                                animationSpec = tween()
+                                            )
+                                },
+
+                                // Defines the animation for navigating BACK (popping the stack)
+                                popTransitionSpec = {
+                                    // Screen being brought back slides in from its partial-left position
+                                    slideInHorizontally(
+                                        initialOffsetX = { fullWidth -> -fullWidth / 4 },
+                                        animationSpec = tween()
+                                    ) togetherWith
+                                            // Screen being removed slides out to the right
+                                            slideOutHorizontally(
+                                                targetOffsetX = { fullWidth -> fullWidth },
+                                                animationSpec = tween()
+                                            )
+                                },
+
+                                // Defines the animation for the interactive predictive back gesture
+                                predictivePopTransitionSpec = {
+                                    // This lambda provides access to the swipe event details
+                                    // We will define a standard slide-out for simplicity, which works well with the gesture
+                                    fadeIn() togetherWith slideOutHorizontally(
+                                        targetOffsetX = { fullWidth -> fullWidth },
+                                        animationSpec = tween()
+                                    )
+                                },
                                 entryProvider = entryProvider {
                                     entry<MyAppRouteV2.Home>(
                                         metadata = ListDetailSceneStrategy.listPane(
                                             detailPlaceholder = {
-                                                Text("Choose a item from the list")
+                                                Box(modifier = Modifier.fillMaxSize().padding(contentPadding)) {
+                                                    Text("Choose a item from the list")
+                                                }
                                             }
-                                        )
+                                        ) + NavDisplay.transitionSpec {
+                                                fadeIn() togetherWith fadeOut()
+                                            } + NavDisplay.popTransitionSpec {
+                                                fadeIn() togetherWith fadeOut()
+                                            } + NavDisplay.predictivePopTransitionSpec {
+                                                fadeIn() togetherWith fadeOut()
+                                            }
                                     ) {
                                         HomeScreen(
                                             paddingValues = contentPadding,
@@ -258,7 +283,15 @@ fun AppV2(
                                             },
                                         )
                                     }
-                                    entry<MyAppRouteV2.InputWorkout> { inputWorkout ->
+                                    entry<MyAppRouteV2.InputWorkout>(
+                                        metadata = NavDisplay.transitionSpec {
+                                            fadeIn() togetherWith fadeOut()
+                                        } + NavDisplay.popTransitionSpec {
+                                            fadeIn() togetherWith fadeOut()
+                                        } + NavDisplay.predictivePopTransitionSpec {
+                                            fadeIn() togetherWith fadeOut()
+                                        }
+                                    ) { inputWorkout ->
                                         InputWorkoutScreen(
                                             paddingValues = contentPadding,
                                             workoutPlanId = inputWorkout.workoutPlanId,

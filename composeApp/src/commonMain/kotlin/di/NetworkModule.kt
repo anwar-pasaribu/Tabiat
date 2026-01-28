@@ -29,12 +29,15 @@ import data.source.remote.api.GymApi
 import data.source.remote.api.IGymApi
 import domain.constant.GITHUB_GYM_DATABASE_BASE_URL
 import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.DEFAULT
+import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.http.ContentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
@@ -50,7 +53,7 @@ fun getNetworkModule() = module {
     }
 }
 
-val httpClient = HttpClient {
+val httpClient = HttpClient(CIO) {
     // https://raw.githubusercontent.com/anwar-pasaribu/free-exercise-db/main/dist/exercises.json
     // https://github.com/anwar-pasaribu/free-exercise-db/blob/main/exercises/3_4_Sit-Up/0.jpg?raw=true
     // https://raw.githubusercontent.com/anwar-pasaribu/free-exercise-db/main/exercises/3_4_Sit-Up/0.jpg
@@ -60,8 +63,8 @@ val httpClient = HttpClient {
     }
 
     install(Logging) {
-        logger = Logger.DEFAULT
-        level = io.ktor.client.plugins.logging.LogLevel.ALL
+        logger = Logger.SIMPLE
+        level = LogLevel.ALL
     }
     install(HttpTimeout) {
         requestTimeoutMillis = 10000

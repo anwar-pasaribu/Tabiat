@@ -25,6 +25,7 @@
  */
 package features.home
 
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -56,6 +57,7 @@ import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import com.mohamedrejeb.calf.permissions.ExperimentalPermissionsApi
 import com.mohamedrejeb.calf.permissions.Permission
 import com.mohamedrejeb.calf.permissions.isNotGranted
@@ -76,6 +78,8 @@ import ui.component.calendar.WeekView
 import ui.component.card.NotificationPermissionStatusCard
 import ui.component.gym.LatestExercise
 import ui.component.gym.WorkoutPlanItemView
+import ui.extension.LocalNavAnimatedVisibilityScope
+import ui.extension.LocalSharedTransitionScope
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -95,6 +99,7 @@ fun HomeScreen(
     var dailyExerciseLogVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
+        viewModel.prepareHomeData()
         viewModel.loadWorkoutList()
     }
 
@@ -154,15 +159,31 @@ private fun HomeLoadingIndicator(modifier: Modifier = Modifier) {
 
 @Composable
 private fun HomeEmptyState(modifier: Modifier = Modifier, onCta: () -> Unit) {
-    Box(modifier = modifier) {
-        EmptyState(
-            modifier = Modifier.fillMaxWidth(),
-            title = "Belum ada Rencana Workout",
-            btnText = "Tambah Workout",
-            onClick = {
-                onCta()
-            },
-        )
+    val sharedTransitionScope = LocalSharedTransitionScope.current
+        ?: throw IllegalStateException("No Scope found")
+    val animatedVisibilityScope = LocalNavAnimatedVisibilityScope.current
+        ?: LocalNavAnimatedContentScope.current
+    with(sharedTransitionScope) {
+        Box(
+            modifier = modifier.then(
+                Modifier.sharedBounds(
+                    rememberSharedContentState(
+                        key = "create-new-plan"
+                    ),
+                    animatedVisibilityScope = animatedVisibilityScope,
+                    resizeMode = SharedTransitionScope.ResizeMode.RemeasureToBounds,
+                )
+            )
+        ) {
+            EmptyState(
+                modifier = Modifier.fillMaxWidth(),
+                title = "Belum ada Rencana Workout",
+                btnText = "Tambah Workout",
+                onClick = {
+                    onCta()
+                },
+            )
+        }
     }
 }
 
@@ -244,7 +265,8 @@ fun HomeScreenList(
         ) {
             if (notificationPermissionState.status.isNotGranted
                 && !notificationCardDismissed.value
-                && homeScreenUiState is HomeScreenUiState.Success) {
+                && homeScreenUiState is HomeScreenUiState.Success
+            ) {
                 item {
                     NotificationPermissionStatusCard(
                         onClick = {

@@ -110,4 +110,6 @@ interface IGymRepository {
     suspend fun deleteAllExerciseData()
 
     suspend fun generateDummyData()
+
+    suspend fun prepareData()
 }

@@ -30,6 +30,7 @@ import domain.constant.GITHUB_GYM_DATABASE_BASE_URL
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
+import platform.getAppTracker
 
 class GymApi(
     private val httpClient: HttpClient,
@@ -48,6 +49,7 @@ class GymApi(
             }
             return response
         } catch (e: Exception) {
+            getAppTracker().trackException(throwable = e)
             throw e
         }
     }

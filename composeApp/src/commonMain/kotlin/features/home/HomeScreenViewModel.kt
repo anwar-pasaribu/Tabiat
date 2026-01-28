@@ -250,6 +250,12 @@ class HomeScreenViewModel(
             )
         }
     }
+
+    fun prepareHomeData() {
+        viewModelScope.launch {
+            repository.prepareData()
+        }
+    }
 }
 
 private fun Long?.epochTimestampToShortDateTimeFormat(): String {
