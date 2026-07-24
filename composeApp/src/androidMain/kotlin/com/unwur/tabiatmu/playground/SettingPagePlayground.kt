@@ -30,12 +30,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
-import domain.enums.SoundEffectType
-import domain.model.gym.GymPreferences
-import features.settings.AboutAppSection
-import features.settings.SettingPage
-import features.settings.TimerSoundSection
-import ui.theme.MyAppTheme
+import com.unwur.tabiatmu.domain.enums.SoundEffectType
+import com.unwur.tabiatmu.domain.model.gym.GymPreferences
+import com.unwur.tabiatmu.features.settings.AboutAppSection
+import com.unwur.tabiatmu.features.settings.SettingPage
+import com.unwur.tabiatmu.features.settings.TimerSoundSection
+import com.unwur.tabiatmu.ui.theme.MyAppTheme
 
 private val gymOptionList = listOf(
     GymPreferences(

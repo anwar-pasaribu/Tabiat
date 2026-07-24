@@ -33,9 +33,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import ui.component.gym.TimerDisplay
-import ui.component.gym.TimerDisplayFloating
-import ui.theme.MyAppTheme
+import com.unwur.tabiatmu.ui.component.gym.TimerDisplay
+import com.unwur.tabiatmu.ui.component.gym.TimerDisplayFloating
+import com.unwur.tabiatmu.ui.theme.MyAppTheme
 
 @Preview(
     showBackground = true,

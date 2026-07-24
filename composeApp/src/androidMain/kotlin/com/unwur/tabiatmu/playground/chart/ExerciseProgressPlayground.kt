@@ -32,9 +32,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import ui.component.gym.ExerciseAxisData
-import ui.component.gym.ExerciseProgressLineChart
-import ui.theme.MyAppTheme
+import com.unwur.tabiatmu.ui.component.gym.ExerciseAxisData
+import com.unwur.tabiatmu.ui.component.gym.ExerciseProgressLineChart
+import com.unwur.tabiatmu.ui.theme.MyAppTheme
 
 @Preview
 @Composable

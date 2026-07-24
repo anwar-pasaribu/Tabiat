@@ -1,33 +1,19 @@
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
-import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidApplication)
+    alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
-    alias(libs.plugins.composeHotReload)
     alias(libs.plugins.sqlDelight)
     alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.koin.compiler)
     alias(libs.plugins.spotless)
-    alias(libs.plugins.googleServices)
-    alias(libs.plugins.firebaseCrashlytics)
 }
 
-@OptIn(ExperimentalKotlinGradlePluginApi::class)
 kotlin {
-    androidTarget {
-        instrumentedTestVariant.sourceSetTree.set(KotlinSourceSetTree.test)
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_17)
-        }
-    }
 
     listOf(
-        iosX64(),
         iosArm64(),
         iosSimulatorArm64(),
     ).forEach { iosTarget ->
@@ -35,6 +21,22 @@ kotlin {
             baseName = "ComposeApp"
             isStatic = true
             binaryOption("bundleId", "com.unwur.tabiatmu.composeApp")
+        }
+    }
+
+    android {
+        namespace = "com.unwur.tabiatmu.composeApp"
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
+
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_17
+        }
+        androidResources {
+            enable = true
+        }
+        withHostTest {
+            isIncludeAndroidResources = true
         }
     }
 
@@ -54,9 +56,10 @@ kotlin {
         }
 
         androidMain.dependencies {
+            implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.activity.compose)
 
-            implementation(libs.androidx.core.splashscreen)
+//            implementation(libs.androidx.core.splashscreen)
 
             implementation(libs.sqldelight.androidDriver)
 
@@ -75,12 +78,12 @@ kotlin {
             implementation(libs.sqldelight.nativeDriver)
         }
         commonMain.dependencies {
-            implementation(compose.runtime)
-            implementation(compose.foundation)
-            implementation(compose.material3)
-            implementation(compose.ui)
-            implementation(compose.components.resources)
-            implementation(compose.components.uiToolingPreview)
+            implementation(libs.compose.runtime)
+            implementation(libs.compose.foundation)
+            implementation(libs.compose.material3)
+            implementation(libs.compose.ui)
+            implementation(libs.compose.components.resources)
+            implementation(libs.compose.uiToolingPreview)
             implementation(compose.animation)
             implementation(compose.animationGraphics)
 
@@ -97,7 +100,7 @@ kotlin {
             implementation(libs.kotlinx.datetime)
 
             implementation(libs.koin.core)
-            implementation(libs.koin.compose)
+            implementation(libs.koin.compose.viewmodel.navigation)
 
             implementation(libs.haze)
             implementation(libs.haze.materials)
@@ -138,75 +141,8 @@ kotlin {
     }
 }
 
-android {
-    namespace = "com.unwur.tabiatmu"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
-
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-    sourceSets["main"].res.srcDirs("src/androidMain/res")
-    sourceSets["main"].resources.srcDirs("src/commonMain/resources")
-
-    val keyProperties =
-        Properties().apply {
-            val propsFile = rootProject.file("keystore.properties")
-            if (propsFile.exists()) {
-                load(propsFile.inputStream())
-            }
-        }
-
-    signingConfigs {
-        create("release") {
-            keyAlias = keyProperties["keyAlias"].toString()
-            keyPassword = keyProperties["keyPassword"].toString()
-            storeFile = file(keyProperties["storeFile"].toString())
-            storePassword = keyProperties["storePassword"].toString()
-        }
-    }
-
-    defaultConfig {
-        applicationId = "com.unwur.tabiatmu"
-        minSdk = libs.versions.android.minSdk.get().toInt()
-        targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 8
-        versionName = "1.8.0"
-    }
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-            excludes += "META-INF/versions/9/previous-compilation-data.bin"
-            excludes += "META-INF/versions/**"
-            excludes += "META-INF/INDEX.LIST"
-        }
-    }
-    buildTypes {
-        debug {
-            versionNameSuffix = "-dev"
-            applicationIdSuffix = ".debug"
-        }
-        release {
-            isShrinkResources = true
-            isMinifyEnabled = true
-            proguardFiles("proguard-rules.pro")
-            signingConfig = signingConfigs.getByName("release")
-        }
-    }
-    dependencies {
-        debugImplementation(compose.uiTooling)
-    }
-    buildFeatures {
-        compose = true
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
-    }
-    lint {
-        quiet = true
-        abortOnError = false
-    }
+dependencies {
+    androidRuntimeClasspath(libs.compose.uiTooling)
 }
 
 sqldelight {

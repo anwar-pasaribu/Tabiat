@@ -15,7 +15,7 @@ import org.jetbrains.compose.resources.painterResource
 import tabiat.composeapp.generated.resources.Res
 import tabiat.composeapp.generated.resources.add_2_24px
 import tabiat.composeapp.generated.resources.close_24px
-import ui.theme.MyAppTheme
+import com.unwur.tabiatmu.ui.theme.MyAppTheme
 
 @Composable
 fun WorkoutPlanDetailHeader(modifier: Modifier = Modifier) {

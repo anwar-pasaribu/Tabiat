@@ -27,8 +27,8 @@ package com.unwur.tabiatmu.playground
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import ui.component.gym.ExerciseFinishingStatusView
-import ui.theme.MyAppTheme
+import com.unwur.tabiatmu.ui.component.gym.ExerciseFinishingStatusView
+import com.unwur.tabiatmu.ui.theme.MyAppTheme
 
 @Preview
 @Composable

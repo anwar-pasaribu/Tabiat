@@ -37,8 +37,8 @@ import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
 import tabiat.composeapp.generated.resources.Res
 import tabiat.composeapp.generated.resources.ic_delete_24dp
-import ui.component.gym.ExerciseSetItemView
-import ui.theme.MyAppTheme
+import com.unwur.tabiatmu.ui.component.gym.ExerciseSetItemView
+import com.unwur.tabiatmu.ui.theme.MyAppTheme
 
 @Preview(showBackground = true)
 @Composable

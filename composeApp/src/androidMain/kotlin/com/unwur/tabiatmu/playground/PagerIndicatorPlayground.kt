@@ -36,8 +36,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.tooling.preview.Preview
-import ui.component.PagerIndicator
-import ui.theme.MyAppTheme
+import com.unwur.tabiatmu.ui.component.PagerIndicator
+import com.unwur.tabiatmu.ui.theme.MyAppTheme
 
 @Preview
 @Composable
