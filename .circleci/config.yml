@@ -30,13 +30,13 @@ jobs:
       - run:
           name: Chmod permissions
           command: sudo chmod +x ./gradlew
-      - run:
-          name: Download Dependencies
-          command: ./gradlew androidDependencies
+#      - run:
+#          name: Download Dependencies
+#          command: ./gradlew androidDependencies
       - save_cache:
           paths:
             - ~/.gradle
-          key: jars-{{ .Environment.CACHE_VERSION }}-{{ checksum "build.gradle.kts" }}-{{ checksum  "composeApp/build.gradle.kts" }}
+          key: jars-{{ .Environment.CACHE_VERSION }}-{{ checksum "build.gradle.kts" }}-{{ checksum  "androidApp/build.gradle.kts" }}
       - run:
           name: Decode Android keystore
           command: echo $KEYSTORE_BASE64 | base64 -d > TabiatKeystore
