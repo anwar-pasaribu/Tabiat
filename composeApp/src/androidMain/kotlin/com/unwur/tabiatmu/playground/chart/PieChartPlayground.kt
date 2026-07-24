@@ -43,7 +43,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import ui.theme.MyAppTheme
+import com.unwur.tabiatmu.ui.theme.MyAppTheme
 
 data class PieChartData(val name: String, val value: Int, val color: Color)
 

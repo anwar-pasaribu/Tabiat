@@ -30,7 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import ui.component.gym.ExerciseSetBadge
+import com.unwur.tabiatmu.ui.component.gym.ExerciseSetBadge
 
 @Preview(showBackground = true)
 @Composable

@@ -40,8 +40,6 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
@@ -61,10 +59,13 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import domain.model.gym.Exercise
-import domain.model.gym.MuscleGroup
-import features.exerciseList.BottomSheet
-import ui.theme.MyAppTheme
+import com.unwur.tabiatmu.domain.model.gym.Exercise
+import com.unwur.tabiatmu.domain.model.gym.MuscleGroup
+import com.unwur.tabiatmu.features.exerciseList.BottomSheet
+import org.jetbrains.compose.resources.painterResource
+import tabiat.composeapp.generated.resources.Res
+import tabiat.composeapp.generated.resources.keyboard_arrow_right_24px
+import com.unwur.tabiatmu.ui.theme.MyAppTheme
 
 @Composable
 fun CreateExerciseForm(modifier: Modifier = Modifier, onSave: (Exercise) -> Unit) {
@@ -221,7 +222,7 @@ fun ButtonRowWithAnimatedContent(
             modifier = Modifier
                 .align(Alignment.CenterEnd)
                 .padding(end = 8.dp),
-            imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
+            painter = painterResource(resource = Res.drawable.keyboard_arrow_right_24px),
             contentDescription = title,
         )
     }

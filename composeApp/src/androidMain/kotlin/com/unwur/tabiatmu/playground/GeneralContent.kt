@@ -57,13 +57,14 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.unwur.tabiatmu.ui.component.card.NotificationPermissionStatusCard
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.intellij.lang.annotations.Language
-import ui.theme.MyAppTheme
+import com.unwur.tabiatmu.ui.theme.MyAppTheme
 import kotlin.math.PI
 import kotlin.math.ceil
 import kotlin.math.cos
@@ -79,7 +80,7 @@ fun NotificationPermissionStatusCardPreview(
     onDismiss: () -> Unit = {},
 ) {
     MyAppTheme {
-        ui.component.card.NotificationPermissionStatusCard()
+        NotificationPermissionStatusCard()
     }
 }
 
