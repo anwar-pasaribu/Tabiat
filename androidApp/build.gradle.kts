@@ -48,8 +48,8 @@ android {
         applicationId = "com.unwur.tabiatmu"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 8
-        versionName = "1.8.0"
+        versionCode = 9
+        versionName = "1.8.1"
     }
     packaging {
         resources {
