@@ -48,7 +48,7 @@ jobs:
           command: echo $GOOGLE_PLAY_KEY > fastlane/anwar-p-431ed38b447a.json
       - run:
           name: Create Google Services JSON
-          command: echo $GOOGLE_SERVICES_JSON > composeApp/google-services.json
+          command: echo $GOOGLE_SERVICES_JSON > androidApp/google-services.json
       - run:
           name: Create Fastlane Environment Variable
           command: printf 'TELEGRAM_BOT_TOKEN=%s\nTELEGRAM_CHAT_ID=%s\nFIREBASE_APP_ID_RELEASE=%s\nFIREBASE_CLI_TOKEN=%s' \
