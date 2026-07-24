@@ -62,16 +62,16 @@ platform :android do
 
   lane :internal_playstore do
     version_code = android_set_version_code(
-      gradle_file: "composeApp/build.gradle.kts",
+      gradle_file: "androidApp/build.gradle.kts",
     )
     version_name = android_set_version_name(
-      gradle_file: "composeApp/build.gradle.kts",
+      gradle_file: "androidApp/build.gradle.kts",
       bump_type: "patch"
     )
 
     current_datetime = Time.now.strftime("%d %b %Y, %I:%M%P")
     git_commit(
-      path: "composeApp/build.gradle.kts",
+      path: "androidApp/build.gradle.kts",
       message: "Bumped version to #{version_name} (build #{version_code}) on #{current_datetime}"
     )
 
@@ -89,7 +89,7 @@ platform :android do
     upload_to_play_store(
       track: 'internal',
       release_status: 'completed',
-      aab: 'composeApp/build/outputs/bundle/release/composeApp-release.aab',
+      aab: 'androidApp/build/outputs/bundle/release/composeApp-release.aab',
       skip_upload_apk: true,
       skip_upload_metadata: true,
       skip_upload_changelogs: true,
@@ -135,7 +135,7 @@ platform :android do
             debug: true,
             release_notes: 'Lots of amazing new features to test out',
             android_artifact_type: 'AAB',
-            android_artifact_path: 'composeApp/build/outputs/bundle/release/composeApp-release.aab',
+            android_artifact_path: 'androidApp/build/outputs/bundle/release/composeApp-release.aab',
             firebase_cli_token: ENV['FIREBASE_CLI_TOKEN']
         )
     end
