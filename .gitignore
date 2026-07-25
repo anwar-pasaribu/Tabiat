@@ -27,4 +27,4 @@ fastlane/.env
 keystore.properties
 TabiatKeystore
 
-composeApp/google-services.json
+androidApp/google-services.json
