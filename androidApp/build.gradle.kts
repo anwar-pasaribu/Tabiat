@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.androidApplication)
@@ -27,29 +28,29 @@ android {
     namespace = "com.unwur.tabiatmu"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
-//    val keyProperties =
-//        Properties().apply {
-//            val propsFile = rootProject.file("keystore.properties")
-//            if (propsFile.exists()) {
-//                load(propsFile.inputStream())
-//            }
-//        }
-//
-//    signingConfigs {
-//        create("release") {
-//            keyAlias = keyProperties["keyAlias"].toString()
-//            keyPassword = keyProperties["keyPassword"].toString()
-//            storeFile = file(keyProperties["storeFile"].toString())
-//            storePassword = keyProperties["storePassword"].toString()
-//        }
-//    }
+    val keyProperties =
+        Properties().apply {
+            val propsFile = rootProject.file("keystore.properties")
+            if (propsFile.exists()) {
+                load(propsFile.inputStream())
+            }
+        }
+
+    signingConfigs {
+        create("release") {
+            keyAlias = keyProperties["keyAlias"].toString()
+            keyPassword = keyProperties["keyPassword"].toString()
+            storeFile = file(keyProperties["storeFile"].toString())
+            storePassword = keyProperties["storePassword"].toString()
+        }
+    }
 
     defaultConfig {
         applicationId = "com.unwur.tabiatmu"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 14
-        versionName = "1.8.6"
+        versionCode = 8
+        versionName = "1.8.0"
     }
     packaging {
         resources {
@@ -68,7 +69,7 @@ android {
             isShrinkResources = true
             isMinifyEnabled = true
             proguardFiles("proguard-rules.pro")
-//            signingConfig = signingConfigs.getByName("release")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 
