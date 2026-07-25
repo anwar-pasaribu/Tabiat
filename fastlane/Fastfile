@@ -33,11 +33,11 @@ platform :android do
 
   lane :playstore do
     version_code = increment_version_code(
-      gradle_file_path: "composeApp/build.gradle.kts"
+      gradle_file_path: "androidApp/build.gradle.kts"
     )
 
     git_commit(
-      path: "composeApp/build.gradle.kts",
+      path: "androidApp/build.gradle.kts",
       message: "Production: Released new build #{version_code} to Google PlayStore"
     )
 
@@ -50,7 +50,7 @@ platform :android do
     upload_to_play_store(
           track: 'production', # production, beta, alpha, internal
           release_status: 'completed',
-          aab: 'composeApp/build/outputs/bundle/release/composeApp-release.aab',
+          aab: 'androidApp/build/outputs/bundle/release/androidApp-release.aab',
           skip_upload_apk: true,
           skip_upload_metadata: true,
           skip_upload_changelogs: true,
@@ -89,7 +89,7 @@ platform :android do
     upload_to_play_store(
       track: 'internal',
       release_status: 'completed',
-      aab: 'androidApp/build/outputs/bundle/release/composeApp-release.aab',
+      aab: 'androidApp/build/outputs/bundle/release/androidApp-release.aab',
       skip_upload_apk: true,
       skip_upload_metadata: true,
       skip_upload_changelogs: true,
@@ -101,15 +101,15 @@ platform :android do
   lane :test_versioning do
 
     version_code = android_set_version_code(
-      gradle_file: "composeApp/build.gradle.kts",
+      gradle_file: "androidApp/build.gradle.kts",
     )
     version_name = android_set_version_name(
-      gradle_file: "composeApp/build.gradle.kts",
+      gradle_file: "androidApp/build.gradle.kts",
       bump_type: "patch"
     )
 
     git_commit(
-      path: "composeApp/build.gradle.kts",
+      path: "androidApp/build.gradle.kts",
       message: "Bump version #{version_name} (#{version_code})"
     )
 
@@ -135,7 +135,7 @@ platform :android do
             debug: true,
             release_notes: 'Lots of amazing new features to test out',
             android_artifact_type: 'AAB',
-            android_artifact_path: 'androidApp/build/outputs/bundle/release/composeApp-release.aab',
+            android_artifact_path: 'androidApp/build/outputs/bundle/release/androidApp-release.aab',
             firebase_cli_token: ENV['FIREBASE_CLI_TOKEN']
         )
     end
