@@ -25,6 +25,6 @@ fastlane/*.json
 fastlane/.env
 
 androidApp/keystore.properties
-TabiatKeystore
+androidApp/TabiatKeystore
 
 androidApp/google-services.json

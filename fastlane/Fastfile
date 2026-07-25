@@ -126,16 +126,18 @@ platform :android do
   end
 
     lane :publish_app_distribution do
-        build_android_app(task: "clean bundle", build_type: 'Release')
-        # build_android_app is a built-in fastlane action.
+        gradle(
+            task: 'assemble',
+            build_type: 'Release'
+        )
         release = firebase_app_distribution(
             app: ENV['FIREBASE_APP_ID_RELEASE'],
             testers: 'anwar_pasaribu@live.com',
             groups: 'Devs',
             debug: true,
             release_notes: 'Lots of amazing new features to test out',
-            android_artifact_type: 'AAB',
-            android_artifact_path: 'androidApp/build/outputs/bundle/release/androidApp-release.aab',
+            android_artifact_type: 'APK',
+            android_artifact_path: 'androidApp/build/outputs/apk/release/androidApp-release.apk',
             firebase_cli_token: ENV['FIREBASE_CLI_TOKEN']
         )
     end
